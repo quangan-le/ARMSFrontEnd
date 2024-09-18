@@ -1,0 +1,162 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* CustomNavbar.css */
+
+.navbar {
+  background-color: orange !important; /* Nền cam cho navbar */
+}
+
+.navbar .nav-link {
+  color: black !important; /* Màu chữ đen cho các liên kết */
+}
+
+.navbar .dropdown-toggle {
+  background-color: white !important; /* Nền trắng cho button chọn cơ sở */
+  color: black !important; /* Màu chữ đen trong dropdown button */
+}
+
+.dropdown-menu .dropdown-item {
+  color: black !important; /* Màu chữ đen cho các item */
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: lightgray !important; /* Thay đổi màu nền khi hover */
+}
+.text-orange {
+  color: orange;
+}
+
+.background-overlay {
+  position: relative;
+  background: url('https://apolyorg.wordpress.com/wp-content/uploads/2019/04/xbanner-trang-lien-he-moi.jpg.pagespeed.ic_.fqvwhe7pcx.jpg') no-repeat center center;
+  background-size: cover;
+  padding: 50px 0;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8); 
+  z-index: 1;
+}
+
+.background-content {
+  position: relative;
+  z-index: 2;
+}
+.bg-orange {
+  background-color: #ff9900 !important; 
+  z-index: 2;
+}
+
+.btn-no-underline {
+  font-size: 1.5rem; /* Tăng kích thước chữ */
+  text-decoration: none; /* Bỏ gạch dưới */
+  padding: 10px 20px; /* Để làm cho nút trông đẹp hơn */
+  display: inline-block; /* Để duy trì như một nút */
+}
+
+.custom-button {
+  background: transparent;
+  border: none;
+  color: orange;
+  font-weight: normal;
+  font-size: 16px;
+  cursor: pointer;
+  transition: font-weight 0.3s ease;
+}
+
+.custom-button.selected {
+  font-weight: bold;
+}
+
+.custom-button:focus {
+  outline: none;
+}
+ /* Form đăng ký */
+ .registration-section {
+  position: relative;
+  
+}
+
+.registration-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU') no-repeat center center;
+  background-size: cover;
+  filter: blur(5px);
+  z-index: -1; /* Đặt lớp nền mờ dưới cùng */
+}
+
+.registration-content {
+  position: relative; /* Đảm bảo nội dung không bị ảnh hưởng bởi lớp overlay */
+  background-color: rgba(255, 255, 255, 0.6); /* Nền màu trắng nhẹ với độ trong suốt */
+  border-radius: 8px;
+  z-index: 1; /* Đặt nội dung ở trên lớp mờ */
+}
+
+.text-section {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.form-section {
+  flex: 1;
+  background-color: #f57c00; /* Màu cam nền form */
+  border-radius: 8px;
+}
+
+.form-section .btn-submit {
+  background-color: #fff; /* Nền trắng cho nút */
+  color: #f57c00; /* Chữ cam cho nút */
+  border: none;
+}
+.form-section .btn-submit:hover {
+  background-color: white; 
+  color: orange; 
+  border: 1px solid orange; 
+}

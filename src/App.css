@@ -37,7 +37,7 @@
   }
 }
 /* CustomNavbar.css */
-
+/* Header.js*/
 .navbar {
   background-color: orange !important; /* Nền cam cho navbar */
 }
@@ -59,9 +59,23 @@
   background-color: lightgray !important; /* Thay đổi màu nền khi hover */
 }
 .text-orange {
-  color: orange;
+  color: orange !important;
 }
 
+.gioi-thieu-dropdown .dropdown-toggle {
+  background-color: orange !important; /* Orange background for Giới thiệu */
+  color: black !important; /* White text for Giới thiệu */
+}
+
+.gioi-thieu-dropdown .dropdown-menu .dropdown-item {
+  background-color: white !important; /* Default white background for dropdown items */
+  color: black !important; /* Black text for dropdown items */
+}
+
+.gioi-thieu-dropdown .dropdown-menu .dropdown-item:hover {
+  background-color: lightgray !important; /* Change background when hovered */
+}
+/* Homepage.js*/
 .background-overlay {
   position: relative;
   background: url('https://apolyorg.wordpress.com/wp-content/uploads/2019/04/xbanner-trang-lien-he-moi.jpg.pagespeed.ic_.fqvwhe7pcx.jpg') no-repeat center center;
@@ -112,12 +126,11 @@
 .custom-button:focus {
   outline: none;
 }
- /* Form đăng ký */
+
+ /* Form đăng ký Homepage.js */
  .registration-section {
   position: relative;
-  
 }
-
 .registration-overlay {
   position: absolute;
   top: 0;
@@ -159,4 +172,92 @@
   background-color: white; 
   color: orange; 
   border: 1px solid orange; 
+}
+
+/* History.js */
+.homeguest-banner {
+  background-image: url('https://channel.mediacdn.vn/428462621602512896/2023/4/27/photo-2-16825656134001528505251.jpg');
+  background-position: center;
+  height: 300px; 
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(231, 231, 231, 0.8); 
+}
+
+.banner-title {
+  position: relative;
+  color: black;
+  font-size: 2.5rem;
+  z-index: 1;
+}
+
+.homeguest-description {
+  text-align: justify;
+}
+
+.text-orange a {
+  color: orange !important; 
+  text-decoration: none !important;
+}
+.breadcrumb-item+.breadcrumb-item::before {
+  color: orange !important;
+}
+
+/* Programs.js */
+.program-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0rem 5rem 0rem 5rem;
+}
+
+.program-logo {
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover;
+}
+
+.program-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.program-details {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.program-details li {
+  margin: 0.5rem 0;
+}
+
+.page-title {
+  text-align: center; 
+  color: orange; 
+  margin-bottom: 1.5rem;
+  font-size: 2rem; 
+  font-weight: bold; 
+}
+
+/* Blog.js */
+.filter-section {
+  text-align: right;
+}
+
+.filter-section .form-select {
+  width: auto;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  width: 200px;
 }

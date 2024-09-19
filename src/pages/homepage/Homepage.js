@@ -20,7 +20,6 @@ const Homepage = () => {
 
   return (
     <div>
-      <Header />
       <Slider />
       <div className="text-center background-overlay">
         <div className="overlay"></div>
@@ -213,37 +212,36 @@ const Homepage = () => {
         </Row>
         <div className="text-center mt-5">
           <h2 className="text-orange">Đối tác</h2>
-          <Row className="justify-content-center mt-4">
+          <Row className="justify-content-center mx-4">
             <Col md={3} className="mb-4">
-              <img src="logo1.png" alt="Logo 1" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 1" className="img-fluid" />
             </Col>
             <Col md={3} className="mb-4">
-              <img src="logo2.png" alt="Logo 2" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 2" className="img-fluid" />
             </Col>
             <Col md={3} className="mb-4">
-              <img src="logo3.png" alt="Logo 3" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 3" className="img-fluid" />
             </Col>
             <Col md={3} className="mb-4">
-              <img src="logo4.png" alt="Logo 4" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 4" className="img-fluid" />
             </Col>
           </Row>
           <Row className="justify-content-center mt-4">
             <Col md={3} className="mb-4">
-              <img src="logo5.png" alt="Logo 5" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 5" className="img-fluid" />
             </Col>
             <Col md={3} className="mb-4">
-              <img src="logo6.png" alt="Logo 6" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 6" className="img-fluid" />
             </Col>
             <Col md={3} className="mb-4">
-              <img src="logo7.png" alt="Logo 7" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 7" className="img-fluid" />
             </Col>
             <Col md={3} className="mb-4">
-              <img src="logo8.png" alt="Logo 8" className="img-fluid" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 8" className="img-fluid" />
             </Col>
           </Row>
         </div>
       </Container>
-      <Footer/>
     </div>
   );
 };

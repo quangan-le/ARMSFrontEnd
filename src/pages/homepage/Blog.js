@@ -8,7 +8,7 @@ const Blog = () => {
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Tin tức</h1>
             <Breadcrumb>
-                <Breadcrumb.Item href="/" className="text-orange">Trang chủ</Breadcrumb.Item>
+                <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Tin tức</Breadcrumb.Item>
             </Breadcrumb>
 
@@ -32,7 +32,16 @@ const Blog = () => {
                                 <Card.Text>
                                     Mô tả ngắn gọn về tin tức {index + 1}.
                                 </Card.Text>
-                                <Button variant="primary" as={Link} to={`/tin-tuc/${index + 1}`}>Đọc thêm</Button>
+                                <div style={{ textAlign: 'center' }}>
+                                    <Button
+                                        variant="light"
+                                        as={Link}
+                                        to={`/tin-tuc/${index + 1}`}
+                                        className="read-more-btn"
+                                    >
+                                        Đọc thêm
+                                    </Button>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -51,14 +60,23 @@ const Blog = () => {
                                 <Card.Text>
                                     Mô tả ngắn gọn về tin tức {index + 5}.
                                 </Card.Text>
-                                <Button variant="primary" as={Link} to={`/tin-tuc/${index + 5}`}>Đọc thêm</Button>
+                                <div style={{ textAlign: 'center' }}>
+                                    <Button
+                                        variant="light"
+                                        as={Link}
+                                        to={`/tin-tuc/${index + 1}`}
+                                        className="read-more-btn"
+                                    >
+                                        Đọc thêm
+                                    </Button>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
 
-            <Pagination className="mt-4">
+            <Pagination className="mt-4 mx-auto">
                 <Pagination.Prev />
                 <Pagination.Item>{1}</Pagination.Item>
                 <Pagination.Item>{2}</Pagination.Item>

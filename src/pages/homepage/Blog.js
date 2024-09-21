@@ -21,7 +21,6 @@ const Blog = () => {
             </div>
 
             <Row>
-                {/* First Row */}
                 {[...Array(4)].map((_, index) => (
                     <Col md={3} key={index} className="mb-3">
                         <Card>
@@ -49,7 +48,6 @@ const Blog = () => {
             </Row>
 
             <Row>
-                {/* Second Row */}
                 {[...Array(4)].map((_, index) => (
                     <Col md={3} key={index + 4} className="mb-3">
                         <Card>

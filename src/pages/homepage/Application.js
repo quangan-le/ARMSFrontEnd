@@ -86,7 +86,6 @@ const Application = () => {
                                 <option>Xã/Phường/Thị trấn</option>
                                 <option>Phường 1</option>
                                 <option>Phường 2</option>
-                                {/* Thêm các xã/phường khác */}
                             </Form.Control>
                         </Form.Group>
                     </Col>

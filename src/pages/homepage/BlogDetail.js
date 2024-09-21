@@ -20,7 +20,6 @@ const BlogDetail = () => {
                         <p>Chi tiết nội dung bài viết về thông tin tuyển sinh 2024...</p>
                     </div>
 
-                    {/* Comment Section */}
                     <div className="comment-section mt-4">
                         <h5>Bình luận</h5>
                         <p>Chưa có bình luận. Hãy là người đầu tiên bình luận!</p>

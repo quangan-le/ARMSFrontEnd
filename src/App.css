@@ -42,46 +42,47 @@ a {
 /* CustomNavbar.css */
 /* Header.js*/
 .navbar {
-  background-color: orange !important; /* Nền cam cho navbar */
+  background-color: orange !important;
 }
 
 .navbar .nav-link {
-  color: black !important; /* Màu chữ đen cho các liên kết */
+  color: black !important;
 }
 
 .navbar .dropdown-toggle {
-  background-color: white !important; /* Nền trắng cho button chọn cơ sở */
-  color: black !important; /* Màu chữ đen trong dropdown button */
+  background-color: white !important;
+  color: black !important;
 }
 
 .dropdown-menu .dropdown-item {
-  color: black !important; /* Màu chữ đen cho các item */
+  color: black !important;
 }
 
 .dropdown-menu .dropdown-item:hover {
-  background-color: lightgray !important; /* Thay đổi màu nền khi hover */
+  background-color: lightgray !important;
 }
 .text-orange {
   color: orange !important;
 }
 
 .gioi-thieu-dropdown .dropdown-toggle {
-  background-color: orange !important; /* Orange background for Giới thiệu */
-  color: black !important; /* White text for Giới thiệu */
+  background-color: orange !important;
+  color: black !important;
 }
 
 .gioi-thieu-dropdown .dropdown-menu .dropdown-item {
-  background-color: white !important; /* Default white background for dropdown items */
-  color: black !important; /* Black text for dropdown items */
+  background-color: white !important;
+  color: black !important;
 }
 
 .gioi-thieu-dropdown .dropdown-menu .dropdown-item:hover {
-  background-color: lightgray !important; /* Change background when hovered */
+  background-color: lightgray !important;
 }
 /* Homepage.js*/
 .background-overlay {
   position: relative;
-  background: url('https://apolyorg.wordpress.com/wp-content/uploads/2019/04/xbanner-trang-lien-he-moi.jpg.pagespeed.ic_.fqvwhe7pcx.jpg') no-repeat center center;
+  background: url("https://apolyorg.wordpress.com/wp-content/uploads/2019/04/xbanner-trang-lien-he-moi.jpg.pagespeed.ic_.fqvwhe7pcx.jpg")
+    no-repeat center center;
   background-size: cover;
   padding: 50px 0;
 }
@@ -92,7 +93,7 @@ a {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.8); 
+  background: rgba(255, 255, 255, 0.8);
   z-index: 1;
 }
 
@@ -101,15 +102,15 @@ a {
   z-index: 2;
 }
 .bg-orange {
-  background-color: #ff9900 !important; 
+  background-color: #ff9900 !important;
   z-index: 2;
 }
 
 .btn-no-underline {
-  font-size: 1.5rem; /* Tăng kích thước chữ */
-  text-decoration: none; /* Bỏ gạch dưới */
-  padding: 10px 20px; /* Để làm cho nút trông đẹp hơn */
-  display: inline-block; /* Để duy trì như một nút */
+  font-size: 1.5rem;
+  text-decoration: none;
+  padding: 10px 20px;
+  display: inline-block;
 }
 
 .custom-button {
@@ -130,8 +131,8 @@ a {
   outline: none;
 }
 
- /* Form đăng ký Homepage.js */
- .registration-section {
+/* Form đăng ký Homepage.js */
+.registration-section {
   position: relative;
 }
 .registration-overlay {
@@ -140,17 +141,18 @@ a {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU') no-repeat center center;
+  background: url("https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU")
+    no-repeat center center;
   background-size: cover;
   filter: blur(5px);
-  z-index: -1; /* Đặt lớp nền mờ dưới cùng */
+  z-index: -1;
 }
 
 .registration-content {
-  position: relative; /* Đảm bảo nội dung không bị ảnh hưởng bởi lớp overlay */
-  background-color: rgba(255, 255, 255, 0.6); /* Nền màu trắng nhẹ với độ trong suốt */
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.6);
   border-radius: 8px;
-  z-index: 1; /* Đặt nội dung ở trên lớp mờ */
+  z-index: 1;
 }
 
 .text-section {
@@ -162,26 +164,26 @@ a {
 
 .form-section {
   flex: 1;
-  background-color: #f57c00; /* Màu cam nền form */
+  background-color: #f57c00;
   border-radius: 8px;
 }
 
 .form-section .btn-submit {
-  background-color: #fff; /* Nền trắng cho nút */
-  color: #f57c00; /* Chữ cam cho nút */
+  background-color: #fff;
+  color: #f57c00;
   border: none;
 }
 .form-section .btn-submit:hover {
-  background-color: white; 
-  color: orange; 
-  border: 1px solid orange; 
+  background-color: white;
+  color: orange;
+  border: 1px solid orange;
 }
 
 /* History.js */
 .homeguest-banner {
-  background-image: url('https://channel.mediacdn.vn/428462621602512896/2023/4/27/photo-2-16825656134001528505251.jpg');
+  background-image: url("https://channel.mediacdn.vn/428462621602512896/2023/4/27/photo-2-16825656134001528505251.jpg");
   background-position: center;
-  height: 300px; 
+  height: 300px;
   position: relative;
   display: flex;
   justify-content: center;
@@ -194,7 +196,7 @@ a {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(231, 231, 231, 0.8); 
+  background: rgba(231, 231, 231, 0.8);
 }
 
 .banner-title {
@@ -209,13 +211,13 @@ a {
 }
 
 .text-orange a {
-  color: orange !important; 
+  color: orange !important;
   text-decoration: none !important;
 }
-.breadcrumb-item+.breadcrumb-item::before {
+.breadcrumb-item + .breadcrumb-item::before {
   color: orange !important;
 }
-.breadcrumb .breadcrumb-item a{
+.breadcrumb .breadcrumb-item a {
   color: orange;
   text-decoration: none !important;
 }
@@ -229,8 +231,8 @@ a {
 }
 
 .program-logo {
-  width: 100%; 
-  height: 100%; 
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -250,11 +252,11 @@ a {
 }
 
 .page-title {
-  text-align: center; 
-  color: orange; 
+  text-align: center;
+  color: orange;
   margin-bottom: 1.5rem;
-  font-size: 2rem; 
-  font-weight: bold; 
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 /* Blog.js */

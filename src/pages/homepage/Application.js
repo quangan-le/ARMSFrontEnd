@@ -1,7 +1,9 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { useState } from '../hooks/Hooks.js';
 
 const Application = () => {
+    const [showOtherAddress, setShowOtherAddress] = useState(false);
     return (
         <Container className="mt-5 mb-3">
             <Form>
@@ -182,12 +184,29 @@ const Application = () => {
                     <Col md={6}>
                         <Form.Group controlId="degreeType">
                             <Form.Label>Chọn loại bằng</Form.Label>
-                            <Form.Check type="checkbox" label="Tốt nghiệp THCS, học lớp 10,11,12 – học 2 năm" />
-                            <Form.Check type="checkbox" label="Tốt nghiệp THCS" />
-                            <Form.Check type="checkbox" label="Tốt nghiệp THPT hoặc bổ túc THPT - Học 1 năm đến 1,5 năm" />
-                            <Form.Check type="checkbox" label="Tôt nghiệp ĐH-CD-TC-Học 1 năm" />
+                            <Form.Check
+                                type="radio"
+                                label="Tốt nghiệp THCS, học lớp 10,11,12 – học 2 năm"
+                                name="degreeType"
+                            />
+                            <Form.Check
+                                type="radio"
+                                label="Tốt nghiệp THCS"
+                                name="degreeType"
+                            />
+                            <Form.Check
+                                type="radio"
+                                label="Tốt nghiệp THPT hoặc bổ túc THPT - Học 1 năm đến 1,5 năm"
+                                name="degreeType"
+                            />
+                            <Form.Check
+                                type="radio"
+                                label="Tôt nghiệp ĐH-CD-TC-Học 1 năm"
+                                name="degreeType"
+                            />
                         </Form.Group>
                     </Col>
+
                     <Col md={3}>
                         <Form.Group controlId="graduationYear">
                             <Form.Label>Năm tốt nghiệp</Form.Label>
@@ -201,6 +220,59 @@ const Application = () => {
                         </Form.Group>
                     </Col>
                 </Row>
+                <Container className="mt-4">
+                    <h4 className='text-orange'>Thông tin nhận giấy báo kết quả</h4>
+                    <Row>
+                        <Col md={6}>
+                            <Form.Group controlId="recipient">
+                                <Form.Label>Người nhận</Form.Label>
+                                <Form.Check
+                                    type="radio"
+                                    label="Thí sinh"
+                                    name="recipient"
+                                    id="recipientStudent"
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    label="Phụ huynh/Người bảo trợ"
+                                    name="recipient"
+                                    id="recipientParent"
+                                    className="pt-3"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group controlId="address">
+                                <Form.Label>Địa chỉ nhận</Form.Label>
+                                <Form.Check
+                                    type="radio"
+                                    label="Địa chỉ thường trú"
+                                    name="address"
+                                    id="permanentAddress"
+                                    onChange={() => setShowOtherAddress(false)}
+                                />
+                                <div className='d-flex align-items-end'>
+                                    <Form.Check
+                                        type="radio"
+                                        label="Khác"
+                                        name="address"
+                                        id="otherAddress"
+                                        onChange={() => setShowOtherAddress(true)}
+                                        className="pt-3"
+                                    />
+                                    {showOtherAddress && (
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập địa chỉ khác"
+                                            className="ms-2"
+                                        />
+                                    )}
+                                </div>
+
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                </Container>
                 <Button variant="primary" type="submit" className="mt-3">
                     Nộp Hồ Sơ
                 </Button>

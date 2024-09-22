@@ -1,7 +1,5 @@
 // src/pages/Homepage.js
 import React from "react";
-import Header from "../header/Header";
-import Footer from "../footer/Footer.js";
 import Slider from "./Slider";
 import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
 import { Link } from 'react-router-dom';

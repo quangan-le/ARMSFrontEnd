@@ -20,6 +20,7 @@ import Blog from "./pages/homepage/Blog.js";
 import BlogDetail from "./pages/homepage/BlogDetail.js";
 import Information from "./pages/homepage/Infomation.js";
 import Application from "./pages/homepage/Application.js";
+import Advisory from "./pages/homepage/Advisory.js";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/nganh-hoc/:majorField/:minorField" element={<ProgramDetail />} />
         <Route path="/tuyen-sinh" element={<Information />} />
         <Route path="/nop-ho-so" element={<Application />} />
+        <Route path="/dang-ky" element={<Advisory />} />
 
 
       </Routes>

@@ -31,7 +31,7 @@ function Login() {
                         </div>
 
                         <div className="d-grid gap-2 mt-3">
-                            <Button variant="outline-primary" className="btn-block">Đăng nhập bằng Google</Button>
+                            <Button variant="outline-primary" className="btn-block">Đăng nhập bằng tài khoản Google</Button>
                         </div>
                     </Form>
                 </Col>

@@ -19,9 +19,11 @@ import ProgramDetail from './pages/homepage/ProgramDetail.js';
 import Blog from "./pages/homepage/Blog.js";
 import BlogDetail from "./pages/homepage/BlogDetail.js";
 import Information from "./pages/homepage/Infomation.js";
-import Application from "./pages/homepage/Application.js";
+import Application from "./pages/records/Application.js";
 import Advisory from "./pages/homepage/Advisory.js";
 import Login from "./pages/login/Login.js";
+import ApplicationSearch from "./pages/records/ApplicationSearch.js";
+import ApplicationUpdate from "./pages/records/ApplicationUpdate.js";
 
 function LayoutWrapper({ children }) {
   const location = useLocation();
@@ -40,6 +42,7 @@ function App() {
       <LayoutWrapper>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/dang-nhap" element={<Login />} />
           <Route path="/lich-su-thanh-lap" element={<History />} />
           <Route path="/phuong-cham-dao-tao" element={<Motto />} />
           <Route path="/thanh-tich" element={<Achievement />} />
@@ -52,7 +55,10 @@ function App() {
           <Route path="/tuyen-sinh" element={<Information />} />
           <Route path="/nop-ho-so" element={<Application />} />
           <Route path="/dang-ky" element={<Advisory />} />
-          <Route path="/dang-nhap" element={<Login />} />
+          <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
+          <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
+
+
         </Routes>
       </LayoutWrapper>
   );

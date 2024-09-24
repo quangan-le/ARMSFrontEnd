@@ -32,7 +32,7 @@ const Header = () => {
               <NavDropdown.Item as={Link} to="/thanh-tich">Thành tích</NavDropdown.Item>
             </NavDropdown>
             <Nav.Link as={Link} to="/tin-tuc">Tin tức</Nav.Link>
-            <Nav.Link as={Link} to="/nganh-hoc">Ngành hc</Nav.Link>
+            <Nav.Link as={Link} to="/nganh-hoc">Ngành học</Nav.Link>
             <Nav.Link as={Link} to="/tuyen-sinh">Tuyển Sinh</Nav.Link>
             <Nav.Link as={Link} to="/nop-ho-so">Nộp hồ sơ</Nav.Link>
             <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu Hồ Sơ</Nav.Link>

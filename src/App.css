@@ -338,3 +338,71 @@ a {
   padding: 310px 0 0 0;
   height: 400px;
 }
+/* ApplicationSearch.js */
+.progress-container {
+  background-color: orange;
+  color: white;
+  border-radius: 20px;
+  padding: 15px 200px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.progress-steps span {
+  padding: 0 10px;
+}
+
+.progress-container .progress-steps {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  color: white;
+}
+.info-item {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.label {
+  width: 200px;
+  font-weight: bold;
+}
+
+.value {
+  flex: 1;
+}
+.documents-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; 
+  margin-top: 10px;
+}
+
+.document {
+  text-align: center;
+}
+
+.document-image {
+  height: 150px; 
+  width: auto; 
+  object-fit: contain; 
+  border-radius: 8px; 
+  border: 1px solid #ddd; 
+  padding: 5px;
+}
+.form-check-input:disabled~.form-check-label, .form-check-input[disabled]~.form-check-label{
+  opacity: 1; 
+}
+
+/* ApplicationUpdate.js */
+.form-group-flex {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem; 
+}
+
+.fixed-label {
+  width: 210px; 
+  margin-right: 10px;
+}

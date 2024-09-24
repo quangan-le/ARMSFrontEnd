@@ -28,13 +28,14 @@ const Header = () => {
             <NavDropdown title="Giới thiệu" id="basic-nav-dropdown" className="gioi-thieu-dropdown">
               <NavDropdown.Item as={Link} to="/lich-su-thanh-lap">Lịch sử thành lập</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/phuong-cham-dao-tao">Phương châm đào tạo</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/vi-sao-chon-chung-toi">Vì Sao Chọn Chúng Tôi</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/thanh-tich">Thành tích</NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link as={Link} to="/tin-tuc">Tin Tức</Nav.Link>
-            <Nav.Link as={Link} to="/vi-sao-chon-chung-toi">Vì Sao Chọn Chúng Tôi</Nav.Link>
-            <Nav.Link as={Link} to="/nganh-hoc">Ngành Học</Nav.Link>
+            <Nav.Link as={Link} to="/tin-tuc">Tin tức</Nav.Link>
+            <Nav.Link as={Link} to="/nganh-hoc">Ngành hc</Nav.Link>
             <Nav.Link as={Link} to="/tuyen-sinh">Tuyển Sinh</Nav.Link>
-            <Nav.Link as={Link} to="/nop-ho-so">Nộp Hồ Sơ</Nav.Link>
+            <Nav.Link as={Link} to="/nop-ho-so">Nộp hồ sơ</Nav.Link>
+            <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu Hồ Sơ</Nav.Link>
           </Nav>
           <Button variant="light" as={Link} to="/dang-nhap" style={{ color: 'orange' }}>
             Đăng Nhập

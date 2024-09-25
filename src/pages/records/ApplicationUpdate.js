@@ -231,7 +231,7 @@ const ApplicationUpdate = () => {
                     </Col>
                 </Row>
                 <Form.Group controlId="formAddress" className="form-group-flex">
-                    <Form.Label style={{ width: '172px' }}>Địa chỉ thường trú</Form.Label>
+                    <Form.Label style={{ width: '184px' }}>Địa chỉ thường trú</Form.Label>
                     <Form.Control
                         type="text"
                         name="address"
@@ -315,7 +315,7 @@ const ApplicationUpdate = () => {
                     </Col>
                 </Row>
                 <h4 className='text-orange mt-3'>Thông tin xét tuyển</h4>
-                <div className="info-item">
+                <div className="form-group-flex">
                     <Form.Group controlId="enrollmentCenter">
                         <Form.Label>Cơ sở nhập học</Form.Label>
                         <Form.Control
@@ -326,7 +326,7 @@ const ApplicationUpdate = () => {
                         />
                     </Form.Group>
                 </div>
-                <div className="info-item">
+                <div className="form-group-flex">
                     <Form.Group controlId="aspiration">
                         <Form.Label>Nguyện vọng</Form.Label>
                         <Form.Control
@@ -337,7 +337,7 @@ const ApplicationUpdate = () => {
                         />
                     </Form.Group>
                 </div>
-                <div className="info-item">
+                <div className="form-group-flex">
                     <Form.Group controlId="status">
                         <Form.Label>Trạng thái xét duyệt</Form.Label>
                         <Form.Control

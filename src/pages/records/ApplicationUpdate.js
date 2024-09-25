@@ -315,42 +315,67 @@ const ApplicationUpdate = () => {
                     </Col>
                 </Row>
                 <h4 className='text-orange mt-3'>Thông tin xét tuyển</h4>
-                <div className="form-group-flex">
-                    <Form.Group controlId="enrollmentCenter">
-                        <Form.Label>Cơ sở nhập học</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="enrollmentCenter"
-                            value={formData.enrollmentCenter}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
-                </div>
-                <div className="form-group-flex">
-                    <Form.Group controlId="aspiration">
-                        <Form.Label>Nguyện vọng</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="aspiration"
-                            value={formData.aspiration}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
-                </div>
-                <div className="form-group-flex">
-                    <Form.Group controlId="status">
-                        <Form.Label>Trạng thái xét duyệt</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
-                </div>
+                <Row>
+                    <Col md={6}>
+                        <Form.Group controlId="enrollmentCenter" className="form-group-flex">
+                            <Form.Label className="fixed-label">Cơ sở nhập học</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="enrollmentCenter"
+                                value={formData.enrollmentCenter}
+                                onChange={handleChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formMajor" className="form-group-flex">
+                            <Form.Label className="fixed-label">Ngành học</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="major"
+                                value={formData.major}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    setFormData((prevData) => ({
+                                        ...prevData,
+                                        subfield: ''
+                                    }));
+                                }}
+                            >
+                                <option value="">Chọn ngành</option>
+                                <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+                                <option value="Kinh tế">Kinh tế</option>
+                            </Form.Control>
+                        </Form.Group>
+
+                        <Form.Group controlId="formSubfield" className="form-group-flex">
+                            <Form.Label className="fixed-label">Chuyên ngành</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="subfield"
+                                value={formData.subfield}
+                                onChange={handleChange}
+                                disabled={!formData.major}
+                            >
+                                <option value="">Chọn chuyên ngành</option>
+                                {formData.major === 'Công nghệ thông tin' && (
+                                    <>
+                                        <option value="Lập trình viên Mobile">Lập trình viên Mobile</option>
+                                        <option value="Lập trình viên Web">Lập trình viên Web</option>
+                                    </>
+                                )}
+                                {formData.major === 'Kinh tế' && (
+                                    <>
+                                        <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
+                                        <option value="Tài chính ngân hàng">Tài chính ngân hàng</option>
+                                    </>
+                                )}
+                            </Form.Control>
+                        </Form.Group>
+                    </Col>
+                </Row>
                 <Button variant="light" type="submit" className="btn-block bg-orange text-white">
-                    Cập nhật hồ sơ
+                    Lưu thông tin
                 </Button>
+                
             </Form>
         </Container>
     );

@@ -7,12 +7,16 @@ const Application = () => {
     const [frontCCCD, setFrontCCCD] = useState(null);
     const [backCCCD, setBackCCCD] = useState(null);
     const [graduationCertificate, setGraduationCertificate] = useState(null);
+    const [degreeType, setDegreeType] = useState('');
 
     const handleFileChange = (e, setFile) => {
         const file = e.target.files[0];
         if (file) {
             setFile(URL.createObjectURL(file));
         }
+    };
+    const handleDegreeChange = (e) => {
+        setDegreeType(e.target.value);
     };
     return (
         <div>
@@ -157,7 +161,7 @@ const Application = () => {
 
                     <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
                     <Row className="mt-2">
-                        <Col md={4}>
+                        <Col md={6}>
                             <Form.Group controlId="campusSelection">
                                 <Form.Label>Cơ sở nhập học</Form.Label>
                                 <Form.Control as="select">
@@ -169,9 +173,9 @@ const Application = () => {
                     </Row>
 
                     <Row className="mt-3">
+                        <Form.Label>Nguyện vọng</Form.Label>
                         <Col md={3}>
                             <Form.Group controlId="firstChoiceMajor">
-                                <Form.Label>Nguyện vọng 1</Form.Label>
                                 <Form.Control as="select">
                                     <option>Ngành</option>
                                     <option>Công nghệ thông tin</option>
@@ -181,31 +185,10 @@ const Application = () => {
                         </Col>
                         <Col md={3}>
                             <Form.Group controlId="firstChoiceSpecialization">
-                                <Form.Label></Form.Label>
                                 <Form.Control as="select">
                                     <option>Chuyên ngành</option>
                                     <option>Kỹ thuật phần mềm</option>
                                     <option>An ninh mạng</option>
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group controlId="secondChoiceMajor">
-                                <Form.Label>Nguyện vọng 2</Form.Label>
-                                <Form.Control as="select">
-                                    <option>Ngành</option>
-                                    <option>Marketing</option>
-                                    <option>Quản trị nhân lực</option>
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group controlId="secondChoiceSpecialization">
-                                <Form.Label></Form.Label>
-                                <Form.Control as="select">
-                                    <option>Chuyên ngành</option>
-                                    <option>Quản trị kinh doanh tổng hợp</option>
-                                    <option>Quản lý dự án</option>
                                 </Form.Control>
                             </Form.Group>
                         </Col>
@@ -216,23 +199,35 @@ const Application = () => {
                                 <Form.Label>Chọn loại bằng</Form.Label>
                                 <Form.Check
                                     type="radio"
-                                    label="Tốt nghiệp THCS, học lớp 10,11,12 – học 2 năm"
-                                    name="degreeType"
-                                />
-                                <Form.Check
-                                    type="radio"
                                     label="Tốt nghiệp THCS"
                                     name="degreeType"
+                                    value="thcs"
+                                    onChange={handleDegreeChange}
+                                    checked={degreeType === 'thcs'}
                                 />
                                 <Form.Check
                                     type="radio"
-                                    label="Tốt nghiệp THPT hoặc bổ túc THPT - Học 1 năm đến 1,5 năm"
+                                    label="Tốt nghiệp Trung cấp loại giỏi"
                                     name="degreeType"
+                                    value="trung-cap"
+                                    onChange={handleDegreeChange}
+                                    checked={degreeType === 'trung-cap'}
                                 />
                                 <Form.Check
                                     type="radio"
-                                    label="Tôt nghiệp ĐH-CD-TC-Học 1 năm"
+                                    label="Tốt nghiệp THPT hoặc bổ túc"
                                     name="degreeType"
+                                    value="thpt"
+                                    onChange={handleDegreeChange}
+                                    checked={degreeType === 'thpt'}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    label="Tốt nghiệp ĐH-CD-TC"
+                                    name="degreeType"
+                                    value="dh-cd"
+                                    onChange={handleDegreeChange}
+                                    checked={degreeType === 'dh-cd'}
                                 />
                             </Form.Group>
                         </Col>
@@ -352,6 +347,34 @@ const Application = () => {
                                 )}
                             </Form.Group>
                         </Col>
+                        {degreeType === 'thpt' && (
+                            <Col md={12} >
+                                <Form.Group>
+                                    <Row className='mt-3'> 
+                                        <Col md={3} >
+                                            <Form.Label>Học bạ kỳ 1 lớp 10</Form.Label>
+                                            <Form.Control type="file" accept="image/*" />
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Label>Học bạ kỳ 2 lớp 10</Form.Label>
+                                            <Form.Control type="file" accept="image/*" />
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Label>Học bạ kỳ 1 lớp 11</Form.Label>
+                                            <Form.Control type="file" accept="image/*" />
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Label>Học bạ kỳ 2 lớp 11</Form.Label>
+                                            <Form.Control type="file" accept="image/*" />
+                                        </Col>
+                                        <Col md={3} className='mt-3'>
+                                            <Form.Label>Học bạ kỳ 1 lớp 12</Form.Label>
+                                            <Form.Control type="file" accept="image/*" />
+                                        </Col>
+                                    </Row>
+                                </Form.Group>
+                            </Col>
+                        )}
                     </Row>
                     <div className="d-flex justify-content-center">
                         <Button variant="light" type="submit" className="read-more-btn mt-3">

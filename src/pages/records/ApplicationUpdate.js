@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Row, Col, Card, Breadcrumb } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Card, Breadcrumb, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 const ApplicationUpdate = () => {
@@ -28,7 +28,18 @@ const ApplicationUpdate = () => {
 
     const [cccd, setCccd] = useState('');
     const [applicationData, setApplicationData] = useState(null);
+    const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
+
+    const handleSearch = async () => {
+        try {
+            const response = await fetch(`API_URL_HERE?cccd=${cccd}`);
+            const data = await response.json();
+            setApplicationData(data);
+        } catch (error) {
+            console.error('Lỗi tra cứu hồ sơ:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,18 +51,13 @@ const ApplicationUpdate = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Updated data:', formData);
-        navigate('/records');
+        setShowConfirm(true);
     };
 
-    const handleSearch = async () => {
-        try {
-            const response = await fetch(`API_URL_HERE?cccd=${cccd}`);
-            const data = await response.json();
-            setApplicationData(data);
-        } catch (error) {
-            console.error('Lỗi tra cứu hồ sơ:', error);
-        }
+    const handleConfirmUpdate = () => {
+        console.log('Updated data:', formData);
+        setShowConfirm(false);
+        navigate('/records');
     };
 
     return (
@@ -316,7 +322,7 @@ const ApplicationUpdate = () => {
                 </Row>
                 <h4 className='text-orange mt-3'>Thông tin xét tuyển</h4>
                 <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <Form.Group controlId="enrollmentCenter" className="form-group-flex">
                             <Form.Label className="fixed-label">Cơ sở nhập học</Form.Label>
                             <Form.Control
@@ -326,8 +332,12 @@ const ApplicationUpdate = () => {
                                 onChange={handleChange}
                             />
                         </Form.Group>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md={4}>
                         <Form.Group controlId="formMajor" className="form-group-flex">
-                            <Form.Label className="fixed-label">Ngành học</Form.Label>
+                            <Form.Label className="fixed-label">Nguyện vọng</Form.Label>
                             <Form.Control
                                 as="select"
                                 name="major"
@@ -345,9 +355,9 @@ const ApplicationUpdate = () => {
                                 <option value="Kinh tế">Kinh tế</option>
                             </Form.Control>
                         </Form.Group>
-
+                    </Col>
+                    <Col md={3}>
                         <Form.Group controlId="formSubfield" className="form-group-flex">
-                            <Form.Label className="fixed-label">Chuyên ngành</Form.Label>
                             <Form.Control
                                 as="select"
                                 name="subfield"
@@ -373,10 +383,25 @@ const ApplicationUpdate = () => {
                     </Col>
                 </Row>
                 <Button variant="light" type="submit" className="btn-block bg-orange text-white">
-                    Lưu thông tin
+                    Cập nhật hồ sơ
                 </Button>
-                
             </Form>
+            <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Xác nhận cập nhật</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <h5>Bạn có chắc chắn muốn cập nhật hồ sơ không?</h5>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="light" onClick={() => setShowConfirm(false)}>
+                        Hủy
+                    </Button>
+                    <Button variant="light"className='bg-orange text-white' onClick={handleConfirmUpdate}>
+                        Xác nhận
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

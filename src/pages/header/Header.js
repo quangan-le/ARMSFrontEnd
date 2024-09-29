@@ -1,24 +1,47 @@
 // src/components/Header.js
-import React from 'react';
+import React, { useEffect } from "react";
 import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useState } from '../hooks/Hooks.js';
-
+import api from "../../apiService.js";
 
 const Header = () => {
+  // State quản lý campus được chọn
   const [selectedCampus, setSelectedCampus] = useState("Hồ Chí Minh");
-  const [data, setData] = useState(null);
+  // State để lưu dữ liệu campus từ API
+  const [data, setData] = useState([]);
 
-  const handleSelect = (campus) => {
-    setSelectedCampus(campus);
+  // Hàm xử lý khi chọn campus từ Dropdown
+  const handleSelect = (campusName) => {
+    setSelectedCampus(campusName);
   };
+
+  // Gọi API để lấy danh sách các campus 
+  useEffect(() => {
+    const fetchCampuses = async () => {
+      try {
+        const response = await api.get("/Campus/get-campuses");
+        setData(response.data);
+      } catch (error) {
+        console.error("Có lỗi xảy ra khi kết nối API:", error);
+      }
+    };
+
+    fetchCampuses();
+  }, []);
   return (
     <Navbar expand="lg">
       <Container>
         <DropdownButton id="dropdown-basic-button" title={selectedCampus} onSelect={handleSelect}>
-          <Dropdown.Item eventKey="Hà Nội">Hà Nội</Dropdown.Item>
-          <Dropdown.Item eventKey="Hồ Chí Minh">Hồ Chí Minh</Dropdown.Item>
-          <Dropdown.Item eventKey="Đà Nẵng">Đà Nẵng</Dropdown.Item>
+          {data && data.length > 0 ? (
+            data.map((campus) => (
+              <Dropdown.Item key={campus.campusId} eventKey={campus.campusName}>
+                {campus.campusName}
+              </Dropdown.Item>
+            ))
+          ) : (
+            <Dropdown.Item disabled>Không có cơ sở nào</Dropdown.Item>
+          )}
         </DropdownButton>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />

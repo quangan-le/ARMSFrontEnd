@@ -394,7 +394,7 @@ const ApplicationUpdate = () => {
                     <h5>Bạn có chắc chắn muốn cập nhật hồ sơ không?</h5>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="light" onClick={() => setShowConfirm(false)}>
+                    <Button variant="outline-secondary" onClick={() => setShowConfirm(false)}>
                         Hủy
                     </Button>
                     <Button variant="light"className='bg-orange text-white' onClick={handleConfirmUpdate}>

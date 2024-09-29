@@ -1,13 +1,12 @@
 // src/components/Header.js
-import React, { useEffect } from "react";
+import React from "react";
 import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { useState } from '../hooks/Hooks.js';
+import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
 
 const Header = () => {
-  // State quản lý campus được chọn
-  const [selectedCampus, setSelectedCampus] = useState("Hồ Chí Minh");
+  const [selectedCampus, setSelectedCampus] = useState("");
   // State để lưu dữ liệu campus từ API
   const [data, setData] = useState([]);
 
@@ -21,6 +20,12 @@ const Header = () => {
     const fetchCampuses = async () => {
       try {
         const response = await api.get("/Campus/get-campuses");
+        const hoChiMinhCampus = response.data.find(
+          campus => campus.campusId.includes("HCM")
+        );
+        if (hoChiMinhCampus) {
+          setSelectedCampus(hoChiMinhCampus.campusName);
+        }
         setData(response.data);
       } catch (error) {
         console.error("Có lỗi xảy ra khi kết nối API:", error);
@@ -47,7 +52,7 @@ const Header = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mx-auto">
-            <Nav.Link as={Link} to="/">Trang Chủ</Nav.Link>
+            <Nav.Link as={Link} to="/">Trang chủ</Nav.Link>
             <NavDropdown title="Giới thiệu" id="basic-nav-dropdown" className="gioi-thieu-dropdown">
               <NavDropdown.Item as={Link} to="/lich-su-thanh-lap">Lịch sử thành lập</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/phuong-cham-dao-tao">Phương châm đào tạo</NavDropdown.Item>
@@ -56,9 +61,9 @@ const Header = () => {
             </NavDropdown>
             <Nav.Link as={Link} to="/tin-tuc">Tin tức</Nav.Link>
             <Nav.Link as={Link} to="/nganh-hoc">Ngành học</Nav.Link>
-            <Nav.Link as={Link} to="/tuyen-sinh">Tuyển Sinh</Nav.Link>
+            <Nav.Link as={Link} to="/tuyen-sinh">Tuyển sinh</Nav.Link>
             <Nav.Link as={Link} to="/nop-ho-so">Nộp hồ sơ</Nav.Link>
-            <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu Hồ Sơ</Nav.Link>
+            <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu hồ sơ</Nav.Link>
           </Nav>
           <Button variant="light" as={Link} to="/dang-nhap" style={{ color: 'orange' }}>
             Đăng Nhập

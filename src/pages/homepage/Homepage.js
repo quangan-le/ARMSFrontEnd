@@ -2,8 +2,9 @@
 import React from "react";
 import Slider from "./Slider";
 import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
-import { Link } from 'react-router-dom';
-import { useState } from '../hooks/Hooks.js';
+import { Link, useOutletContext } from 'react-router-dom';
+import { useState, useEffect } from '../hooks/Hooks.js';
+import api from "../../apiService.js";
 
 const content = {
   'Đối tượng và hình thức': 'Thông tin về đối tượng tuyển sinh.',
@@ -15,10 +16,41 @@ const content = {
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng');
+  const { selectedCampus } = useOutletContext();
+
+  // State để lưu danh sách banner tương ứng với campus được chọn
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Gọi API để lấy danh sách banner dựa trên `selectedCampus`
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        if (selectedCampus.id) {
+          const response = await api.get(`/Campus/get-banners?campusId=${selectedCampus.id}`);
+          setBanners(response.data);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Có lỗi xảy ra khi lấy danh sách banner:", error);
+        setLoading(false);
+      }
+    };
+
+    if (selectedCampus.id) {
+      fetchBanners();
+    }
+  }, [selectedCampus]);
 
   return (
     <div>
-      <Slider />
+      {loading ? (
+        <div className="banner-placeholder">
+          <span className="loading-text">Đang tải...</span>
+        </div>
+      ) : (
+        <Slider banners={banners} />
+      )}
       <div className="text-center background-overlay">
         <div className="overlay"></div>
         <Row className="text-center">

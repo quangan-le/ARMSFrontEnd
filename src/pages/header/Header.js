@@ -35,7 +35,7 @@ const Header = () => {
     fetchCampuses();
   }, []);
   return (
-    <Navbar expand="lg">
+    <Navbar expand="lg" className="student-header">
       <Container>
         <DropdownButton id="dropdown-basic-button" title={selectedCampus} onSelect={handleSelect}>
           {data && data.length > 0 ? (

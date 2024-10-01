@@ -1,9 +1,33 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Pagination, Breadcrumb } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
+import api from "../../apiService.js";
 
 const Blog = () => {
+    const [categories, setCategories] = useState([]); // State để lưu danh sách các loại tin tức
+    const [selectedCategory, setSelectedCategory] = useState(''); // State để lưu loại tin tức đã chọn
+    const { selectedCampus } = useOutletContext();
+    const campusId = selectedCampus.id;
+
+    // Gọi API để lấy danh sách loại tin tức theo CampusId
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                if (campusId) {
+                    const response = await api.get(`/Blog/get-blogcategories?CampusId=${campusId}`);
+                    setCategories(response.data); // Lưu dữ liệu từ API vào state
+                }
+            } catch (error) {
+                console.error("Có lỗi xảy ra khi lấy danh sách loại tin tức:", error);
+            }
+        };
+
+        fetchCategories();
+    }, [campusId]); // Gọi lại API mỗi khi campusId thay đổi
+
+
     return (
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Tin tức</h1>
@@ -13,13 +37,19 @@ const Blog = () => {
             </Breadcrumb>
 
             <div className="filter-section my-3">
-                <select className="form-select">
+                <select
+                    className="form-select"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                >
                     <option value="">Phân loại</option>
-                    <option value="tuyen-sinh">Tin tức tuyển sinh</option>
-                    <option value="hoc-bong">Tin tức học bổng</option>
+                    {categories.map((category) => (
+                        <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                            {category.blogCategoryName}
+                        </option>
+                    ))}
                 </select>
             </div>
-
             <Row>
                 {[...Array(4)].map((_, index) => (
                     <Col md={3} key={index} className="mb-3">

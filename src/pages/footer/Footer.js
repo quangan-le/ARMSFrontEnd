@@ -13,22 +13,25 @@ const Footer = () => {
                         <div className="row">
                             <div className="col-md-6">
                                 <p><strong>Cơ sở Hà Nội</strong><br />
-                                    Cổng số 1, Tòa nhà FPT Polytechnic, 13 phố Trịnh Văn Bô,<br />
-                                    phường Phương Canh, quận Nam Từ Liêm, TP Hà Nội<br />
-                                    Km12 Cầu Diễn, Phường Phúc Diễn, Quận Bắc Từ Liêm, Hà Nội<br />
+                                    Công số 1, Tòa nhà FPT Polytechnic, 13 phố Trịnh Văn Bô, phường Phương Canh, quận Nam Từ Liêm, TP Hà Nội <br />
                                     (024) 8582 0808
                                 </p>
+                            </div>
+                            <div className="col-md-6">
+                                <p><strong>Cơ sở Hồ Chí Minh</strong><br />
+                                    Tòa nhà QTSC9 (toà T), đường Tô Ký, phường Tân Chánh Hiệp, quận 12, TP HCM. 778/B1 Nguyễn Kiệm, phường 04, quận Phú Nhuận, TP HCM<br />
+                                    0901 660 002-028 6686 6486
+                                </p>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-6">
                                 <p><strong>Cơ sở Đà Nẵng</strong><br />
                                     137 Nguyễn Thị Thập, Phường Hòa Minh, Quận Liên Chiểu, TP Đà Nẵng<br />
                                     (0236) 7300 468
                                 </p>
                             </div>
-
                             <div className="col-md-6">
-                                <p><strong>Cơ sở Hồ Chí Minh</strong><br />
-                                    391A Nam Kỳ Khởi Nghĩa, Phường 7, Quận 3, TP Hồ Chí Minh<br />
-                                    (028) 7300 468
-                                </p>
                                 <p><strong>Cơ sở Cần Thơ</strong><br />
                                     160 Đường 30/4, P. Hưng Lợi, Q. Ninh Kiều, TP Cần Thơ<br />
                                     (0292) 3739 394

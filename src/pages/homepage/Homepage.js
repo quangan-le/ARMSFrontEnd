@@ -5,6 +5,8 @@ import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
 import { Link, useOutletContext } from 'react-router-dom';
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const content = {
   'Đối tượng và hình thức': 'Thông tin về đối tượng tuyển sinh.',
@@ -41,6 +43,45 @@ const Homepage = () => {
       fetchBanners();
     }
   }, [selectedCampus]);
+
+  // Lưu bút
+  const [testimonials, setTestimonials] = useState([]);
+
+  // Lấy danh sách lưu bút sinh viên
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await api.get('/Campus/get-alumi');
+        setTestimonials(response.data);
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      }
+    };
+    fetchTestimonials();
+  }, []);
+
+  // Cấu hình cho chuyển tiếp lưu bút
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: true,
+  };
+  // Đối tác
+  const [partners, setPartners] = useState([]);
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const response = await api.get('/Supplier/get-suplliers');
+        setPartners(response.data);
+      } catch (error) {
+        console.error('Có lỗi xảy ra khi lấy danh sách đối tác!', error);
+      }
+    };
+    fetchPartners();
+  }, []);
 
   return (
     <div>
@@ -223,52 +264,52 @@ const Homepage = () => {
         </div>
       </div>
       <Container className="mt-5">
-        <Row className="m-5">
-          <Col md={5}>
-            <img
-              src="https://gaohouse.vn/wp-content/uploads/2023/07/dong-phuc-fpt-polytechnic-dep_6d1dfeb3e70049708529bcb89ada88db_grande.jpeg"
-              alt="Student Testimonial"
-              className="img-fluid"
-            />
-          </Col>
-          <Col md={7} className="d-flex align-items-center ps-5">
-            <div>
-              <p>
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel magna eu nunc tincidunt accumsan. Curabitur id est euismod, hendrerit lectus et, tempor erat."
-              </p>
-              <p><strong>Sinh viên ngành quản trị khách sạn - Cơ sở Hồ Chí Minh</strong></p>
-            </div>
+        <Row className="justify-content-center">
+          <Col md={10}>
+            {testimonials.length > 0 ? (
+              <Slider {...sliderSettings}>
+                {testimonials.map((testimonial) => (
+                  <div key={testimonial.alumiStudentId}>
+                    <Row className="m-5 align-items-center">
+                      <Col md={5}>
+                        <img
+                          src={testimonial.img}
+                          alt={testimonial.fullName}
+                          className="img-fluid rounded"
+                        />
+                      </Col>
+                      <Col md={7} className="d-flex align-items-center ps-5">
+                        <div>
+                          <p>"{testimonial.desciption}"</p>
+                          <p>
+                            <strong>
+                              {testimonial.fullName} - {testimonial.specializeMajorName} - {testimonial.campusName}
+                            </strong>
+                          </p>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <p>Đang tải dữ liệu...</p>
+            )}
           </Col>
         </Row>
         <div className="text-center mt-5">
           <h2 className="text-orange">Đối tác</h2>
           <Row className="justify-content-center mx-4">
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 1" className="img-fluid" />
-            </Col>
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 2" className="img-fluid" />
-            </Col>
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 3" className="img-fluid" />
-            </Col>
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 4" className="img-fluid" />
-            </Col>
-          </Row>
-          <Row className="justify-content-center mt-4">
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 5" className="img-fluid" />
-            </Col>
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 6" className="img-fluid" />
-            </Col>
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 7" className="img-fluid" />
-            </Col>
-            <Col md={3} className="mb-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png" alt="Logo 8" className="img-fluid" />
-            </Col>
+            {partners.length > 0 ? (
+              partners.map((partner, index) => (
+                <Col md={3} className="mb-4" key={partner.supplierId}>
+                  <img src={partner.img} alt={partner.supplierName} className="img-fluid" />
+                  <p className="mt-2">{partner.supplierName}</p>
+                </Col>
+              ))
+            ) : (
+              <p>Đang tải dữ liệu...</p>
+            )}
           </Row>
         </div>
       </Container>

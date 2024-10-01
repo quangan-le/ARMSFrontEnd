@@ -1,25 +1,32 @@
-import React from 'react';
-import { Container, Breadcrumb, Table } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Container, Breadcrumb, Table, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
+import api from '../../apiService';
 
-const programs = [
-    {
-      name: "Ngành A",
-      majorFieldSlug: "nganh-a",
-      details: [
-        { name: "Chuyên ngành 1", slug: "chuyen-nganh-1", code: "MA001" },
-      ],
-    },
-    {
-      name: "Ngành B",
-      majorFieldSlug: "nganh-b",
-      details: [
-        { name: "Chuyên ngành 3", slug: "chuyen-nganh-3", code: "MB001" },
-      ],
-    },
-  ];
-  
-  const Programs = () => {
+const Programs = () => {
+    const { selectedCampus } = useOutletContext();
+    const [programs, setPrograms] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchMajors = async () => {
+            try {
+                const response = await api.get(`/Major/get-majors?campus=${selectedCampus.id}`);
+                setPrograms(response.data);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (selectedCampus.id) {
+            fetchMajors();
+        }
+    }, [selectedCampus]);
+
     return (
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Ngành học</h1>
@@ -27,47 +34,49 @@ const programs = [
                 <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Ngành học</Breadcrumb.Item>
             </Breadcrumb>
-            <Table striped bordered hover className='mx-5'>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên Ngành</th>
-                        <th>Chuyên Ngành</th>
-                        <th>Mã Ngành</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {programs.map((program, index) => (
-                        <tr key={program.majorFieldSlug}>
-                            <td>{index + 1}</td>
-                            <td>
-                                <Link to={`/nganh-hoc/${program.majorFieldSlug}`} className="text-orange">
-                                    {program.name}
-                                </Link>
-                            </td>
-                            <td>
-                                <ul className="list-unstyled">
-                                    {program.details.map((detail, idx) => (
-                                        <li key={idx}>
-                                            <Link to={`/nganh-hoc/${program.majorFieldSlug}/${detail.slug}`} className="text-muted">
-                                                {detail.name}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </td>
-                            <td>
-                                {program.details.map((detail) => (
-                                    <div key={detail.slug}>{detail.code}</div>
-                                ))}
-                            </td>
+            {loading && <Spinner animation="border" />}
+            {error && <p className="text-danger">Lỗi: {error.message}</p>}
+            {!loading && !error && (
+                <Table striped bordered hover className='mx-5'>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên ngành</th>
+                            <th>Chuyên ngành</th>
+                            <th>Mã ngành</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {programs.map((program, index) => (
+                            <tr key={program.majorID}>
+                                <td>{index + 1}</td>
+                                <td>
+                                    <Link to={`/nganh-hoc/${program.majorID}`} className="text-orange">
+                                        {program.majorName}
+                                    </Link>
+                                </td>
+                                <td>
+                                    <ul className="list-unstyled">
+                                        {program.specializeMajorDTOs.map((specialize, idx) => (
+                                            <li key={specialize.specializeMajorID}>
+                                                <Link to={`/nganh-hoc/${program.majorID}/${specialize.specializeMajorID}`} className="text-muted">
+                                                    {specialize.specializeMajorName}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </td>
+                                <td>
+                                    {program.specializeMajorDTOs.map((specialize) => (
+                                        <div key={specialize.specializeMajorID}>{specialize.specializeMajorID}</div>
+                                    ))}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
         </Container>
-
-
     );
 };
 

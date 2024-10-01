@@ -1,10 +1,12 @@
 // src/pages/Homepage.js
 import React from "react";
 import Slider from "./Slider";
-import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
+import { Container, Row, Col, Button, Card, Form, Carousel } from "react-bootstrap";
 import { Link, useOutletContext } from 'react-router-dom';
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
+import "react-multi-carousel/lib/styles.css";
+import MultiCarousel from 'react-multi-carousel';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -44,6 +46,40 @@ const Homepage = () => {
     }
   }, [selectedCampus]);
 
+  // Ngành học
+  const [majors, setMajors] = useState([]);
+  useEffect(() => {
+    if (selectedCampus.id) {
+      const fetchData = async () => {
+        try {
+          const response = await api.get(`/Major/get-majors?campus=${selectedCampus.id}`);
+          setMajors(response.data);
+        } catch (error) {
+          console.error('Có lỗi xảy ra khi lấy danh sách ngành học:', error);
+        }
+      };
+      fetchData();
+    }
+  }, [selectedCampus]);
+  // Carousel settings for majors
+  const responsive = {
+    superLargeDesktop: {
+      breakpoint: { max: 4000, min: 3000 },
+      items: 4,
+    },
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 4,
+    },
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 2,
+    },
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1,
+    },
+  };
   // Lưu bút
   const [testimonials, setTestimonials] = useState([]);
 
@@ -151,51 +187,34 @@ const Homepage = () => {
         </Row>
       </div>
 
-      <Container className="my-4">
-        <div className="m-5">
+      <Container className="py-5">
+        <div className="mt-3">
           <h2 className="text-center text-orange">Ngành đào tạo</h2>
-          <Row className="mt-4">
-            <Col md={3} className="d-flex mb-4">
-              <div className="bg-light py-3 px-4 rounded border flex-fill d-flex flex-column justify-content-between">
-                <h5 className="text-center">Công nghệ thông tin</h5>
-                <ul className="list-unstyled">
-                  <li>Ngành nhỏ 1</li>
-                  <li>Ngành nhỏ 2</li>
-                  <li>Ngành nhỏ 3</li>
-                </ul>
+          <MultiCarousel
+            responsive={responsive}
+            infinite={true}
+            className="my-carousel"
+          >
+            {majors.map((major, index) => (
+              <div key={index} className="p-2">
+                <div
+                  className="bg-light rounded border shadow-sm d-flex flex-column"
+                  style={{ width: '100%', height: '200px' }}
+                >
+                  <div className="p-3">
+                    <h5 className="text-center">{major.majorName}</h5>
+                  </div>
+                  <div className="flex-grow-1 p-3 d-flex align-items-center justify-content-center">
+                    <ul className="list-unstyled mb-0 ">
+                      {major.specializeMajorDTOs.map((subMajor, subIndex) => (
+                        <li key={subIndex}>{subMajor.specializeMajorName}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
-            </Col>
-            <Col md={3} className="d-flex mb-4">
-              <div className="bg-light py-3 px-4 rounded border flex-fill d-flex flex-column justify-content-between">
-                <h5 className="text-center">Công nghệ ô tô</h5>
-                <ul className="list-unstyled">
-                  <li>Ngành nhỏ 1</li>
-                  <li>Ngành nhỏ 2</li>
-                  <li>Ngành nhỏ 3</li>
-                </ul>
-              </div>
-            </Col>
-            <Col md={3} className="d-flex mb-4">
-              <div className="bg-light py-3 px-4 rounded border flex-fill d-flex flex-column justify-content-between">
-                <h5 className="text-center">Làm đẹp</h5>
-                <ul className="list-unstyled">
-                  <li>Ngành nhỏ 1</li>
-                  <li>Ngành nhỏ 2</li>
-                  <li>Ngành nhỏ 3</li>
-                </ul>
-              </div>
-            </Col>
-            <Col md={3} className="d-flex mb-4">
-              <div className="bg-light py-3 px-4 rounded border flex-fill d-flex flex-column justify-content-between">
-                <h5 className="text-center">Ngành khác</h5>
-                <ul className="list-unstyled">
-                  <li>Ngành nhỏ 1</li>
-                  <li>Ngành nhỏ 2</li>
-                  <li>Ngành nhỏ 3</li>
-                </ul>
-              </div>
-            </Col>
-          </Row>
+            ))}
+          </MultiCarousel>
         </div>
         <div class="m-5">
           <h2 className="text-center mb-1 text-orange">Thông tin tuyển sinh 2024</h2>

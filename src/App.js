@@ -24,6 +24,9 @@ import Login from "./pages/login/Login.js";
 import ApplicationSearch from "./pages/records/ApplicationSearch.js";
 import ApplicationUpdate from "./pages/records/ApplicationUpdate.js";
 import Dashboard from "./pages/dashboard/DashBoard.js";
+import RequestForTransfer from "./pages/student/RequestForTransfer.js";
+import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
+import StudentProfile from "./pages/student/StudentProfile.js";
 
 function App() {
   //const user = { role: "admin" };
@@ -46,8 +49,11 @@ function App() {
         <Route path="/dang-ky" element={<Advisory />} />
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
-      </Route>
+        <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
+        <Route path="/yeu-cau-rut-ho-so" element={<RequestForWithdraw />} />
+        <Route path="/thong-tin-ca-nhan" element={<StudentProfile />} />
 
+      </Route>
       {/* {user && user.role && (
           <Route element={<ManagerLayout role={user.role} />}>
             <Route path="/dashboard" element={<Dashboard />} />

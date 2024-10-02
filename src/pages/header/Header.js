@@ -1,14 +1,15 @@
 // src/components/Header.js
 import React from "react";
-import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
+import { Bell, PersonCircle, ArrowRepeat, CashCoin, BoxArrowRight } from "react-bootstrap-icons";
 
 const Header = ({ onCampusChange }) => {
-   // State để lưu campus được chọn với cả ID và Name
-   const [selectedCampus, setSelectedCampus] = useState({
-    id: "", 
+  // State để lưu campus được chọn với cả ID và Name
+  const [selectedCampus, setSelectedCampus] = useState({
+    id: "",
     name: ""
   });
   // State để lưu dữ liệu campus từ API
@@ -49,7 +50,7 @@ const Header = ({ onCampusChange }) => {
         id: selected.campusId,
         name: selected.campusName
       });
-      
+
       // Cập nhật `selectedCampus` lên StudentLayout thông qua `onCampusChange`
       onCampusChange({
         id: selected.campusId,
@@ -57,11 +58,54 @@ const Header = ({ onCampusChange }) => {
       });
     }
   };
-  
+
+  // Thông báo
+  const [notifications, setNotifications] = useState([]);
+  const [showNotification, setShowNotification] = useState(false);
+  useEffect(() => {
+    const mockNotifications = [
+      { id: 1, message: "Hồ sơ của bạn đã được duyệt" },
+      { id: 2, message: "Lịch học kỳ mới đã được cập nhật" },
+      { id: 3, message: "Hạn nộp học phí sắp tới" },
+      { id: 4, message: "Yêu cầu chuyển ngành đã được phê duyệt" }
+    ];
+    setNotifications(mockNotifications);
+  }, []);
+
+  const handleNotificationToggle = () => {
+    setShowNotification(!showNotification);
+  };
+
+  // State để kiểm tra trạng thái đăng nhập và lưu thông tin người dùng
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+
+  // Đăng nhập và lấy thông tin người dùng
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        // Giả lập gọi API đăng nhập để kiểm tra
+        const response = await api.get("/auth/check-login");
+        if (response.data.isLoggedIn) {
+          setIsLoggedIn(true);
+          setUserInfo({
+            name: response.data.name,
+            avatar: response.data.avatar
+          });
+        }
+      } catch (error) {
+        console.error("Có lỗi xảy ra khi kiểm tra đăng nhập:", error);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
   return (
     <Navbar expand="lg" className="student-header">
       <Container>
-        <DropdownButton id="dropdown-basic-button" title={selectedCampus.name} onSelect={handleSelect}>
+        <DropdownButton className="campus-dropdown" id="dropdown-basic-button" title={selectedCampus.name} onSelect={handleSelect}>
           {data && data.length > 0 ? (
             data.map((campus) => (
               <Dropdown.Item key={campus.campusId} eventKey={campus.campusName}>
@@ -89,9 +133,68 @@ const Header = ({ onCampusChange }) => {
             <Nav.Link as={Link} to="/nop-ho-so">Nộp hồ sơ</Nav.Link>
             <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu hồ sơ</Nav.Link>
           </Nav>
-          <Button variant="light" as={Link} to="/dang-nhap" style={{ color: 'orange' }}>
-            Đăng Nhập
-          </Button>
+          <Nav>
+            <Dropdown className="notification-dropdown me-4" show={showNotification}
+              onToggle={handleNotificationToggle}
+              onMouseEnter={() => setShowNotification(true)}
+              onMouseLeave={() => setShowNotification(false)}>
+              <Dropdown.Toggle as="span" className="notification-icon" style={{ background: "orange" }}>
+                <Bell size={24} />
+                <Badge pill bg="danger" className="notification-badge">
+                  {notifications.length}
+                </Badge>
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                {notifications.map((notification) => (
+                  <Dropdown.Item key={notification.id}>
+                    {notification.message}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+            <Dropdown 
+                onMouseEnter={() => setShowAvatarMenu(true)} 
+                onMouseLeave={() => setShowAvatarMenu(false)}
+                show={showAvatarMenu}
+              >
+              <Dropdown.Toggle as="span" style={{ cursor: "pointer", background: "orange" }}>
+                {/* <img src={userInfo.avatar} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} /> */}
+                <img src={'https://img.freepik.com/premium-vector/avatar-icon002_750950-52.jpg'} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
+                Quang An
+              </Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <Dropdown.Item as={Link} to="/thong-tin-ca-nhan"><PersonCircle className="me-2" style={{ color: 'orange' }} />Thông tin cá nhân</Dropdown.Item>
+                <Dropdown.Item as={Link} to="/yeu-cau-chuyen-nganh"><ArrowRepeat className="me-2" style={{ color: 'orange' }} />Yêu cầu chuyển ngành</Dropdown.Item>
+                <Dropdown.Item as={Link} to="/yeu-cau-rut-ho-so"><CashCoin className="me-2" style={{ color: 'orange' }} />Yêu cầu rút hồ sơ và hoàn học phí</Dropdown.Item>
+                <Dropdown.Item as={Link} to="/dang-xuat"><BoxArrowRight className="me-2" style={{ color: 'orange' }} />Đăng xuất</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Nav>
+          {/* {isLoggedIn ? (
+            <Nav>
+              <Bell size={24} className="mx-3 text-white" />
+              <Dropdown 
+                onMouseEnter={() => setShowAvatarMenu(true)} 
+                onMouseLeave={() => setShowAvatarMenu(false)}
+                show={showAvatarMenu}
+              >
+                <Dropdown.Toggle as="span" style={{ cursor: "pointer", background: "orange" }}>
+                  <img src={userInfo.avatar} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
+                  {userInfo.name}
+                </Dropdown.Toggle>
+                <Dropdown.Menu align="end">
+                  <Dropdown.Item><PersonCircle className="me-2" style={{ color: 'orange' }}/>Thông tin cá nhân</Dropdown.Item>
+                  <Dropdown.Item><ArrowRepeat className="me-2" style={{ color: 'orange' }}/>Yêu cầu chuyển ngành</Dropdown.Item>
+                  <Dropdown.Item><CashCoin className="me-2" style={{ color: 'orange' }}/>Yêu cầu rút hồ sơ và hoàn học phí</Dropdown.Item>
+                  <Dropdown.Item><BoxArrowRight className="me-2" style={{ color: 'orange' }}/>Đăng xuất</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Nav>
+          ) : (
+            <Button variant="light" as={Link} to="/dang-nhap" style={{ color: 'orange' }}>
+              Đăng Nhập
+            </Button>
+          )} */}
         </Navbar.Collapse>
       </Container>
     </Navbar>

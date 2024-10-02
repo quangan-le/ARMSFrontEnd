@@ -49,7 +49,7 @@ a {
   color: black !important;
 }
 
-.student-header .dropdown-toggle {
+.campus-dropdown .dropdown-toggle {
   background-color: white !important;
   color: black !important;
 }
@@ -77,6 +77,26 @@ a {
 
 .gioi-thieu-dropdown .dropdown-menu .dropdown-item:hover {
   background-color: lightgray !important;
+}
+
+.notification-dropdown .dropdown-toggle{
+  color: white;
+}
+.notification-dropdown .dropdown-toggle::after {
+  display: none !important;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 10px;
+}
+
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  color: orange;
 }
 
 /* ManagerHeader.js*/
@@ -110,7 +130,7 @@ a {
   z-index: 2;
 }
 .bg-orange {
-  background-color: #ff9900 !important;
+  background-color: orange !important;
   z-index: 2;
 }
 
@@ -426,4 +446,11 @@ a {
 .fixed-label {
   width: 210px; 
   margin-right: 10px;
+}
+/* StudentProfile.js */
+.nav-pills .nav-link.active{
+  background-color: orange !important;
+}
+.nav-link{
+  color: black !important;
 }

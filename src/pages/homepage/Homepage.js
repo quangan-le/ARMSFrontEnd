@@ -11,15 +11,32 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const content = {
-  'Đối tượng và hình thức': 'Thông tin về đối tượng tuyển sinh.',
-  'Thời gian': 'Thông tin về thời gian tuyển sinh.',
-  'Chuyên ngành': 'Thông tin về các chuyên ngành.',
-  'Hồ sơ nhập học': 'Thông tin về hồ sơ nhập học.',
-  'Học phí': 'Thông tin về học phí.'
-};
+  "Đối tượng và hình thức": (
+    <div>
+      <h4>Đối tượng</h4>
+      <p>
+        Thí sinh thuộc một trong các đối tượng sau sẽ đủ điều kiện trở thành học sinh của trường:
+      </p>
+      <ul>
+        <li><strong>Hệ chính thức:</strong></li>
+        <li>Tốt nghiệp THCS hoặc tương đương;</li>
+        <li>Sinh viên đã hoàn thành chương trình Trung cấp.</li>
+      </ul>
 
+      <h4>Hình thức tuyển sinh</h4>
+      <p>Xét tuyển hồ sơ</p>
+
+      <h4>Thời gian đào tạo</h4>
+      <p>2 năm, gồm 6 học kỳ liên tục.</p>
+    </div>
+  ),
+  "Thời gian": "Thời gian tuyển sinh sẽ diễn ra từ tháng 3 đến tháng 9 năm 2024, với các đợt xét tuyển khác nhau tùy theo từng ngành.",
+  "Chuyên ngành": "Danh sách các chuyên ngành đào tạo: Công nghệ thông tin, Quản trị kinh doanh, Ngôn ngữ Anh, Marketing, Kỹ thuật phần mềm, và nhiều ngành khác.",
+  "Hồ sơ nhập học": "Hồ sơ nhập học cần bao gồm: bản sao công chứng bằng tốt nghiệp, bảng điểm, giấy khai sinh, và các giấy tờ liên quan khác.",
+  "Học phí": "Học phí sẽ được tính theo tín chỉ, với các mức khác nhau cho từng ngành học. Trung bình từ 500,000 VND đến 1,200,000 VND một tín chỉ."
+};
 const Homepage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Đối tượng');
+  const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
 
   // State để lưu danh sách banner tương ứng với campus được chọn
@@ -199,12 +216,12 @@ const Homepage = () => {
               <div key={index} className="p-2">
                 <div
                   className="bg-light rounded border shadow-sm d-flex flex-column"
-                  style={{ width: '100%', height: '200px' }}
+                  style={{ width: '100%', height: '180px' }}
                 >
-                  <div className="p-3">
+                  <div className="pt-3">
                     <h5 className="text-center">{major.majorName}</h5>
                   </div>
-                  <div className="flex-grow-1 p-3 d-flex align-items-center justify-content-center">
+                  <div className="flex-grow-1 pb-2 d-flex align-items-center justify-content-center">
                     <ul className="list-unstyled mb-0 ">
                       {major.specializeMajorDTOs.map((subMajor, subIndex) => (
                         <li key={subIndex}>{subMajor.specializeMajorName}</li>
@@ -283,7 +300,7 @@ const Homepage = () => {
         </div>
       </div>
       <Container className="mt-5">
-        <Row className="justify-content-center">
+        {/* <Row className="justify-content-center">
           <Col md={10}>
             {testimonials.length > 0 ? (
               <Slider {...sliderSettings}>
@@ -315,7 +332,7 @@ const Homepage = () => {
               <p>Đang tải dữ liệu...</p>
             )}
           </Col>
-        </Row>
+        </Row> */}
         <div className="text-center mt-5">
           <h2 className="text-orange">Đối tác</h2>
           <Row className="justify-content-center mx-4">

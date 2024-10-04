@@ -10,31 +10,7 @@ import MultiCarousel from 'react-multi-carousel';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-const content = {
-  "Đối tượng và hình thức": (
-    <div>
-      <h4>Đối tượng</h4>
-      <p>
-        Thí sinh thuộc một trong các đối tượng sau sẽ đủ điều kiện trở thành học sinh của trường:
-      </p>
-      <ul>
-        <li><strong>Hệ chính thức:</strong></li>
-        <li>Tốt nghiệp THCS hoặc tương đương;</li>
-        <li>Sinh viên đã hoàn thành chương trình Trung cấp.</li>
-      </ul>
 
-      <h4>Hình thức tuyển sinh</h4>
-      <p>Xét tuyển hồ sơ</p>
-
-      <h4>Thời gian đào tạo</h4>
-      <p>2 năm, gồm 6 học kỳ liên tục.</p>
-    </div>
-  ),
-  "Thời gian": "Thời gian tuyển sinh sẽ diễn ra từ tháng 3 đến tháng 9 năm 2024, với các đợt xét tuyển khác nhau tùy theo từng ngành.",
-  "Chuyên ngành": "Danh sách các chuyên ngành đào tạo: Công nghệ thông tin, Quản trị kinh doanh, Ngôn ngữ Anh, Marketing, Kỹ thuật phần mềm, và nhiều ngành khác.",
-  "Hồ sơ nhập học": "Hồ sơ nhập học cần bao gồm: bản sao công chứng bằng tốt nghiệp, bảng điểm, giấy khai sinh, và các giấy tờ liên quan khác.",
-  "Học phí": "Học phí sẽ được tính theo tín chỉ, với các mức khác nhau cho từng ngành học. Trung bình từ 500,000 VND đến 1,200,000 VND một tín chỉ."
-};
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
@@ -233,7 +209,7 @@ const Homepage = () => {
             ))}
           </MultiCarousel>
         </div>
-        <div class="m-5">
+        <div class="my-5">
           <h2 className="text-center mb-1 text-orange">Thông tin tuyển sinh 2024</h2>
           <Row className="mb-4">
             <Col>

@@ -159,10 +159,10 @@ a {
   outline: none;
 }
 .react-multiple-carousel__arrow--left{
-  left: 0 !important;
+  left: calc(1% + 1px) !important;
 }
 .react-multiple-carousel__arrow--right{
-  right: 0 !important;
+  right: calc(1% + 1px) !important;
 }
 
 /* Form đăng ký Homepage.js */

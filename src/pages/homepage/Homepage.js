@@ -10,6 +10,31 @@ import MultiCarousel from 'react-multi-carousel';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+const content = {
+  "Đối tượng và hình thức": (
+    <div>
+      <h4>Đối tượng</h4>
+      <p>
+        Thí sinh thuộc một trong các đối tượng sau sẽ đủ điều kiện trở thành học sinh của trường:
+      </p>
+      <ul>
+        <li><strong>Hệ chính thức:</strong></li>
+        <li>Tốt nghiệp THCS hoặc tương đương;</li>
+        <li>Sinh viên đã hoàn thành chương trình Trung cấp.</li>
+      </ul>
+
+      <h4>Hình thức tuyển sinh</h4>
+      <p>Xét tuyển hồ sơ</p>
+
+      <h4>Thời gian đào tạo</h4>
+      <p>2 năm, gồm 6 học kỳ liên tục.</p>
+    </div>
+  ),
+  "Thời gian": "Thời gian tuyển sinh sẽ diễn ra từ tháng 3 đến tháng 9 năm 2024, với các đợt xét tuyển khác nhau tùy theo từng ngành.",
+  "Chuyên ngành": "Danh sách các chuyên ngành đào tạo: Công nghệ thông tin, Quản trị kinh doanh, Ngôn ngữ Anh, Marketing, Kỹ thuật phần mềm, và nhiều ngành khác.",
+  "Hồ sơ nhập học": "Hồ sơ nhập học cần bao gồm: bản sao công chứng bằng tốt nghiệp, bảng điểm, giấy khai sinh, và các giấy tờ liên quan khác.",
+  "Học phí": "Học phí sẽ được tính theo tín chỉ, với các mức khác nhau cho từng ngành học. Trung bình từ 500,000 VND đến 1,200,000 VND một tín chỉ."
+};
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
@@ -112,6 +137,41 @@ const Homepage = () => {
     fetchPartners();
   }, []);
 
+  // Đăng ký thông tin 
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    linkFB: '',
+    specializeMajorID: '',
+    campusId: selectedCampus.id,
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await api.post('/StudentConsultation', {
+        ...formData,
+        dateReceive: new Date().toISOString(),
+      });
+
+      if (response.status === 200) {
+        alert('Đăng ký thành công!');
+      } else {
+        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi đăng ký:', error);
+      alert('Có lỗi xảy ra. Vui lòng thử lại.');
+    }
+  };
   return (
     <div>
       {loading ? (
@@ -245,28 +305,71 @@ const Homepage = () => {
           </div>
           <div className="form-section bg-orange p-4 text-white">
             <h4 className="text-section">ĐĂNG KÝ XÉT TUYỂN</h4>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="name" className="form-label">Họ và tên</label>
-                <input type="text" className="form-control" id="name" placeholder="Nhập họ và tên" />
+                <label htmlFor="fullName" className="form-label">Họ và tên</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="fullName"
+                  name="fullName"
+                  placeholder="Nhập họ và tên"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
-                <label htmlFor="phone" className="form-label">Số điện thoại</label>
-                <input type="text" className="form-control" id="phone" placeholder="Nhập số điện thoại" />
+                <label htmlFor="phoneNumber" className="form-label">Số điện thoại</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  placeholder="Nhập số điện thoại"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email</label>
-                <input type="email" className="form-control" id="email" placeholder="Nhập email" />
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  name="email"
+                  placeholder="Nhập email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
-                <label htmlFor="field" className="form-label">Chọn ngành học</label>
-                <select id="field" className="form-select">
+                <label htmlFor="specializeMajorID" className="form-label">Chọn ngành học</label>
+                <select
+                  id="specializeMajorID"
+                  name="specializeMajorID"
+                  className="form-select"
+                  value={formData.specializeMajorID}
+                  onChange={handleChange}
+                >
                   <option value="">Chọn ngành học</option>
+                  {majors.map((major) => (
+                    <option key={major.id} value={major.id}>
+                      {major.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="mb-3">
-                <label htmlFor="facebook" className="form-label">Link Facebook</label>
-                <input type="text" className="form-control" id="facebook" placeholder="Nhập link Facebook" />
+                <label htmlFor="linkFB" className="form-label">Link Facebook</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="linkFB"
+                  name="linkFB"
+                  placeholder="Nhập link Facebook"
+                  value={formData.linkFB}
+                  onChange={handleChange}
+                />
               </div>
               <div className="d-flex justify-content-center">
                 <button type="submit" className="btn btn-submit px-5">Đăng ký</button>

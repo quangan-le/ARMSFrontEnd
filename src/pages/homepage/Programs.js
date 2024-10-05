@@ -43,7 +43,6 @@ const Programs = () => {
                             <th>STT</th>
                             <th>Tên ngành</th>
                             <th>Chuyên ngành</th>
-                            <th>Mã ngành</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,11 +64,6 @@ const Programs = () => {
                                             </li>
                                         ))}
                                     </ul>
-                                </td>
-                                <td>
-                                    {program.specializeMajorDTOs.map((specialize) => (
-                                        <div key={specialize.specializeMajorID}>{specialize.specializeMajorID}</div>
-                                    ))}
                                 </td>
                             </tr>
                         ))}

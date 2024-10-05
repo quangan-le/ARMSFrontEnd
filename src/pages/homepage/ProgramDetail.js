@@ -6,8 +6,7 @@ import apiService from '../../apiService';
 const ProgramDetail = () => {
     const { specializeMajorID } = useParams();
     const [majorInfo, setMajorInfo] = useState(null);
-
-    // Lấy dữ liệu từ API khi component được render
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -22,13 +21,12 @@ const ProgramDetail = () => {
         fetchData();
     }, [specializeMajorID]);
 
-    // Hiển thị dữ liệu khi đã có thông tin
     if (!majorInfo) {
         return <p>Đang tải dữ liệu...</p>;
     }
 
     return (
-        <div>
+        <Container className="my-3">
             <Breadcrumb>
                 <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item href="/nganh-hoc">Ngành học</Breadcrumb.Item>
@@ -50,39 +48,39 @@ const ProgramDetail = () => {
                 </p>
             ))}
 
-            {/* Cấu trúc chương trình */}
             <h4>Cấu trúc chương trình</h4>
-            <table className="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Module</th>
-                        <th>Thời gian/Số học phần</th>
-                        <th>Số tín chỉ</th>
-                        <th>Ghi chú</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {majorInfo.subjects.map((subject, index) => (
-                        <tr key={subject.subjectCode}>
-                            <td>{index + 1}</td>
-                            <td>{subject.subjectName}</td>
-                            <td>{subject.studyTime}</td>
-                            <td>{subject.numberOfCredits}</td>
-                            <td>{subject.note ? subject.note : 'N/A'}</td>
+            <div className='mx-5'>
+                <table className="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Module</th>
+                            <th>Thời gian/Số học phần</th>
+                            <th>Số tín chỉ</th>
+                            <th>Ghi chú</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {majorInfo.subjects.map((subject, index) => (
+                            <tr key={subject.subjectCode}>
+                                <td>{index + 1}</td>
+                                <td>{subject.subjectName}</td>
+                                <td>{subject.studyTime}</td>
+                                <td>{subject.numberOfCredits}</td>
+                                <td>{subject.note ? subject.note : 'N/A'}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-            {/* Thông tin liên quan */}
             <p>
                 Thông tin tuyển sinh ngành {majorInfo.specializeMajorName} chi tiết tại{' '}
                 <a href="/tuyen-sinh" className="text-orange">
                     Tuyển sinh
                 </a>
             </p>
-        </div>
+        </Container>
     );
 };
 

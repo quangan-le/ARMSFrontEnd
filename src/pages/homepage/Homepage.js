@@ -1,14 +1,15 @@
 // src/pages/Homepage.js
 import React from "react";
-import Slider from "./Slider";
 import { Container, Row, Col, Button, Card, Form, Carousel } from "react-bootstrap";
 import { Link, useOutletContext } from 'react-router-dom';
+import SliderBanner from "./SilderBanner";
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
-import "react-multi-carousel/lib/styles.css";
 import MultiCarousel from 'react-multi-carousel';
+import "react-multi-carousel/lib/styles.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
 
 const content = {
   "Đối tượng và hình thức": (
@@ -179,7 +180,7 @@ const Homepage = () => {
           <span className="loading-text">Đang tải...</span>
         </div>
       ) : (
-        <Slider banners={banners} />
+        <SliderBanner banners={banners} />
       )}
       <div className="text-center background-overlay">
         <div className="overlay"></div>
@@ -353,9 +354,13 @@ const Homepage = () => {
                 >
                   <option value="">Chọn ngành học</option>
                   {majors.map((major) => (
-                    <option key={major.id} value={major.id}>
-                      {major.name}
-                    </option>
+                    <optgroup key={major.majorID} label={major.majorName}>
+                      {major.specializeMajorDTOs.map((specialize) => (
+                        <option key={specialize.specializeMajorID} value={specialize.specializeMajorID}>
+                          {specialize.specializeMajorName}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>
@@ -379,7 +384,7 @@ const Homepage = () => {
         </div>
       </div>
       <Container className="mt-5">
-        {/* <Row className="justify-content-center">
+        <Row className="justify-content-center">
           <Col md={10}>
             {testimonials.length > 0 ? (
               <Slider {...sliderSettings}>
@@ -411,15 +416,24 @@ const Homepage = () => {
               <p>Đang tải dữ liệu...</p>
             )}
           </Col>
-        </Row> */}
+        </Row>
         <div className="text-center mt-5">
           <h2 className="text-orange">Đối tác</h2>
           <Row className="justify-content-center mx-4">
             {partners.length > 0 ? (
               partners.map((partner, index) => (
-                <Col md={3} className="mb-4" key={partner.supplierId}>
-                  <img src={partner.img} alt={partner.supplierName} className="img-fluid" />
-                  <p className="mt-2">{partner.supplierName}</p>
+                <Col
+                  md={3}
+                  className="d-flex justify-content-center align-items-center"
+                  key={partner.supplierId}
+                >
+                  <div className="partner-logo-container">
+                    <img
+                      src={partner.img}
+                      alt={partner.supplierName}
+                      className="img-fluid partner-logo"
+                    />
+                  </div>
                 </Col>
               ))
             ) : (

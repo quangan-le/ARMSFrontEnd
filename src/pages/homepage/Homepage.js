@@ -36,6 +36,55 @@ const content = {
   "Học phí": "Học phí sẽ được tính theo tín chỉ, với các mức khác nhau cho từng ngành học. Trung bình từ 500,000 VND đến 1,200,000 VND một tín chỉ."
 };
 
+const mockData = [
+    {
+      "majorID": "A",
+      "majorName": "Ngôn ngữ",
+      "specializeMajorDTOs": [
+        { "specializeMajorID": "EA", "specializeMajorName": "Ngôn ngữ anh" },
+        { "specializeMajorID": "JA", "specializeMajorName": "Ngôn ngữ nhật" },
+        { "specializeMajorID": "KA", "specializeMajorName": "Ngôn ngữ hàn" }
+      ]
+    },
+    {
+      "majorID": "B",
+      "majorName": "Làm đẹp",
+      "specializeMajorDTOs": [
+        { "specializeMajorID": "BS", "specializeMajorName": "Chăm sóc da và massage" },
+        { "specializeMajorID": "BT", "specializeMajorName": "Phum xăm thẩm mỹ" }
+      ]
+    },
+    {
+      "majorID": "E",
+      "majorName": "Công nghệ thông tin",
+      "specializeMajorDTOs": [
+        { "specializeMajorID": "GE", "specializeMajorName": "Lập trình game" },
+        { "specializeMajorID": "ME", "specializeMajorName": "Lập trình mobile" },
+        { "specializeMajorID": "TE", "specializeMajorName": "Kiểm thử" },
+        { "specializeMajorID": "WE", "specializeMajorName": "Lập trình web" }
+      ]
+    },
+    {
+      "majorID": "O",
+      "majorName": "Ngành khác",
+      "specializeMajorDTOs": [
+        { "specializeMajorID": "AO", "specializeMajorName": "Kiểm toán" },
+        { "specializeMajorID": "FO", "specializeMajorName": "Kỹ thuật chế biến món ăn" },
+        { "specializeMajorID": "SO", "specializeMajorName": "Thư ký văn phòng" }
+      ]
+    },
+    {
+      "majorID": "S",
+      "majorName": "Quản trị kinh doanh",
+      "specializeMajorDTOs": [
+        { "specializeMajorID": "HM", "specializeMajorName": "Quản trị khách sạn" },
+        { "specializeMajorID": "RM", "specializeMajorName": "Quản trị nhà hàng" },
+        { "specializeMajorID": "SM", "specializeMajorName": "Marketing" }
+      ]
+    }
+  ];
+  
+
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
@@ -66,19 +115,22 @@ const Homepage = () => {
 
   // Ngành học
   const [majors, setMajors] = useState([]);
+  // useEffect(() => {
+  //   if (selectedCampus.id) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const response = await api.get(`/Major/get-majors?campus=${selectedCampus.id}`);
+  //         setMajors(response.data);
+  //       } catch (error) {
+  //         console.error('Có lỗi xảy ra khi lấy danh sách ngành học:', error);
+  //       }
+  //     };
+  //     fetchData();
+  //   }
+  // }, [selectedCampus]);
   useEffect(() => {
-    if (selectedCampus.id) {
-      const fetchData = async () => {
-        try {
-          const response = await api.get(`/Major/get-majors?campus=${selectedCampus.id}`);
-          setMajors(response.data);
-        } catch (error) {
-          console.error('Có lỗi xảy ra khi lấy danh sách ngành học:', error);
-        }
-      };
-      fetchData();
-    }
-  }, [selectedCampus]);
+    setMajors(mockData);
+  }, []);
   // Carousel settings for majors
   const responsive = {
     superLargeDesktop: {

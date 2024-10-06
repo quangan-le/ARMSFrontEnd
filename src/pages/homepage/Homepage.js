@@ -352,7 +352,6 @@ const Homepage = () => {
                   value={formData.specializeMajorID}
                   onChange={handleChange}
                 >
-                  <option value="">Chọn ngành học</option>
                   {majors.map((major) => (
                     <optgroup key={major.majorID} label={major.majorName}>
                       {major.specializeMajorDTOs.map((specialize) => (

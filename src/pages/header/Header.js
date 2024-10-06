@@ -1,12 +1,17 @@
 // src/components/Header.js
 import React from "react";
 import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
 import { Bell, PersonCircle, ArrowRepeat, CashCoin, BoxArrowRight } from "react-bootstrap-icons";
+import { useAuth } from '../../contexts/authContext'
+import { doSignOut } from '../../firebase/auth'
 
 const Header = ({ onCampusChange }) => {
+  const { user, userLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
   // State để lưu campus được chọn với cả ID và Name
   const [selectedCampus, setSelectedCampus] = useState({
     id: "",
@@ -23,7 +28,7 @@ const Header = ({ onCampusChange }) => {
         setData(response.data);
 
         if (response.data.length >= 4) {
-          const fourCampus = response.data[3];
+          const fourCampus = response.data[2];
           setSelectedCampus({
             id: fourCampus.campusId,
             name: fourCampus.campusName
@@ -81,26 +86,15 @@ const Header = ({ onCampusChange }) => {
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
   const [showAvatarMenu, setShowAvatarMenu] = useState(false);
 
-  // Đăng nhập và lấy thông tin người dùng
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        // Giả lập gọi API đăng nhập để kiểm tra
-        const response = await api.get("/auth/check-login");
-        if (response.data.isLoggedIn) {
-          setIsLoggedIn(true);
-          setUserInfo({
-            name: response.data.name,
-            avatar: response.data.avatar
-          });
-        }
-      } catch (error) {
-        console.error("Có lỗi xảy ra khi kiểm tra đăng nhập:", error);
-      }
-    };
-
-    checkLoginStatus();
-  }, []);
+  // Đăng xuất
+  const handleLogout = async () => {
+    try {
+      await doSignOut();
+      navigate('/dang-nhap');
+    } catch (error) {
+      console.error("Có lỗi xảy ra khi đăng xuất:", error);
+    }
+  };
 
   return (
     <Navbar expand="lg" className="student-header">
@@ -133,7 +127,7 @@ const Header = ({ onCampusChange }) => {
             <Nav.Link as={Link} to="/nop-ho-so">Nộp hồ sơ</Nav.Link>
             <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu hồ sơ</Nav.Link>
           </Nav>
-          <Nav>
+          {/* <Nav>
             <Dropdown className="notification-dropdown me-4" show={showNotification}
               onToggle={handleNotificationToggle}
               onMouseEnter={() => setShowNotification(true)}
@@ -157,9 +151,9 @@ const Header = ({ onCampusChange }) => {
                 onMouseLeave={() => setShowAvatarMenu(false)}
                 show={showAvatarMenu}
               >
-              <Dropdown.Toggle as="span" style={{ cursor: "pointer", background: "orange" }}>
-                {/* <img src={userInfo.avatar} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} /> */}
-                <img src={'https://img.freepik.com/premium-vector/avatar-icon002_750950-52.jpg'} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
+              <Dropdown.Toggle as="span" style={{ cursor: "pointer", background: "orange" }}> */}
+          {/* <img src={userInfo.avatar} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} /> */}
+          {/* <img src={'https://img.freepik.com/premium-vector/avatar-icon002_750950-52.jpg'} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
                 Quang An
               </Dropdown.Toggle>
               <Dropdown.Menu align="end">
@@ -169,12 +163,29 @@ const Header = ({ onCampusChange }) => {
                 <Dropdown.Item as={Link} to="/dang-xuat"><BoxArrowRight className="me-2" style={{ color: 'orange' }} />Đăng xuất</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-          </Nav>
-          {/* {isLoggedIn ? (
+          </Nav> */}
+          {userLoggedIn ? (
             <Nav>
-              <Bell size={24} className="mx-3 text-white" />
-              <Dropdown 
-                onMouseEnter={() => setShowAvatarMenu(true)} 
+              <Dropdown className="notification-dropdown me-4" show={showNotification}
+                onToggle={handleNotificationToggle}
+                onMouseEnter={() => setShowNotification(true)}
+                onMouseLeave={() => setShowNotification(false)}>
+                <Dropdown.Toggle as="span" className="notification-icon" style={{ background: "orange" }}>
+                  <Bell size={24} />
+                  <Badge pill bg="danger" className="notification-badge">
+                    {notifications.length}
+                  </Badge>
+                </Dropdown.Toggle>
+                <Dropdown.Menu align="end" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {notifications.map((notification) => (
+                    <Dropdown.Item key={notification.id}>
+                      {notification.message}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+              <Dropdown
+                onMouseEnter={() => setShowAvatarMenu(true)}
                 onMouseLeave={() => setShowAvatarMenu(false)}
                 show={showAvatarMenu}
               >
@@ -183,10 +194,10 @@ const Header = ({ onCampusChange }) => {
                   {userInfo.name}
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end">
-                  <Dropdown.Item><PersonCircle className="me-2" style={{ color: 'orange' }}/>Thông tin cá nhân</Dropdown.Item>
-                  <Dropdown.Item><ArrowRepeat className="me-2" style={{ color: 'orange' }}/>Yêu cầu chuyển ngành</Dropdown.Item>
-                  <Dropdown.Item><CashCoin className="me-2" style={{ color: 'orange' }}/>Yêu cầu rút hồ sơ và hoàn học phí</Dropdown.Item>
-                  <Dropdown.Item><BoxArrowRight className="me-2" style={{ color: 'orange' }}/>Đăng xuất</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/thong-tin-ca-nhan"><PersonCircle className="me-2" style={{ color: 'orange' }} />Thông tin cá nhân</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/yeu-cau-chuyen-nganh"><ArrowRepeat className="me-2" style={{ color: 'orange' }} />Yêu cầu chuyển ngành</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/yeu-cau-rut-ho-so"><CashCoin className="me-2" style={{ color: 'orange' }} />Yêu cầu rút hồ sơ và hoàn học phí</Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}><BoxArrowRight className="me-2" style={{ color: 'orange' }} />Đăng xuất</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav>
@@ -194,7 +205,7 @@ const Header = ({ onCampusChange }) => {
             <Button variant="light" as={Link} to="/dang-nhap" style={{ color: 'orange' }}>
               Đăng Nhập
             </Button>
-          )} */}
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>

@@ -34,42 +34,42 @@ const Programs = () => {
                 <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Ngành học</Breadcrumb.Item>
             </Breadcrumb>
-            {loading && <Spinner animation="border" />}
-            {error && <p className="text-danger">Lỗi: {error.message}</p>}
-            {!loading && !error && (
-                <Table striped bordered hover className='mx-5'>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên ngành</th>
-                            <th>Chuyên ngành</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {programs.map((program, index) => (
-                            <tr key={program.majorID}>
-                                <td>{index + 1}</td>
-                                <td>
-                                    <Link to={`/nganh-hoc/${program.majorID}`} className="text-orange">
-                                        {program.majorName}
-                                    </Link>
-                                </td>
-                                <td>
-                                    <ul className="list-unstyled">
-                                        {program.specializeMajorDTOs.map((specialize, idx) => (
-                                            <li key={specialize.specializeMajorID}>
-                                                <Link to={`/nganh-hoc/${program.majorID}/${specialize.specializeMajorID}`} className="text-muted">
-                                                    {specialize.specializeMajorName}
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </td>
+            <div className='mx-5 px-5'>
+                {loading && <Spinner animation="border" />}
+                {error && <p className="text-danger">Lỗi: {error.message}</p>}
+                {!loading && !error && (
+                    <Table striped bordered hover className='mx-5'>
+                        <thead>
+                            <tr>
+                                <th class="text-center">STT</th>
+                                <th class="text-center">Tên ngành</th>
+                                <th class="text-center">Chuyên ngành</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
+                        </thead>
+                        <tbody>
+                            {programs.map((program, index) => (
+                                <tr key={program.majorID}>
+                                    <td class="text-center">{index + 1}</td>
+                                    <td>
+                                        {program.majorName}
+                                    </td>
+                                    <td>
+                                        <ul className="list-unstyled ms-3">
+                                            {program.specializeMajorDTOs.map((specialize, idx) => (
+                                                <li key={specialize.specializeMajorID}>
+                                                    <Link to={`/nganh-hoc/${specialize.specializeMajorID}`} className="text-muted">
+                                                        {specialize.specializeMajorName}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                )}
+            </div>
         </Container>
     );
 };

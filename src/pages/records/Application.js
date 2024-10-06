@@ -1,7 +1,9 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { useState, useEffect } from '../hooks/Hooks.js';
+import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import api from '../../apiService';
 
 const Application = () => {
     // Xử lý lấy danh sách tỉnh huyện
@@ -63,45 +65,43 @@ const Application = () => {
         }
     }, [selectedDistrict]);
 
+    // Cơ sở
+    const [campuses, setCampuses] = useState([]);
+    const [selectedCampus, setSelectedCampus] = useState('');
+    useEffect(() => {
+        const fetchCampuses = async () => {
+            try {
+                const response = await api.get('/Campus/get-campuses');
+                setCampuses(response.data);
+            } catch (error) {
+                console.error('Error fetching campuses:', error);
+            }
+        };
+        fetchCampuses();
+    }, []);
+
     // Ngành học
     const [majors, setMajors] = useState([]);
     const [selectedMajor, setSelectedMajor] = useState('');
     const [specializations, setSpecializations] = useState([]);
-    const tempMajors = [
-        {
-            majorID: 'A',
-            majorName: 'Ngôn ngữ',
-            specializeMajorDTOs: [
-                { specializeMajorID: 'EA', specializeMajorName: 'Ngôn ngữ anh' },
-                { specializeMajorID: 'JA', specializeMajorName: 'Ngôn ngữ nhật' },
-                { specializeMajorID: 'KA', specializeMajorName: 'Ngôn ngữ hàn' }
-            ]
-        },
-        {
-            majorID: 'B',
-            majorName: 'Làm đẹp',
-            specializeMajorDTOs: [
-                { specializeMajorID: 'BS', specializeMajorName: 'Chăm sóc da và massage' },
-                { specializeMajorID: 'BT', specializeMajorName: 'Phum xăm thẩm mỹ' }
-            ]
-        },
-        {
-            majorID: 'E',
-            majorName: 'Công nghệ thông tin',
-            specializeMajorDTOs: [
-                { specializeMajorID: 'GE', specializeMajorName: 'Lập trình game' },
-                { specializeMajorID: 'ME', specializeMajorName: 'Lập trình mobile' },
-                { specializeMajorID: 'TE', specializeMajorName: 'Kiểm thử' },
-                { specializeMajorID: 'WE', specializeMajorName: 'Lập trình web' }
-            ]
-        }
-    ];
 
-    // Giả sử API đang lỗi, sử dụng dữ liệu tạm thời
-    useEffect(() => {
-        // Cập nhật majors với dữ liệu tạm thời
-        setMajors(tempMajors);
-    }, []);
+    // Khi người dùng chọn cơ sở, cập nhật ngành học
+    const handleCampusChange = async (e) => {
+        const campusId = e.target.value;
+        setSelectedCampus(campusId);
+        setSelectedMajor('');
+        setSpecializations([]);
+        if (campusId) {
+            try {
+                const response = await api.get(`/Major/get-majors?campus=${campusId}`);
+                setMajors(response.data);
+            } catch (error) {
+                console.error('Error fetching majors:', error);
+            }
+        } else {
+            setMajors([]);
+        }
+    };
 
     // Khi người dùng chọn ngành, cập nhật danh sách chuyên ngành
     const handleMajorChange = (e) => {
@@ -112,6 +112,7 @@ const Application = () => {
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
         setSpecializations(selectedMajor ? selectedMajor.specializeMajorDTOs : []);
     };
+
     // Xử lý CCCD và bằng
     const [showOtherAddress, setShowOtherAddress] = useState(false);
     const [frontCCCD, setFrontCCCD] = useState(null);
@@ -288,9 +289,13 @@ const Application = () => {
                         <Col md={6}>
                             <Form.Group controlId="campusSelection">
                                 <Form.Label>Cơ sở nhập học</Form.Label>
-                                <Form.Control as="select">
-                                    <option>Cơ sở Hà Nội</option>
-                                    <option>Cơ sở TP.HCM</option>
+                                <Form.Control as="select" onChange={handleCampusChange} value={selectedCampus}>
+                                    <option value="">Chọn cơ sở</option>
+                                    {campuses.map(campus => (
+                                        <option key={campus.campusId} value={campus.campusId}>
+                                            {campus.campusName}
+                                        </option>
+                                    ))}
                                 </Form.Control>
                             </Form.Group>
                         </Col>
@@ -298,10 +303,10 @@ const Application = () => {
                             <Row>
                                 <Form.Label>Nguyện vọng</Form.Label>
                                 <Col md={6}>
-                                    <Form.Group controlId="firstChoiceMajor">
-                                        <Form.Control as="select" onChange={handleMajorChange}>
-                                            <option value="">Ngành</option>
-                                            {majors.map((major) => (
+                                    <Form.Group controlId="majorSelection">
+                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
+                                            <option value="">Chọn ngành</option>
+                                            {majors.map(major => (
                                                 <option key={major.majorID} value={major.majorID}>
                                                     {major.majorName}
                                                 </option>
@@ -310,10 +315,10 @@ const Application = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="firstChoiceSpecialization">
+                                    <Form.Group controlId="specializationSelection">
                                         <Form.Control as="select" disabled={!selectedMajor}>
-                                            <option value="">Chuyên ngành</option>
-                                            {specializations.map((spec) => (
+                                            <option value="">Chọn chuyên ngành</option>
+                                            {specializations.map(spec => (
                                                 <option key={spec.specializeMajorID} value={spec.specializeMajorID}>
                                                     {spec.specializeMajorName}
                                                 </option>

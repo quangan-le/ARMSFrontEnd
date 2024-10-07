@@ -8,11 +8,12 @@ import {
 export const doSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
+
   const user = result.user;
 
   console.log("Email:", user.email);
   console.log("Full Name:", user.displayName);
-  console.log("ID Token:", idToken);
+  console.log("ID Token:", await user.getIdToken());
   
   const idToken = await user.getIdToken();
   await api.post("/Authentication/google-login", {

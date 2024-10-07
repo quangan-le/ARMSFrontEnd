@@ -1,7 +1,7 @@
 import React from 'react';
 import { Carousel } from 'react-bootstrap';
 
-const Slider = ({ banners }) => {
+const SliderBanner = ({ banners }) => {
     // Kiểm tra nếu không có banner hoặc dữ liệu đang trống
     if (!banners || banners.length === 0) {
       return (
@@ -26,4 +26,4 @@ const Slider = ({ banners }) => {
     );
   };
   
-  export default Slider;
+  export default SliderBanner;

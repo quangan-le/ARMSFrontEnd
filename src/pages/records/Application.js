@@ -1,8 +1,119 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useState } from '../hooks/Hooks.js';
+import { useState, useEffect } from '../hooks/Hooks.js';
+import { useOutletContext } from 'react-router-dom';
+import axios from 'axios';
+import api from '../../apiService';
 
 const Application = () => {
+    // Xử lý lấy danh sách tỉnh huyện
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+
+    // Lấy danh sách tỉnh/thành phố khi component mount
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            try {
+                const response = await axios.get('https://provinces.open-api.vn/api/p');
+                setProvinces(response.data);
+            } catch (error) {
+                console.error('Error fetching provinces data:', error);
+            }
+        };
+        fetchProvinces();
+    }, []);
+
+    // Lấy danh sách quận/huyện khi chọn tỉnh/thành phố
+    useEffect(() => {
+        if (selectedProvince) {
+            const fetchDistricts = async () => {
+                try {
+                    const response = await axios.get(
+                        `https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`
+                    );
+                    setDistricts(response.data.districts);
+                } catch (error) {
+                    console.error('Error fetching districts data:', error);
+                }
+            };
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [selectedProvince]);
+
+    // Lấy danh sách xã/phường khi chọn quận/huyện
+    useEffect(() => {
+        if (selectedDistrict) {
+            const fetchWards = async () => {
+                try {
+                    const response = await axios.get(
+                        `https://provinces.open-api.vn/api/d/${selectedDistrict}?depth=2`
+                    );
+                    setWards(response.data.wards);
+                } catch (error) {
+                    console.error('Error fetching wards data:', error);
+                }
+            };
+            fetchWards();
+        } else {
+            setWards([]);
+        }
+    }, [selectedDistrict]);
+
+    // Cơ sở
+    const [campuses, setCampuses] = useState([]);
+    const [selectedCampus, setSelectedCampus] = useState('');
+    useEffect(() => {
+        const fetchCampuses = async () => {
+            try {
+                const response = await api.get('/Campus/get-campuses');
+                setCampuses(response.data);
+            } catch (error) {
+                console.error('Error fetching campuses:', error);
+            }
+        };
+        fetchCampuses();
+    }, []);
+
+    // Ngành học
+    const [majors, setMajors] = useState([]);
+    const [selectedMajor, setSelectedMajor] = useState('');
+    const [specializations, setSpecializations] = useState([]);
+
+    // Khi người dùng chọn cơ sở, cập nhật ngành học
+    const handleCampusChange = async (e) => {
+        const campusId = e.target.value;
+        setSelectedCampus(campusId);
+        setSelectedMajor('');
+        setSpecializations([]);
+        if (campusId) {
+            try {
+                const response = await api.get(`/Major/get-majors?campus=${campusId}`);
+                setMajors(response.data);
+            } catch (error) {
+                console.error('Error fetching majors:', error);
+            }
+        } else {
+            setMajors([]);
+        }
+    };
+
+    // Khi người dùng chọn ngành, cập nhật danh sách chuyên ngành
+    const handleMajorChange = (e) => {
+        const selectedMajorId = e.target.value;
+        setSelectedMajor(selectedMajorId);
+
+        // Tìm chuyên ngành theo ngành đã chọn
+        const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
+        setSpecializations(selectedMajor ? selectedMajor.specializeMajorDTOs : []);
+    };
+
+    // Xử lý CCCD và bằng
     const [showOtherAddress, setShowOtherAddress] = useState(false);
     const [frontCCCD, setFrontCCCD] = useState(null);
     const [backCCCD, setBackCCCD] = useState(null);
@@ -95,39 +206,53 @@ const Application = () => {
                     </Row>
 
                     <Row className="mt-3">
+                        <Form.Label>Nơi thường trú</Form.Label>
                         <Col md={3}>
                             <Form.Group controlId="province">
-                                <Form.Label>Nơi thường trú</Form.Label>
-                                <Form.Control as="select">
-                                    <option>Chọn tỉnh/thành phố</option>
-                                    <option>Hà Nội</option>
-                                    <option>TP.HCM</option>
+                                <Form.Control
+                                    as="select"
+                                    onChange={(e) => setSelectedProvince(e.target.value)}
+                                >
+                                    <option value="">Tỉnh/thành phố</option>
+                                    {provinces.map((province) => (
+                                        <option key={province.code} value={province.code}>
+                                            {province.name}
+                                        </option>
+                                    ))}
                                 </Form.Control>
                             </Form.Group>
                         </Col>
+
                         <Col md={3}>
                             <Form.Group controlId="district">
-                                <Form.Label></Form.Label>
-                                <Form.Control as="select">
-                                    <option>Quận/Huyện</option>
-                                    <option>Quận 1</option>
-                                    <option>Quận 2</option>
+                                <Form.Control
+                                    as="select"
+                                    onChange={(e) => setSelectedDistrict(e.target.value)}
+                                    disabled={!selectedProvince}
+                                >
+                                    <option value="">Quận/Huyện</option>
+                                    {districts.map((district) => (
+                                        <option key={district.code} value={district.code}>
+                                            {district.name}
+                                        </option>
+                                    ))}
                                 </Form.Control>
                             </Form.Group>
                         </Col>
                         <Col md={3}>
                             <Form.Group controlId="ward">
-                                <Form.Label></Form.Label>
-                                <Form.Control as="select">
-                                    <option>Xã/Phường/Thị trấn</option>
-                                    <option>Phường 1</option>
-                                    <option>Phường 2</option>
+                                <Form.Control as="select" disabled={!selectedDistrict}>
+                                    <option value="">Xã/Phường/Thị trấn</option>
+                                    {wards.map((ward) => (
+                                        <option key={ward.code} value={ward.code}>
+                                            {ward.name}
+                                        </option>
+                                    ))}
                                 </Form.Control>
                             </Form.Group>
                         </Col>
                         <Col md={3}>
                             <Form.Group controlId="houseNumber">
-                                <Form.Label></Form.Label>
                                 <Form.Control type="text" placeholder="Nhập số nhà, đường, ngõ..." />
                             </Form.Group>
                         </Col>
@@ -164,33 +289,44 @@ const Application = () => {
                         <Col md={6}>
                             <Form.Group controlId="campusSelection">
                                 <Form.Label>Cơ sở nhập học</Form.Label>
-                                <Form.Control as="select">
-                                    <option>Cơ sở Hà Nội</option>
-                                    <option>Cơ sở TP.HCM</option>
+                                <Form.Control as="select" onChange={handleCampusChange} value={selectedCampus}>
+                                    <option value="">Chọn cơ sở</option>
+                                    {campuses.map(campus => (
+                                        <option key={campus.campusId} value={campus.campusId}>
+                                            {campus.campusName}
+                                        </option>
+                                    ))}
                                 </Form.Control>
                             </Form.Group>
                         </Col>
-                    </Row>
-
-                    <Row className="mt-3">
-                        <Form.Label>Nguyện vọng</Form.Label>
-                        <Col md={3}>
-                            <Form.Group controlId="firstChoiceMajor">
-                                <Form.Control as="select">
-                                    <option>Ngành</option>
-                                    <option>Công nghệ thông tin</option>
-                                    <option>Quản trị kinh doanh</option>
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group controlId="firstChoiceSpecialization">
-                                <Form.Control as="select">
-                                    <option>Chuyên ngành</option>
-                                    <option>Kỹ thuật phần mềm</option>
-                                    <option>An ninh mạng</option>
-                                </Form.Control>
-                            </Form.Group>
+                        <Col md={6}>
+                            <Row>
+                                <Form.Label>Nguyện vọng</Form.Label>
+                                <Col md={6}>
+                                    <Form.Group controlId="majorSelection">
+                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
+                                            <option value="">Chọn ngành</option>
+                                            {majors.map(major => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="specializationSelection">
+                                        <Form.Control as="select" disabled={!selectedMajor}>
+                                            <option value="">Chọn chuyên ngành</option>
+                                            {specializations.map(spec => (
+                                                <option key={spec.specializeMajorID} value={spec.specializeMajorID}>
+                                                    {spec.specializeMajorName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                     <Row className="mt-3">
@@ -350,7 +486,7 @@ const Application = () => {
                         {degreeType === 'thpt' && (
                             <Col md={12} >
                                 <Form.Group>
-                                    <Row className='mt-3'> 
+                                    <Row className='mt-3'>
                                         <Col md={3} >
                                             <Form.Label>Học bạ kỳ 1 lớp 10</Form.Label>
                                             <Form.Control type="file" accept="image/*" />

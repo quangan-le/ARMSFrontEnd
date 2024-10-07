@@ -1,14 +1,15 @@
 // src/pages/Homepage.js
 import React from "react";
-import Slider from "./Slider";
 import { Container, Row, Col, Button, Card, Form, Carousel } from "react-bootstrap";
 import { Link, useOutletContext } from 'react-router-dom';
+import SliderBanner from "./SilderBanner";
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
-import "react-multi-carousel/lib/styles.css";
 import MultiCarousel from 'react-multi-carousel';
+import "react-multi-carousel/lib/styles.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
 
 const content = {
   "Đối tượng và hình thức": (
@@ -189,6 +190,41 @@ const Homepage = () => {
     fetchPartners();
   }, []);
 
+  // Đăng ký thông tin 
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    linkFB: '',
+    specializeMajorID: '',
+    campusId: selectedCampus.id,
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await api.post('/StudentConsultation', {
+        ...formData,
+        dateReceive: new Date().toISOString(),
+      });
+
+      if (response.status === 200) {
+        alert('Đăng ký thành công!');
+      } else {
+        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi đăng ký:', error);
+      alert('Có lỗi xảy ra. Vui lòng thử lại.');
+    }
+  };
   return (
     <div>
       {loading ? (
@@ -196,7 +232,7 @@ const Homepage = () => {
           <span className="loading-text">Đang tải...</span>
         </div>
       ) : (
-        <Slider banners={banners} />
+        <SliderBanner banners={banners} />
       )}
       <div className="text-center background-overlay">
         <div className="overlay"></div>
@@ -269,12 +305,12 @@ const Homepage = () => {
               <div key={index} className="p-2">
                 <div
                   className="bg-light rounded border shadow-sm d-flex flex-column"
-                  style={{ width: '100%', height: '200px' }}
+                  style={{ width: '100%', height: '180px' }}
                 >
-                  <div className="p-3">
+                  <div className="pt-3">
                     <h5 className="text-center">{major.majorName}</h5>
                   </div>
-                  <div className="flex-grow-1 p-3 d-flex align-items-center justify-content-center">
+                  <div className="flex-grow-1 pb-2 d-flex align-items-center justify-content-center">
                     <ul className="list-unstyled mb-0 ">
                       {major.specializeMajorDTOs.map((subMajor, subIndex) => (
                         <li key={subIndex}>{subMajor.specializeMajorName}</li>
@@ -322,28 +358,74 @@ const Homepage = () => {
           </div>
           <div className="form-section bg-orange p-4 text-white">
             <h4 className="text-section">ĐĂNG KÝ XÉT TUYỂN</h4>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="name" className="form-label">Họ và tên</label>
-                <input type="text" className="form-control" id="name" placeholder="Nhập họ và tên" />
+                <label htmlFor="fullName" className="form-label">Họ và tên</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="fullName"
+                  name="fullName"
+                  placeholder="Nhập họ và tên"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
-                <label htmlFor="phone" className="form-label">Số điện thoại</label>
-                <input type="text" className="form-control" id="phone" placeholder="Nhập số điện thoại" />
+                <label htmlFor="phoneNumber" className="form-label">Số điện thoại</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  placeholder="Nhập số điện thoại"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email</label>
-                <input type="email" className="form-control" id="email" placeholder="Nhập email" />
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  name="email"
+                  placeholder="Nhập email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
-                <label htmlFor="field" className="form-label">Chọn ngành học</label>
-                <select id="field" className="form-select">
-                  <option value="">Chọn ngành học</option>
+                <label htmlFor="specializeMajorID" className="form-label">Chọn ngành học</label>
+                <select
+                  id="specializeMajorID"
+                  name="specializeMajorID"
+                  className="form-select"
+                  value={formData.specializeMajorID}
+                  onChange={handleChange}
+                >
+                  {majors.map((major) => (
+                    <optgroup key={major.majorID} label={major.majorName}>
+                      {major.specializeMajorDTOs.map((specialize) => (
+                        <option key={specialize.specializeMajorID} value={specialize.specializeMajorID}>
+                          {specialize.specializeMajorName}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
               <div className="mb-3">
-                <label htmlFor="facebook" className="form-label">Link Facebook</label>
-                <input type="text" className="form-control" id="facebook" placeholder="Nhập link Facebook" />
+                <label htmlFor="linkFB" className="form-label">Link Facebook</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="linkFB"
+                  name="linkFB"
+                  placeholder="Nhập link Facebook"
+                  value={formData.linkFB}
+                  onChange={handleChange}
+                />
               </div>
               <div className="d-flex justify-content-center">
                 <button type="submit" className="btn btn-submit px-5">Đăng ký</button>
@@ -391,9 +473,18 @@ const Homepage = () => {
           <Row className="justify-content-center mx-4">
             {partners.length > 0 ? (
               partners.map((partner, index) => (
-                <Col md={3} className="mb-4" key={partner.supplierId}>
-                  <img src={partner.img} alt={partner.supplierName} className="img-fluid" />
-                  <p className="mt-2">{partner.supplierName}</p>
+                <Col
+                  md={3}
+                  className="d-flex justify-content-center align-items-center"
+                  key={partner.supplierId}
+                >
+                  <div className="partner-logo-container">
+                    <img
+                      src={partner.img}
+                      alt={partner.supplierName}
+                      className="img-fluid partner-logo"
+                    />
+                  </div>
                 </Col>
               ))
             ) : (

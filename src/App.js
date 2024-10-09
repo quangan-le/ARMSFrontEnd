@@ -27,6 +27,7 @@ import Dashboard from "./pages/dashboard/DashBoard.js";
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
+import IntermediateApplication from "./pages/records/IntermediateApplication.js";
 
 function App() {
   //const user = { role: "admin" };
@@ -46,6 +47,7 @@ function App() {
           <Route path="/nganh-hoc/:specializeMajorID" element={<ProgramDetail />} />
           <Route path="/tuyen-sinh" element={<Information />} />
           <Route path="/nop-ho-so" element={<Application />} />
+          <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
           <Route path="/dang-ky" element={<Advisory />} />
           <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
           <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />

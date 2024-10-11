@@ -330,44 +330,6 @@ const IntermediateApplication = () => {
                         </Col>
                     </Row>
                     <Row className="mt-3">
-                        <Col md={6}>
-                            <Form.Group controlId="degreeType">
-                                <Form.Label>Chọn loại bằng</Form.Label>
-                                <Form.Check
-                                    type="radio"
-                                    label="Tốt nghiệp THCS"
-                                    name="degreeType"
-                                    value="thcs"
-                                    onChange={handleDegreeChange}
-                                    checked={degreeType === 'thcs'}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Tốt nghiệp Trung cấp loại giỏi"
-                                    name="degreeType"
-                                    value="trung-cap"
-                                    onChange={handleDegreeChange}
-                                    checked={degreeType === 'trung-cap'}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Tốt nghiệp THPT hoặc bổ túc"
-                                    name="degreeType"
-                                    value="thpt"
-                                    onChange={handleDegreeChange}
-                                    checked={degreeType === 'thpt'}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Tốt nghiệp ĐH-CD-TC"
-                                    name="degreeType"
-                                    value="dh-cd"
-                                    onChange={handleDegreeChange}
-                                    checked={degreeType === 'dh-cd'}
-                                />
-                            </Form.Group>
-                        </Col>
-
                         <Col md={3}>
                             <Form.Group controlId="graduationYear">
                                 <Form.Label>Năm tốt nghiệp</Form.Label>
@@ -483,34 +445,6 @@ const IntermediateApplication = () => {
                                 )}
                             </Form.Group>
                         </Col>
-                        {degreeType === 'thpt' && (
-                            <Col md={12} >
-                                <Form.Group>
-                                    <Row className='mt-3'>
-                                        <Col md={3} >
-                                            <Form.Label>Học bạ kỳ 1 lớp 10</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
-                                        </Col>
-                                        <Col md={3}>
-                                            <Form.Label>Học bạ kỳ 2 lớp 10</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
-                                        </Col>
-                                        <Col md={3}>
-                                            <Form.Label>Học bạ kỳ 1 lớp 11</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
-                                        </Col>
-                                        <Col md={3}>
-                                            <Form.Label>Học bạ kỳ 2 lớp 11</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
-                                        </Col>
-                                        <Col md={3} className='mt-3'>
-                                            <Form.Label>Học bạ kỳ 1 lớp 12</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
-                                        </Col>
-                                    </Row>
-                                </Form.Group>
-                            </Col>
-                        )}
                     </Row>
                     <div className="d-flex justify-content-center">
                         <Button variant="light" type="submit" className="read-more-btn mt-3">

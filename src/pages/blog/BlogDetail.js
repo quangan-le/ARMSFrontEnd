@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Breadcrumb, Card, ListGroup, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Breadcrumb, Card, ListGroup } from 'react-bootstrap';
 import api from '../../apiService';
 
 const BlogDetail = () => {
     const { blogId } = useParams();
     const [blogData, setBlogData] = useState(null); // State để lưu dữ liệu bài viết
-    const [comments, setComments] = useState([]); // State để lưu các bình luận
-    const [newComment, setNewComment] = useState("");
-    const [parentCommentId, setParentCommentId] = useState(null);
     const [relatedBlogs, setRelatedBlogs] = useState([]); // State để lưu danh sách tin tức liên quan
 
     // Gọi API để lấy dữ liệu bài viết chi tiết
@@ -17,7 +14,6 @@ const BlogDetail = () => {
             try {
                 const response = await api.get(`/Blog/get-blog?BlogId=${blogId}`);
                 setBlogData(response.data);
-                setComments(response.data.comments);
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu bài viết:', error);
             }
@@ -26,57 +22,12 @@ const BlogDetail = () => {
         fetchBlogDetail();
     }, [blogId]);
 
-    // Tạo cấu trúc cây cho các bình luận
-    const organizeComments = (comments) => {
-        const commentMap = {};
-        comments.forEach(comment => (commentMap[comment.commentId] = { ...comment, children: [] }));
-
-        const commentTree = [];
-        comments.forEach(comment => {
-            if (comment.parentCommentId === null) {
-                commentTree.push(commentMap[comment.commentId]);
-            } else if (commentMap[comment.parentCommentId]) {
-                commentMap[comment.parentCommentId].children.push(commentMap[comment.commentId]);
-            }
-        });
-
-        return commentTree;
-    };
-
-    const handleReply = (commentId) => {
-        setParentCommentId(commentId);
-    };
-
-    const handleAddComment = () => {
-        // Gửi comment mới đến API hoặc thêm vào state tạm thời
-        if (newComment.trim()) {
-            const newCommentObject = {
-                commentId: comments.length + 1,
-                content: newComment,
-                createdDate: new Date().toISOString(),
-                facebookUserId: 'temporaryUserId',
-                facebookUserName: 'Temporary User',
-                parentCommentId: parentCommentId,
-            };
-            setComments([...comments, newCommentObject]);
-            setNewComment("");
-            setParentCommentId(null);
+    // Khởi tạo và cập nhật plugin bình luận của Facebook khi URL thay đổi
+    useEffect(() => {
+        if (window.FB) {
+            window.FB.XFBML.parse();  // Cập nhật plugin Facebook
         }
-    };
-
-    const renderComment = (comment, level = 0) => (
-        <div key={comment.commentId} style={{ marginLeft: level * 20 + 'px' }} className="mb-3">
-            <strong>{comment.facebookUserName}</strong> <span className="text-muted">{new Date(comment.createdDate).toLocaleString()}</span>
-            <p>{comment.content}</p>
-            <div className="actions">
-                <Button variant="link" size="sm" onClick={() => handleReply(comment.commentId)}>Trả lời</Button>
-                <Button variant="link" size="sm">Chỉnh sửa</Button>
-                <Button variant="link" size="sm">Xóa</Button>
-            </div>
-            {/* Hiển thị các bình luận con */}
-            {comment.children.map(childComment => renderComment(childComment, level + 1))}
-        </div>
-    );
+    }, [blogData]);
 
     return (
         <Container className="news-detail my-4">
@@ -100,35 +51,15 @@ const BlogDetail = () => {
                         ))}
                     </div>
 
-                    <div className="comment-section mt-4">
-                        <h5>Bình luận</h5>
-                        {comments.length === 0 ? (
-                            <p>Chưa có bình luận. Hãy là người đầu tiên bình luận!</p>
-                        ) : (
-                            <div>
-                                {organizeComments(comments).map(comment => renderComment(comment))}
-                            </div>
-                        )}
-
-                        <Form>
-                            <Form.Group controlId="commentTextarea">
-                                <Form.Control
-                                    as="textarea"
-                                    rows={1}
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    placeholder={parentCommentId ? `Trả lời bình luận #${parentCommentId}` : "Nhập bình luận..."}
-                                />
-                            </Form.Group>
-                            <Button variant="primary" type="button" className="mt-2" onClick={handleAddComment}>
-                                Gửi bình luận
-                            </Button>
-                            {parentCommentId && (
-                                <Button variant="secondary" type="button" className="mt-2 ms-2" onClick={() => setParentCommentId(null)}>
-                                    Hủy trả lời
-                                </Button>
-                            )}
-                        </Form>
+                    {/* Thêm Facebook Comments Plugin */}
+                    <div className="facebook-comments mt-4">
+                        <h5>Bình luận Facebook</h5>
+                        <div 
+                            className="fb-comments" 
+                            data-href={window.location.href} 
+                            data-width="100%" 
+                            data-numposts="5">
+                        </div>
                     </div>
                 </Col>
                 <Col md={4}>

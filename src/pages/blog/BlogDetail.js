@@ -5,10 +5,9 @@ import api from '../../apiService';
 
 const BlogDetail = () => {
     const { blogId } = useParams();
-    const [blogData, setBlogData] = useState(null); // State để lưu dữ liệu bài viết
-    const [relatedBlogs, setRelatedBlogs] = useState([]); // State để lưu danh sách tin tức liên quan
+    const [blogData, setBlogData] = useState(null); 
+    const [relatedBlogs, setRelatedBlogs] = useState([]);
 
-    // Gọi API để lấy dữ liệu bài viết chi tiết
     useEffect(() => {
         const fetchBlogDetail = async () => {
             try {
@@ -25,7 +24,7 @@ const BlogDetail = () => {
     // Khởi tạo và cập nhật plugin bình luận của Facebook khi URL thay đổi
     useEffect(() => {
         if (window.FB) {
-            window.FB.XFBML.parse();  // Cập nhật plugin Facebook
+            window.FB.XFBML.parse();  
         }
     }, [blogData]);
 
@@ -51,7 +50,6 @@ const BlogDetail = () => {
                         ))}
                     </div>
 
-                    {/* Thêm Facebook Comments Plugin */}
                     <div className="facebook-comments mt-4">
                         <h5>Bình luận Facebook</h5>
                         <div 

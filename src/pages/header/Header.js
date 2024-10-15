@@ -124,7 +124,10 @@ const Header = ({ onCampusChange }) => {
             <Nav.Link as={Link} to="/tin-tuc">Tin tức</Nav.Link>
             <Nav.Link as={Link} to="/nganh-hoc">Ngành học</Nav.Link>
             <Nav.Link as={Link} to="/tuyen-sinh">Tuyển sinh</Nav.Link>
-            <Nav.Link as={Link} to="/nop-ho-so">Nộp hồ sơ</Nav.Link>
+            <NavDropdown title="Nộp hồ sơ" id="basic-nav-dropdown">
+              <NavDropdown.Item as={Link} to="/nop-ho-so">Nộp hồ sơ</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/nop-ho-so-lien-thong">Nộp hồ sơ liên thông</NavDropdown.Item>
+            </NavDropdown>
             <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu hồ sơ</Nav.Link>
           </Nav>
           {/* <Nav>

@@ -139,7 +139,7 @@ const IntermediateApplication = () => {
                             <h2>Nộp hồ sơ trực tuyến</h2>
                             <h4>1. Điền thông tin xét tuyển</h4>
                             <h4>2. Chụp CCCD/CMND 2 mặt</h4>
-                            <h4>3. Chụp chứng nhận/Bằng tốt nghiệp THCS hoặc tương đương</h4>
+                            <h4>3. Bảng điểm tốt nghiệp trung cấp</h4>
                         </Col>
                     </Row>
                 </Container>
@@ -283,7 +283,33 @@ const IntermediateApplication = () => {
                             </Form.Group>
                         </Col>
                     </Row>
-
+                    <h4 className='text-orange mt-4'>Thông tin thí sinh khi học trung cấp</h4>
+                    <Row>
+                        <Col md={3}>
+                            <Form.Group>
+                                <Form.Label>Ngành học</Form.Label>
+                                <Form.Control type="text" placeholder="Nhập ngành học" />
+                            </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                            <Form.Group>
+                                <Form.Label>Khóa</Form.Label>
+                                <Form.Control type="text" placeholder="Nhập khóa" />
+                            </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                            <Form.Group>
+                                <Form.Label>Trường</Form.Label>
+                                <Form.Control type="text" placeholder="Nhập tên trường" />
+                            </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                            <Form.Group controlId="graduationYear">
+                                <Form.Label>Năm tốt nghiệp</Form.Label>
+                                <Form.Control type="text" placeholder="2024" />
+                            </Form.Group>
+                        </Col>
+                    </Row>
                     <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
                     <Row className="mt-2">
                         <Col md={6}>
@@ -327,20 +353,6 @@ const IntermediateApplication = () => {
                                     </Form.Group>
                                 </Col>
                             </Row>
-                        </Col>
-                    </Row>
-                    <Row className="mt-3">
-                        <Col md={3}>
-                            <Form.Group controlId="graduationYear">
-                                <Form.Label>Năm tốt nghiệp</Form.Label>
-                                <Form.Control type="text" placeholder="2024" />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group controlId="schoolName">
-                                <Form.Label>Tên trường</Form.Label>
-                                <Form.Control type="text" placeholder="Trường THCS A" />
-                            </Form.Group>
                         </Col>
                     </Row>
                     <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
@@ -429,10 +441,9 @@ const IntermediateApplication = () => {
                                 </Col>
                             </Row>
                         </Col>
-
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Bằng tốt nghiệp (Hoặc giấy tờ xác nhận tốt nghiệp tạm thời)</Form.Label>
+                                <Form.Label>Bảng điểm tốt nghiệp trung cấp</Form.Label>
                                 <Form.Control
                                     type="file"
                                     accept="image/*"
@@ -440,7 +451,7 @@ const IntermediateApplication = () => {
                                 />
                                 {graduationCertificate && (
                                     <div className="image-preview-container mt-2">
-                                        <img src={graduationCertificate} alt="Ảnh bằng tốt nghiệp" className="img-preview" />
+                                        <img src={graduationCertificate} alt="Ảnh bảng điểm" className="img-preview" />
                                     </div>
                                 )}
                             </Form.Group>

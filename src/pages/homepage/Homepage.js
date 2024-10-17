@@ -38,53 +38,53 @@ const content = {
 };
 
 const mockData = [
-    {
-      "majorID": "A",
-      "majorName": "Ngôn ngữ",
-      "specializeMajorDTOs": [
-        { "specializeMajorID": "EA", "specializeMajorName": "Ngôn ngữ anh" },
-        { "specializeMajorID": "JA", "specializeMajorName": "Ngôn ngữ nhật" },
-        { "specializeMajorID": "KA", "specializeMajorName": "Ngôn ngữ hàn" }
-      ]
-    },
-    {
-      "majorID": "B",
-      "majorName": "Làm đẹp",
-      "specializeMajorDTOs": [
-        { "specializeMajorID": "BS", "specializeMajorName": "Chăm sóc da và massage" },
-        { "specializeMajorID": "BT", "specializeMajorName": "Phum xăm thẩm mỹ" }
-      ]
-    },
-    {
-      "majorID": "E",
-      "majorName": "Công nghệ thông tin",
-      "specializeMajorDTOs": [
-        { "specializeMajorID": "GE", "specializeMajorName": "Lập trình game" },
-        { "specializeMajorID": "ME", "specializeMajorName": "Lập trình mobile" },
-        { "specializeMajorID": "TE", "specializeMajorName": "Kiểm thử" },
-        { "specializeMajorID": "WE", "specializeMajorName": "Lập trình web" }
-      ]
-    },
-    {
-      "majorID": "O",
-      "majorName": "Ngành khác",
-      "specializeMajorDTOs": [
-        { "specializeMajorID": "AO", "specializeMajorName": "Kiểm toán" },
-        { "specializeMajorID": "FO", "specializeMajorName": "Kỹ thuật chế biến món ăn" },
-        { "specializeMajorID": "SO", "specializeMajorName": "Thư ký văn phòng" }
-      ]
-    },
-    {
-      "majorID": "S",
-      "majorName": "Quản trị kinh doanh",
-      "specializeMajorDTOs": [
-        { "specializeMajorID": "HM", "specializeMajorName": "Quản trị khách sạn" },
-        { "specializeMajorID": "RM", "specializeMajorName": "Quản trị nhà hàng" },
-        { "specializeMajorID": "SM", "specializeMajorName": "Marketing" }
-      ]
-    }
-  ];
-  
+  {
+    "majorID": "A",
+    "majorName": "Ngôn ngữ",
+    "specializeMajorDTOs": [
+      { "specializeMajorID": "EA", "specializeMajorName": "Ngôn ngữ anh" },
+      { "specializeMajorID": "JA", "specializeMajorName": "Ngôn ngữ nhật" },
+      { "specializeMajorID": "KA", "specializeMajorName": "Ngôn ngữ hàn" }
+    ]
+  },
+  {
+    "majorID": "B",
+    "majorName": "Làm đẹp",
+    "specializeMajorDTOs": [
+      { "specializeMajorID": "BS", "specializeMajorName": "Chăm sóc da và massage" },
+      { "specializeMajorID": "BT", "specializeMajorName": "Phum xăm thẩm mỹ" }
+    ]
+  },
+  {
+    "majorID": "E",
+    "majorName": "Công nghệ thông tin",
+    "specializeMajorDTOs": [
+      { "specializeMajorID": "GE", "specializeMajorName": "Lập trình game" },
+      { "specializeMajorID": "ME", "specializeMajorName": "Lập trình mobile" },
+      { "specializeMajorID": "TE", "specializeMajorName": "Kiểm thử" },
+      { "specializeMajorID": "WE", "specializeMajorName": "Lập trình web" }
+    ]
+  },
+  {
+    "majorID": "O",
+    "majorName": "Ngành khác",
+    "specializeMajorDTOs": [
+      { "specializeMajorID": "AO", "specializeMajorName": "Kiểm toán" },
+      { "specializeMajorID": "FO", "specializeMajorName": "Kỹ thuật chế biến món ăn" },
+      { "specializeMajorID": "SO", "specializeMajorName": "Thư ký văn phòng" }
+    ]
+  },
+  {
+    "majorID": "S",
+    "majorName": "Quản trị kinh doanh",
+    "specializeMajorDTOs": [
+      { "specializeMajorID": "HM", "specializeMajorName": "Quản trị khách sạn" },
+      { "specializeMajorID": "RM", "specializeMajorName": "Quản trị nhà hàng" },
+      { "specializeMajorID": "SM", "specializeMajorName": "Marketing" }
+    ]
+  }
+];
+
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
@@ -99,7 +99,7 @@ const Homepage = () => {
     const fetchBanners = async () => {
       try {
         if (selectedCampus.id) {
-          const response = await api.get(`/Campus/get-banners?campusId=${selectedCampus.id}`);
+          const response = await api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`);
           setBanners(response.data);
           setLoading(false);
         }
@@ -151,20 +151,54 @@ const Homepage = () => {
       items: 1,
     },
   };
+
   // Lưu bút
   const [testimonials, setTestimonials] = useState([]);
-
-  // Lấy danh sách lưu bút sinh viên
   useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const response = await api.get('/Campus/get-alumi');
-        setTestimonials(response.data);
-      } catch (error) {
-        console.error('Error fetching testimonials:', error);
-      }
-    };
-    fetchTestimonials();
+    const fixedTestimonials = [
+      {
+        alumiStudentId: 1,
+        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        fullName: 'Nguyễn Văn A',
+        desciption: 'Thật tuyệt vời khi được học tại đây!',
+        specializeMajorName: 'Lập trình web',
+        campusName: 'Cơ sở Hà Nội',
+      },
+      {
+        alumiStudentId: 2,
+        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        fullName: 'Trần Thị B',
+        desciption: 'Một trải nghiệm học tập đáng nhớ!',
+        specializeMajorName: 'Marketing',
+        campusName: 'Cơ sở TP.HCM',
+      },
+      {
+        alumiStudentId: 3,
+        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        fullName: 'Phạm Văn C',
+        desciption: 'Giảng viên rất tận tình và hỗ trợ.',
+        specializeMajorName: 'Lập trình game',
+        campusName: 'Cơ sở Đà Nẵng',
+      },
+      {
+        alumiStudentId: 4,
+        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        fullName: 'Lê Thị D',
+        desciption: 'Cơ sở vật chất hiện đại và tiện nghi.',
+        specializeMajorName: 'Ngôn ngữ anh',
+        campusName: 'Cơ sở Cần Thơ',
+      },
+      {
+        alumiStudentId: 5,
+        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        fullName: 'Ngô Văn E',
+        desciption: 'Chương trình học rất phong phú và bổ ích.',
+        specializeMajorName: 'Phum xăm thẩm mỹ',
+        campusName: 'Cơ sở Thanh Hoá',
+      },
+    ];
+
+    setTestimonials(fixedTestimonials);
   }, []);
 
   // Cấu hình cho chuyển tiếp lưu bút
@@ -176,6 +210,7 @@ const Homepage = () => {
     slidesToScroll: 1,
     arrows: true,
   };
+
   // Đối tác
   const [partners, setPartners] = useState([]);
   useEffect(() => {

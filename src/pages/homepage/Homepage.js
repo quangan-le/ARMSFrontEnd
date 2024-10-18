@@ -5,8 +5,6 @@ import { Link, useOutletContext } from 'react-router-dom';
 import SliderBanner from "./SilderBanner";
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
-import MultiCarousel from 'react-multi-carousel';
-import "react-multi-carousel/lib/styles.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
@@ -37,55 +35,6 @@ const content = {
   "Học phí": "Học phí sẽ được tính theo tín chỉ, với các mức khác nhau cho từng ngành học. Trung bình từ 500,000 VND đến 1,200,000 VND một tín chỉ."
 };
 
-const mockData = [
-  {
-    "majorID": "A",
-    "majorName": "Ngôn ngữ",
-    "specializeMajorDTOs": [
-      { "specializeMajorID": "EA", "specializeMajorName": "Ngôn ngữ anh" },
-      { "specializeMajorID": "JA", "specializeMajorName": "Ngôn ngữ nhật" },
-      { "specializeMajorID": "KA", "specializeMajorName": "Ngôn ngữ hàn" }
-    ]
-  },
-  {
-    "majorID": "B",
-    "majorName": "Làm đẹp",
-    "specializeMajorDTOs": [
-      { "specializeMajorID": "BS", "specializeMajorName": "Chăm sóc da và massage" },
-      { "specializeMajorID": "BT", "specializeMajorName": "Phum xăm thẩm mỹ" }
-    ]
-  },
-  {
-    "majorID": "E",
-    "majorName": "Công nghệ thông tin",
-    "specializeMajorDTOs": [
-      { "specializeMajorID": "GE", "specializeMajorName": "Lập trình game" },
-      { "specializeMajorID": "ME", "specializeMajorName": "Lập trình mobile" },
-      { "specializeMajorID": "TE", "specializeMajorName": "Kiểm thử" },
-      { "specializeMajorID": "WE", "specializeMajorName": "Lập trình web" }
-    ]
-  },
-  {
-    "majorID": "O",
-    "majorName": "Ngành khác",
-    "specializeMajorDTOs": [
-      { "specializeMajorID": "AO", "specializeMajorName": "Kiểm toán" },
-      { "specializeMajorID": "FO", "specializeMajorName": "Kỹ thuật chế biến món ăn" },
-      { "specializeMajorID": "SO", "specializeMajorName": "Thư ký văn phòng" }
-    ]
-  },
-  {
-    "majorID": "S",
-    "majorName": "Quản trị kinh doanh",
-    "specializeMajorDTOs": [
-      { "specializeMajorID": "HM", "specializeMajorName": "Quản trị khách sạn" },
-      { "specializeMajorID": "RM", "specializeMajorName": "Quản trị nhà hàng" },
-      { "specializeMajorID": "SM", "specializeMajorName": "Marketing" }
-    ]
-  }
-];
-
-
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
@@ -115,23 +64,24 @@ const Homepage = () => {
   }, [selectedCampus]);
 
   // Ngành học
-  const [majors, setMajors] = useState([]);
-  // useEffect(() => {
-  //   if (selectedCampus.id) {
-  //     const fetchData = async () => {
-  //       try {
-  //         const response = await api.get(`/Major/get-majors?campus=${selectedCampus.id}`);
-  //         setMajors(response.data);
-  //       } catch (error) {
-  //         console.error('Có lỗi xảy ra khi lấy danh sách ngành học:', error);
-  //       }
-  //     };
-  //     fetchData();
-  //   }
-  // }, [selectedCampus]);
+  const [vocationalMajors, setVocationalMajors] = useState([]);
+  const [collegeMajors, setCollegeMajors] = useState([]);
+
   useEffect(() => {
-    setMajors(mockData);
-  }, []);
+    const fetchMajors = async () => {
+      try {
+        console.log(selectedCampus.id);
+        const vocationalResponse = await api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`);
+        const collegeResponse = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
+        setVocationalMajors(vocationalResponse.data);
+        setCollegeMajors(collegeResponse.data);
+      } catch (error) {
+        console.error('Có lỗi khi lấy danh sách ngành học', error);
+      }
+    };
+    fetchMajors();
+  }, [selectedCampus]);
+
   // Carousel settings for majors
   const responsive = {
     superLargeDesktop: {
@@ -159,10 +109,10 @@ const Homepage = () => {
       {
         alumiStudentId: 1,
         img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
-        fullName: 'Nguyễn Văn A',
-        desciption: 'Thật tuyệt vời khi được học tại đây!',
-        specializeMajorName: 'Lập trình web',
-        campusName: 'Cơ sở Hà Nội',
+        fullName: 'Nguyễn Thị Thúy Diễm',
+        desciption: 'Là một người trẻ, năng động thích môi trường năng động và được học những kiến thức thực tế. Mình nhận thấy đây là môi trường hoàn hảo để chắp cánh ước mơ trở thành nhà quản trị khách sạn của mình!',
+        specializeMajorName: 'Sinh viên ngành Quản trị khách sạn',
+        campusName: 'Cơ sở Hồ Chí Minh',
       },
       {
         alumiStudentId: 2,
@@ -212,18 +162,48 @@ const Homepage = () => {
   };
 
   // Đối tác
-  const [partners, setPartners] = useState([]);
-  useEffect(() => {
-    const fetchPartners = async () => {
-      try {
-        const response = await api.get('/Supplier/get-suplliers');
-        setPartners(response.data);
-      } catch (error) {
-        console.error('Có lỗi xảy ra khi lấy danh sách đối tác!', error);
-      }
-    };
-    fetchPartners();
-  }, []);
+  const [partners, setPartners] = useState([
+    {
+      "supplierId": 1,
+      "supplierName": "Fpt Software",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FFptSoftware.png?alt=media&token=552c0a51-fdea-4795-acd7-fd10fe5cb45f"
+    },
+    {
+      "supplierId": 2,
+      "supplierName": "Tập đoàn bưu chính viễn thông",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FVNPT.png?alt=media&token=96d1f135-015a-4c8c-a8a3-dbd283cbd345"
+    },
+    {
+      "supplierId": 3,
+      "supplierName": "Base.vn",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FBase.vn.png?alt=media&token=be9f0ae0-8704-4cf5-b20c-d344d7d9ea3c"
+    },
+    {
+      "supplierId": 4,
+      "supplierName": "UniMedia",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FUniMedia.png?alt=media&token=8b223dea-5076-485c-95c8-467c39568c88"
+    },
+    {
+      "supplierId": 5,
+      "supplierName": "Avepoint Việt Nam",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FAvepoint.png?alt=media&token=ebbbdabb-d411-4a6b-a57b-a16b1c144a8c"
+    },
+    {
+      "supplierId": 6,
+      "supplierName": "CMC",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FCMC.jpg?alt=media&token=e37589d5-9907-44fd-abac-a1ace3537f27"
+    },
+    {
+      "supplierId": 7,
+      "supplierName": "Kaopiz",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FKaopiz.png?alt=media&token=b9d29e81-712e-4b78-b8c3-2d74144347f3"
+    },
+    {
+      "supplierId": 8,
+      "supplierName": "Viettel",
+      "img": "https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Supplier%2FViettel.png?alt=media&token=3493a983-26d0-4c41-967e-341c3cfcc269"
+    }
+  ]);
 
   // Đăng ký thông tin 
   const [formData, setFormData] = useState({
@@ -231,7 +211,7 @@ const Homepage = () => {
     email: '',
     phoneNumber: '',
     linkFB: '',
-    specializeMajorID: '',
+    majorID: '',
     campusId: selectedCampus.id,
   });
   const handleChange = (e) => {
@@ -331,31 +311,34 @@ const Homepage = () => {
       <Container className="py-5">
         <div className="mt-3">
           <h2 className="text-center text-orange">Ngành đào tạo</h2>
-          <MultiCarousel
-            responsive={responsive}
-            infinite={true}
-            className="my-carousel"
-          >
-            {majors.map((major, index) => (
-              <div key={index} className="p-2">
-                <div
-                  className="bg-light rounded border shadow-sm d-flex flex-column"
-                  style={{ width: '100%', height: '180px' }}
-                >
-                  <div className="pt-3">
-                    <h5 className="text-center">{major.majorName}</h5>
+          <Row className="mt-4">
+            <Col md={8}>
+              <h4 className="text-center text-blue">Cao đẳng</h4>
+              <Row>
+                {collegeMajors.map((major) => (
+                  <Col md={4} key={major.majorID}>
+                    <div className="major-item">
+                      <Link to={`/nganh-hoc/${major.majorID}`} className="text-muted">
+                        {major.majorName}
+                      </Link>
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </Col>
+            <Col md={4}>
+              <h4 className="text-center text-blue">Trung cấp</h4>
+              <div className="mx-5">
+                {vocationalMajors.map((major) => (
+                  <div key={major.majorID} className="major-item full-width">
+                    <Link to={`/nganh-hoc/${major.majorID}`} className="text-muted">
+                      {major.majorName}
+                    </Link>
                   </div>
-                  <div className="flex-grow-1 pb-2 d-flex align-items-center justify-content-center">
-                    <ul className="list-unstyled mb-0 ">
-                      {major.specializeMajorDTOs.map((subMajor, subIndex) => (
-                        <li key={subIndex}>{subMajor.specializeMajorName}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </MultiCarousel>
+            </Col>
+          </Row>
         </div>
         <div class="my-5">
           <h2 className="text-center mb-1 text-orange">Thông tin tuyển sinh 2024</h2>
@@ -431,23 +414,33 @@ const Homepage = () => {
                 />
               </div>
               <div className="mb-3">
-                <label htmlFor="specializeMajorID" className="form-label">Chọn ngành học</label>
+                <label htmlFor="majorID" className="form-label">Chọn ngành học</label>
                 <select
-                  id="specializeMajorID"
-                  name="specializeMajorID"
+                  id="majorID"
+                  name="majorID"
                   className="form-select"
-                  value={formData.specializeMajorID}
+                  value={formData.majorID}
                   onChange={handleChange}
                 >
-                  {majors.map((major) => (
-                    <optgroup key={major.majorID} label={major.majorName}>
-                      {major.specializeMajorDTOs.map((specialize) => (
-                        <option key={specialize.specializeMajorID} value={specialize.specializeMajorID}>
-                          {specialize.specializeMajorName}
+                  {collegeMajors.length > 0 && (
+                    <optgroup label="Ngành học Cao đẳng">
+                      {collegeMajors.map((major) => (
+                        <option key={major.majorID} value={major.majorID}>
+                          {major.majorName}
                         </option>
                       ))}
                     </optgroup>
-                  ))}
+                  )}
+
+                  {vocationalMajors.length > 0 && (
+                    <optgroup label="Ngành học Trung cấp">
+                      {vocationalMajors.map((major) => (
+                        <option key={major.majorID} value={major.majorID}>
+                          {major.majorName}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
               </div>
               <div className="mb-3">

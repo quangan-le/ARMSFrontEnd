@@ -158,12 +158,31 @@ a {
 .custom-button:focus {
   outline: none;
 }
-.react-multiple-carousel__arrow--left{
-  left: calc(1% + 1px) !important;
+.majors-section {
+  padding: 20px;
+  background-color: #f9f9f9;
 }
-.react-multiple-carousel__arrow--right{
-  right: calc(1% + 1px) !important;
+
+.major-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  cursor: pointer;
 }
+
+.major-item:hover {
+  transform: scale(1.05);
+}
+
+.full-width {
+  width: 100%;
+}
+
 .partner-logo-container {
   width: 190px; 
   height: 150px;

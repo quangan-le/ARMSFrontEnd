@@ -36,9 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
 a {
   text-decoration: none !important;
 }
+
+.table th {
+  text-align: center !important; 
+}
+
 /* CustomNavbar.css */
 /* Header.js*/
 .navbar {
@@ -517,4 +523,58 @@ a {
 }
 .nav-link{
   color: black !important;
+}
+
+/* Dashboard.js */
+.sidebar {
+  background-color: #f8f9fa;
+  height: 93vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar-container {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  height: 100vh; 
+  background-color: #f8f9fa; 
+  padding: 20px; 
+  overflow-y: auto; 
+  z-index: 1000; 
+}
+
+.main-content {
+  transition: margin-left 0.3s ease; 
+  padding: 20px;
+  margin-top: 60px !important;
+}
+
+.main-content.sidebar-open {
+  margin-left: 16.66667%; 
+}
+
+.main-content.sidebar-closed {
+  margin-left: 0; 
+}
+.header-fixed {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001; 
+  box-shadow: 0px 2px 2px -2px gray; 
+}
+
+/* MajorsList.js */
+.btn-orange {
+  background-color: orange !important; 
+  border: none !important; 
+  color: white;
+}
+
+.btn-orange:hover {
+  background-color: darkorange !important; 
 }

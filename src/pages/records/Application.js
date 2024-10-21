@@ -285,53 +285,54 @@ const Application = () => {
                     </Row>
 
                     <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
-                    <Row className="mt-2">
-                        <Col md={6}>
-                            <Form.Group controlId="campusSelection">
-                                <Form.Label>Cơ sở nhập học</Form.Label>
-                                <Form.Control as="select" onChange={handleCampusChange} value={selectedCampus}>
-                                    <option value="">Chọn cơ sở</option>
-                                    {campuses.map(campus => (
-                                        <option key={campus.campusId} value={campus.campusId}>
-                                            {campus.campusName}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Row>
-                                <Form.Label>Nguyện vọng</Form.Label>
+
+                    <Row className="mt-3">
+                    <Col md={6}>
+                            <Row className="mt-2">
                                 <Col md={6}>
-                                    <Form.Group controlId="majorSelection">
-                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
-                                            <option value="">Chọn ngành</option>
-                                            {majors.map(major => (
-                                                <option key={major.majorID} value={major.majorID}>
-                                                    {major.majorName}
+                                    <Form.Group controlId="campusSelection">
+                                        <Form.Label>Cơ sở nhập học</Form.Label>
+                                        <Form.Control as="select" onChange={handleCampusChange} value={selectedCampus}>
+                                            <option value="">Chọn cơ sở</option>
+                                            {campuses.map(campus => (
+                                                <option key={campus.campusId} value={campus.campusId}>
+                                                    {campus.campusName}
                                                 </option>
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="specializationSelection">
-                                        <Form.Control as="select" disabled={!selectedMajor}>
-                                            <option value="">Chọn chuyên ngành</option>
-                                            {specializations.map(spec => (
-                                                <option key={spec.specializeMajorID} value={spec.specializeMajorID}>
-                                                    {spec.specializeMajorName}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
+                                    <Form.Label>Nguyện vọng</Form.Label>
+                                    <Col md={6}>
+                                        <Form.Group controlId="majorSelection">
+                                            <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
+                                                <option value="">Chọn ngành</option>
+                                                {majors.map(major => (
+                                                    <option key={major.majorID} value={major.majorID}>
+                                                        {major.majorName}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="graduationYear" className='mt-3'>
+                                        <Form.Label>Năm tốt nghiệp</Form.Label>
+                                        <Form.Control type="text" placeholder="2024" />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="schoolName" className='mt-3'>
+                                        <Form.Label>Tên trường</Form.Label>
+                                        <Form.Control type="text" placeholder="Trường THCS A" />
                                     </Form.Group>
                                 </Col>
                             </Row>
                         </Col>
-                    </Row>
-                    <Row className="mt-3">
                         <Col md={6}>
-                            <Form.Group controlId="degreeType">
+                            <Form.Group controlId="degreeType" className='ms-5'>
                                 <Form.Label>Chọn loại bằng</Form.Label>
                                 <Form.Check
                                     type="radio"
@@ -365,19 +366,6 @@ const Application = () => {
                                     onChange={handleDegreeChange}
                                     checked={degreeType === 'dh-cd'}
                                 />
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={3}>
-                            <Form.Group controlId="graduationYear">
-                                <Form.Label>Năm tốt nghiệp</Form.Label>
-                                <Form.Control type="text" placeholder="2024" />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group controlId="schoolName">
-                                <Form.Label>Tên trường</Form.Label>
-                                <Form.Control type="text" placeholder="Trường THCS A" />
                             </Form.Group>
                         </Col>
                     </Row>

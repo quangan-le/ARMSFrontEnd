@@ -28,6 +28,7 @@ import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
 import IntermediateApplication from "./pages/records/IntermediateApplication.js";
+import MajorsList from "./pages/majors/MajorsList.js";
 
 function App() {
   //const user = { role: "admin" };
@@ -64,6 +65,7 @@ function App() {
 
         <Route element={<ManagerLayout role="admin" />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/danh-sach-nganh-hoc" element={<MajorsList />} />
         </Route>
 
         {/* Redirect nếu không có quyền */}

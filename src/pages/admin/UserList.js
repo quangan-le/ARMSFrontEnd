@@ -68,7 +68,7 @@ const UserList = () => {
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
                         className="me-2"
-                        style={{ width: '200px' }} 
+                        style={{ width: '200px' }}
                     >
                         <option value="">Vai trò</option>
                         <option value="major1">Học sinh</option>
@@ -78,7 +78,7 @@ const UserList = () => {
                         value={selectedMajor}
                         onChange={(e) => setSelectedMajor(e.target.value)}
                         className="me-2"
-                        style={{ width: '200px' }} 
+                        style={{ width: '200px' }}
                     >
                         <option value="">Chọn ngành</option>
                         <option value="major1">Ngành 1</option>
@@ -133,78 +133,101 @@ const UserList = () => {
                 </Pagination>
             </div>
 
-            {/* Modal for creating a new user */}
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={show} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Tạo người dùng mới</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Tên người dùng</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Nhập tên người dùng"
-                                name="name"
-                                value={newUser.name}
-                                onChange={handleInputChange}
-                            />
+                        {/* Tên người dùng */}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Tên người dùng</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Nhập tên người dùng"
+                                    name="name"
+                                    value={newUser.name}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Địa chỉ email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                placeholder="Nhập email (Example@gmail.com)"
-                                name="email"
-                                value={newUser.email}
-                                onChange={handleInputChange}
-                            />
+
+                        {/* Địa chỉ email */}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Địa chỉ email</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Nhập email (Example@gmail.com)"
+                                    name="email"
+                                    value={newUser.email}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Số điện thoại</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Nhập số điện thoại"
-                                name="phone"
-                                value={newUser.phone}
-                                onChange={handleInputChange}
-                            />
+
+                        {/* Số điện thoại */}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Số điện thoại</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Nhập số điện thoại"
+                                    name="phone"
+                                    value={newUser.phone}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Vai trò</Form.Label>
-                            <Form.Select
-                                name="role"
-                                value={newUser.role}
-                                onChange={handleInputChange}
-                            >
-                                <option value="Cán bộ tuyển sinh">Cán bộ tuyển sinh</option>
-                                <option value="Học sinh">Học sinh</option>
-                                <option value="Sinh viên">Sinh viên</option>
-                            </Form.Select>
+
+                        {/* Vai trò */}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Vai trò</Form.Label>
+                            <Col sm={8}>
+                                <Form.Select
+                                    name="role"
+                                    value={newUser.role}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="Cán bộ tuyển sinh">Cán bộ tuyển sinh</option>
+                                    <option value="Học sinh">Học sinh</option>
+                                    <option value="Sinh viên">Sinh viên</option>
+                                </Form.Select>
+                            </Col>
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Số CCCD</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Nhập căn cước công dân"
-                                name="cccd"
-                                value={newUser.cccd}
-                                onChange={handleInputChange}
-                            />
+
+                        {/* Số CCCD */}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Số CCCD</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Nhập căn cước công dân"
+                                    name="cccd"
+                                    value={newUser.cccd}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Ngày sinh</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="dd/MM/yyyy"
-                                name="dob"
-                                value={newUser.dob}
-                                onChange={handleInputChange}
-                            />
+
+                        {/* Ngày sinh */}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Ngày sinh</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="dd/MM/yyyy"
+                                    name="dob"
+                                    value={newUser.dob}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Trạng thái</Form.Label>
-                            <div>
+
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Trạng thái</Form.Label>
+                            <Col sm={8}>
                                 <Form.Check
                                     type="radio"
                                     label="Inactive"
@@ -223,7 +246,7 @@ const UserList = () => {
                                     onChange={handleInputChange}
                                     inline
                                 />
-                            </div>
+                            </Col>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -231,7 +254,7 @@ const UserList = () => {
                     <Button variant="secondary" onClick={handleClose}>
                         Hủy
                     </Button>
-                    <Button variant="primary" onClick={handleSubmit}>
+                    <Button className="btn-orange" onClick={handleSubmit}>
                         Tạo mới
                     </Button>
                 </Modal.Footer>

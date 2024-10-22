@@ -107,7 +107,7 @@ a {
 
 /* ManagerHeader.js*/
 .manager-header .dropdown-toggle {
-  background-color: white; 
+  background-color: #f8f9fa; 
   color: orange !important; 
 }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Nav } from "react-bootstrap";
-import { House, Book, Bell, FileText, BarChart, InfoCircle, People } from 'react-bootstrap-icons'; // Import các icon
+import { House, Book, Bell, FileText, BarChart, InfoCircle, People, FileEarmarkText } from 'react-bootstrap-icons'; // Import các icon
 
 const Sidebar = ({ role }) => {
   return (
@@ -24,6 +24,17 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
+              <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
+                <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
+              </Nav.Link>
+              <Nav className="flex-column ms-3">
+                <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
+                  <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
+                </Nav.Link>
+                <Nav.Link href="/chi-tieu-tuyen-sinh" className="d-flex align-items-center">
+                  <FileEarmarkText className="me-2" /> Chỉ tiêu tuyển sinh
+                </Nav.Link>
+              </Nav>
 
             </>
           )}
@@ -55,7 +66,7 @@ const Sidebar = ({ role }) => {
           <BarChart className="me-2" /> Thống kê
         </Nav.Link>
         <h6 className="text-muted mt-4">Về chúng tôi</h6>
-        <Nav.Link href="/team" className="d-flex align-items-center">
+        <Nav.Link href="/team" className="d-flex align-items-center mb-2">
           <People className="me-2" /> Đội ngũ phát triển
         </Nav.Link>
       </Nav>

@@ -34,6 +34,10 @@ import AccountList from "./pages/admin/AccountList.js";
 import EnrollmentPlan from "./pages/admin/EnrollmentPlan.js";
 import EnrollmentPlanEdit from "./pages/admin/EnrollmentPlanEdit.js";
 
+import MajorsListView from "./pages/schoolService/MajorsListView.js";
+import NewsList from "./pages/schoolService/NewsList.js";
+
+
 function App() {
   //const user = { role: "admin" };
   return (
@@ -66,7 +70,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
         )} */}
-
+{/* 
         <Route element={<ManagerLayout role="admin" />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/danh-sach-nganh-hoc" element={<MajorsList />} />
@@ -74,6 +78,12 @@ function App() {
           <Route path="/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
           <Route path="/ke-hoach-tuyen-sinh" element={<EnrollmentPlan />} />
           <Route path="/chinh-sua-ke-hoach-tuyen-sinh" element={<EnrollmentPlanEdit />} />
+        </Route> */}
+
+        <Route element={<ManagerLayout role="schoolService" />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
+          <Route path="/danh-sach-tin-tuc" element={<NewsList />} />
         </Route>
 
         {/* Redirect nếu không có quyền */}

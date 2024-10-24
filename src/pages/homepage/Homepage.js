@@ -251,55 +251,27 @@ const Homepage = () => {
       )}
       <div className="text-center background-overlay">
         <div className="overlay"></div>
-        <Row className="text-center">
-          <Col md={12} className="background-content">
-            <h2 className="text-orange">Tại sao lại chọn chúng tôi?</h2>
-          </Col>
+        <div className="background-content">
+          <h2 className="text-orange">Tại sao lại chọn chúng tôi?</h2>
+        </div>
+        <Row className="mt-4 fw-bold mx-2">
+          {[
+            { icon: "bi-briefcase", value: "90%", label: "Cơ hội việc làm" },
+            { icon: "bi-people", value: "1000+", label: "Đối tác" },
+            { icon: "bi-award", value: "1000+", label: "Học sinh & Cựu HS" },
+            { icon: "bi-buildings", value: "4 Cơ sở", label: "Cơ sở" },
+          ].map((item, index) => (
+            <Col xs={6} md={3} className="d-flex align-items-center justify-content-center background-content" key={index}>
+              <i className={`bi ${item.icon} display-4`}></i>
+              <div className="text-left ms-3 mt-3">
+                <h5 className="text-orange mb-0">{item.value}</h5>
+                <p>{item.label}</p>
+              </div>
+            </Col>
+          ))}
         </Row>
-        <Row className="mt-4 fw-bold ">
-          <Col
-            md={3}
-            className="d-flex align-items-center justify-content-center background-content"
-          >
-            <i className="bi-briefcase display-4"></i>
-            <div className="text-left ms-3 mt-3">
-              <h5 className="text-orange mb-0">90%</h5>
-              <p>Cơ hội việc làm</p>
-            </div>
-          </Col>
-          <Col
-            md={3}
-            className="d-flex align-items-center justify-content-center background-content"
-          >
-            <i className="bi bi-people display-4"></i>
-            <div className="text-left ms-3 mt-3">
-              <h4 class="text-orange mb-0">1000+</h4>
-              <p>Đối tác</p>
-            </div>
-          </Col>
-          <Col
-            md={3}
-            className="d-flex align-items-center justify-content-center background-content"
-          >
-            <i className="bi bi-award display-4"></i>
-            <div className="text-left ms-3 mt-3">
-              <h4 class="text-orange mb-0">1000+</h4>
-              <p>Học sinh & Cựu HS</p>
-            </div>
-          </Col>
-          <Col
-            md={3}
-            className="d-flex align-items-center justify-content-center background-content"
-          >
-            <i className="bi bi-buildings display-4"></i>
-            <div className="text-left ms-3 mt-3 ">
-              <h4 class="text-orange mb-0">4 Cơ sở</h4>
-              <p>Cơ sở</p>
-            </div>
-          </Col>
-        </Row>
-        <Row className="mt-5 background-content text-center justify-content-center align-items-center text-white bg-orange p-3 mx-auto w-75 rounded">
-          <Col md={9}>
+        <Row className="mt-5 mb-5 background-content text-center justify-content-center align-items-center text-white bg-orange p-3 mx-auto w-75 rounded">
+          <Col xs={12} md={9}>
             <h4 className="text-black d-inline">Bạn đã sẵn sàng trở thành học sinh của trường?</h4>
             <Link to="/dang-ky" className="btn-no-underline text-white bg-orange p-2">
               ĐĂNG KÝ NGAY!
@@ -308,15 +280,15 @@ const Homepage = () => {
         </Row>
       </div>
 
-      <Container className="py-5">
+      <Container className="py-5 majorSection">
         <div className="mt-3">
           <h2 className="text-center text-orange">Ngành đào tạo</h2>
           <Row className="mt-4">
-            <Col md={8}>
+            <Col xs={12} md={8}>
               <h4 className="text-center text-blue">Cao đẳng</h4>
               <Row>
                 {collegeMajors.map((major) => (
-                  <Col md={4} key={major.majorID}>
+                  <Col xs={6} md={4} key={major.majorID}>
                     <div className="major-item">
                       <Link to={`/nganh-hoc/${major.majorID}`} className="text-muted">
                         {major.majorName}
@@ -326,7 +298,7 @@ const Homepage = () => {
                 ))}
               </Row>
             </Col>
-            <Col md={4}>
+            <Col xs={12} md={4}>
               <h4 className="text-center text-blue">Trung cấp</h4>
               <div className="mx-5">
                 {vocationalMajors.map((major) => (
@@ -340,11 +312,11 @@ const Homepage = () => {
             </Col>
           </Row>
         </div>
-        <div class="my-5">
+        <div className="my-5">
           <h2 className="text-center mb-1 text-orange">Thông tin tuyển sinh 2024</h2>
           <Row className="mb-4">
             <Col>
-              <div className="d-flex justify-content-center">
+              <div className="d-flex justify-content-center flex-wrap">
                 {Object.keys(content).map(category => (
                   <button
                     key={category}
@@ -375,7 +347,7 @@ const Homepage = () => {
             <h2 className="fw-bold">ĐĂNG KÝ XÉT TUYỂN NGAY!</h2>
           </div>
           <div className="form-section bg-orange p-4 text-white">
-            <h4 className="text-section">ĐĂNG KÝ XÉT TUYỂN</h4>
+            <h4 className="text-center">ĐĂNG KÝ XÉT TUYỂN</h4>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="fullName" className="form-label">Họ và tên</label>
@@ -477,7 +449,7 @@ const Homepage = () => {
                           className="img-fluid rounded"
                         />
                       </Col>
-                      <Col md={7} className="d-flex align-items-center ps-5">
+                      <Col md={7} className="d-flex align-items-center p-3">
                         <div>
                           <p>"{testimonial.desciption}"</p>
                           <p>
@@ -502,7 +474,7 @@ const Homepage = () => {
             {partners.length > 0 ? (
               partners.map((partner, index) => (
                 <Col
-                  md={3}
+                  md={3} sm={6}
                   className="d-flex justify-content-center align-items-center"
                   key={partner.supplierId}
                 >

@@ -251,11 +251,9 @@ const Homepage = () => {
       )}
       <div className="text-center background-overlay">
         <div className="overlay"></div>
-        <Row className="text-center">
-          <Col xs={12} className="background-content">
-            <h2 className="text-orange">Tại sao lại chọn chúng tôi?</h2>
-          </Col>
-        </Row>
+        <div className="background-content">
+          <h2 className="text-orange">Tại sao lại chọn chúng tôi?</h2>
+        </div>
         <Row className="mt-4 fw-bold mx-2">
           {[
             { icon: "bi-briefcase", value: "90%", label: "Cơ hội việc làm" },
@@ -349,7 +347,7 @@ const Homepage = () => {
             <h2 className="fw-bold">ĐĂNG KÝ XÉT TUYỂN NGAY!</h2>
           </div>
           <div className="form-section bg-orange p-4 text-white">
-            <h4 className="text-section">ĐĂNG KÝ XÉT TUYỂN</h4>
+            <h4 className="text-center">ĐĂNG KÝ XÉT TUYỂN</h4>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="fullName" className="form-label">Họ và tên</label>
@@ -451,7 +449,7 @@ const Homepage = () => {
                           className="img-fluid rounded"
                         />
                       </Col>
-                      <Col md={7} className="d-flex align-items-center ps-5">
+                      <Col md={7} className="d-flex align-items-center p-3">
                         <div>
                           <p>"{testimonial.desciption}"</p>
                           <p>
@@ -476,7 +474,7 @@ const Homepage = () => {
             {partners.length > 0 ? (
               partners.map((partner, index) => (
                 <Col
-                  md={3}
+                  md={3} sm={6}
                   className="d-flex justify-content-center align-items-center"
                   key={partner.supplierId}
                 >

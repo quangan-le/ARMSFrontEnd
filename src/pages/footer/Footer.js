@@ -6,7 +6,7 @@ const Footer = () => {
             <div className="container">
                 <div className="row">
                     <div className="col-md-4 d-flex align-items-center text-white">
-                        <h4>Admissions and Registration Management Software</h4>
+                        <h4 className='my-3'>Admissions and Registration Management Software</h4>
                     </div>
                     <div className="col-md-8">
                         <h5 className="text-white">Hệ thống phòng tuyển sinh</h5>

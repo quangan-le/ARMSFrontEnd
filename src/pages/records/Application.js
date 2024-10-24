@@ -131,7 +131,7 @@ const Application = () => {
     };
     return (
         <div>
-            <div className=" background-overlay">
+            <div className="background-overlay">
                 <div className="overlay"></div>
                 <Container>
                     <Row>
@@ -144,9 +144,9 @@ const Application = () => {
                     </Row>
                 </Container>
                 <Row className="mt-5 background-content text-center justify-content-center align-items-center text-white bg-orange p-3 mx-auto w-75 rounded">
-                    <div className="d-flex justify-content-center align-items-center">
-                        <h4 className="text-black d-inline mb-0">Đăng ký tư vấn ngay tại đây</h4>
-                        <a href="/dang-ky" className="text-white d-inline ms-3 fs-4">ĐĂNG KÝ TƯ VẤN!</a>
+                    <div className="register-section d-flex justify-content-center align-items-center flex-column flex-md-row">
+                        <h4 className="text-black mb-2 mb-md-0">Đăng ký tư vấn ngay tại đây</h4>
+                        <a href="/dang-ky" className="text-white ms-md-3 fs-4">ĐĂNG KÝ TƯ VẤN!</a>
                     </div>
                 </Row>
             </div>
@@ -287,7 +287,7 @@ const Application = () => {
                     <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
 
                     <Row className="mt-3">
-                    <Col md={6}>
+                        <Col md={6}>
                             <Row className="mt-2">
                                 <Col md={6}>
                                     <Form.Group controlId="campusSelection">

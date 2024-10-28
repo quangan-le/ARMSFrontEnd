@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
 const WhyChoose = () => {
-    const { selectedCampus } = useOutletContext(); 
+    const { selectedCampus } = useOutletContext();
     const [whyChooseData, setWhyChooseData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -38,10 +38,10 @@ const WhyChoose = () => {
                     <Breadcrumb.Item active className="text-orange">Vì sao chọn chúng tôi</Breadcrumb.Item>
                 </Breadcrumb>
             </Container>
-            <Container className="homeguest-description py-3 px-3 px-md-5">
-                {loading && <Spinner animation="border" />} 
+            <Container className="homeguest-description py-3 px-5">
+                {loading && <Spinner animation="border" />}
                 {error && <p className="text-danger">Lỗi: {error.message}</p>}
-                {whyChooseData && <p>{whyChooseData}</p>} 
+                {whyChooseData && <p>{whyChooseData}</p>}
             </Container>
         </div>
     );

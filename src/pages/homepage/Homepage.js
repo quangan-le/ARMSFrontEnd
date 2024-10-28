@@ -42,44 +42,31 @@ const Homepage = () => {
   // State để lưu danh sách banner tương ứng với campus được chọn
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Gọi API để lấy danh sách banner dựa trên `selectedCampus`
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        if (selectedCampus.id) {
-          const response = await api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`);
-          setBanners(response.data);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Có lỗi xảy ra khi lấy danh sách banner:", error);
-        setLoading(false);
-      }
-    };
-
-    if (selectedCampus.id) {
-      fetchBanners();
-    }
-  }, [selectedCampus]);
-
   // Ngành học
   const [vocationalMajors, setVocationalMajors] = useState([]);
   const [collegeMajors, setCollegeMajors] = useState([]);
 
   useEffect(() => {
-    const fetchMajors = async () => {
-      try {
-        console.log(selectedCampus.id);
-        const vocationalResponse = await api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`);
-        const collegeResponse = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
-        setVocationalMajors(vocationalResponse.data);
-        setCollegeMajors(collegeResponse.data);
-      } catch (error) {
-        console.error('Có lỗi khi lấy danh sách ngành học', error);
+    const fetchData = async () => {
+      if (selectedCampus.id) {
+        try {
+          // Gọi API lấy danh sách banner
+          const bannerResponse = await api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`);
+          setBanners(bannerResponse.data);
+
+          // Gọi API lấy danh sách ngành học
+          const vocationalResponse = await api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`);
+          const collegeResponse = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
+          setVocationalMajors(vocationalResponse.data);
+          setCollegeMajors(collegeResponse.data);
+        } catch (error) {
+          console.error("Có lỗi khi lấy dữ liệu:", error);
+        } finally {
+          setLoading(false);
+        }
       }
     };
-    fetchMajors();
+    fetchData();
   }, [selectedCampus]);
 
   // Carousel settings for majors

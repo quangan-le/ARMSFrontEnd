@@ -38,7 +38,7 @@ const Motto = () => {
                     <Breadcrumb.Item active className="text-orange">Phương châm đào tạo</Breadcrumb.Item>
                 </Breadcrumb>
             </Container>
-            <Container className="homeguest-description py-3 px-3 px-md-5">
+            <Container className="homeguest-description py-3 px-5">
                 {loading && <Spinner animation="border" />}
                 {error && <p className="text-danger">Lỗi: {error.message}</p>}
                 {mottoData && <p>{mottoData}</p>}

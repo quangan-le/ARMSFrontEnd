@@ -15,7 +15,7 @@ const SliderBanner = ({ banners }) => {
         {banners.map((banner, index) => (
           <Carousel.Item key={index}>
             <img
-              className="d-block w-100"
+              className="d-block w-100 banner-image"
               src={banner.img}
               alt={`Banner ${index}`}
               style={{ height: "600px", objectFit: "cover" }} 

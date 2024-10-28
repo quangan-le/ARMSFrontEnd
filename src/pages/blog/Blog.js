@@ -21,7 +21,7 @@ const Blog = () => {
             try {
                 if (campusId) {
                     const response = await api.get(`/Blog/get-blogcategories?CampusId=${campusId}`);
-                    setCategories(response.data); // Lưu dữ liệu từ API vào state
+                    setCategories(response.data);
                 }
             } catch (error) {
                 console.error("Có lỗi xảy ra khi lấy danh sách loại tin tức:", error);
@@ -70,20 +70,19 @@ const Blog = () => {
                 <Breadcrumb.Item active className="text-orange">Tin tức</Breadcrumb.Item>
             </Breadcrumb>
 
-            <div className="filter-section my-3">
+            <div className="filter-section m-3">
                 <Row className="align-items-center">
-                    <Col md={1} className="text-end">
-                        <Form.Label className="fw-bold">Tìm kiếm:</Form.Label>
-                    </Col>
-                    <Col md={8}>
+                    <Col md={9} className="mt-3 d-flex align-items-center">
+                        <Form.Label className="fw-bold mb-0 me-2 label-fixed">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Nhập từ khóa tìm kiếm..."
                             value={search}
                             onChange={handleSearchChange}
+                            className="flex-grow-1"
                         />
                     </Col>
-                    <Col md={3}>
+                    <Col md={3} className="mt-3">
                         <Form.Select
                             value={selectedCategory}
                             onChange={(e) => {
@@ -101,16 +100,17 @@ const Blog = () => {
                     </Col>
                 </Row>
             </div>
-            <Row>
+            <Row className='mx-3'>
                 {blogs.length === 0 ? (
                     <p className="text-center">Không tìm thấy tin tức phù hợp.</p>
                 ) : (
                     blogs.map((blog) => (
-                        <Col md={3} key={blog.blogId} className="mb-3">
+                        <Col md={3} sm={6} key={blog.blogId} className="mb-3">
                             <Card className="blog-card h-100">
                                 <Card.Img
                                     variant="top"
-                                    src={blog.blogDetails[0]?.img || 'https://via.placeholder.com/150?text=No+Image'}
+                                    // src={blog.blogDetails[0]?.img || 'https://via.placeholder.com/150?text=No+Image'}
+                                    src={'https://phothongcaodang.fpt.edu.vn/wp-content/uploads/800x870.jpg'}
                                     className="blog-card-img"
                                 />
                                 <Card.Body>

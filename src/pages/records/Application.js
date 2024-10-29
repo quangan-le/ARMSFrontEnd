@@ -150,23 +150,23 @@ const Application = () => {
                     </div>
                 </Row>
             </div>
-            <Container className="mt-5 mb-3">
+            <Container className="mt-5 mb-3 px-4">
                 <Form>
                     <h4 className='text-orange'>Thông tin thí sinh</h4>
                     <Row>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="fullName">
                                 <Form.Label>Họ và tên</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập họ và tên" />
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="dob">
                                 <Form.Label>Ngày sinh</Form.Label>
                                 <Form.Control type="date" />
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="gender">
                                 <Form.Label>Giới tính</Form.Label>
                                 <Form.Control as="select">
@@ -176,7 +176,7 @@ const Application = () => {
                                 </Form.Control>
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group >
                                 <Form.Label>Dân tộc</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập dân tộc" />
@@ -185,19 +185,19 @@ const Application = () => {
                     </Row>
 
                     <Row className="mt-3">
-                        <Col md={4}>
+                        <Col md={4} className="mt-2">
                             <Form.Group controlId="idNumber">
                                 <Form.Label>Số CMND/CCCD</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập số CMND/CCCD" />
                             </Form.Group>
                         </Col>
-                        <Col md={4}>
+                        <Col md={4} className="mt-2">
                             <Form.Group controlId="issueDate">
                                 <Form.Label>Ngày cấp</Form.Label>
                                 <Form.Control type="date" />
                             </Form.Group>
                         </Col>
-                        <Col md={4}>
+                        <Col md={4} className="mt-2">
                             <Form.Group controlId="issuingAuthority">
                                 <Form.Label>Nơi cấp</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập nơi cấp" />
@@ -207,7 +207,7 @@ const Application = () => {
 
                     <Row className="mt-3">
                         <Form.Label>Nơi thường trú</Form.Label>
-                        <Col md={3}>
+                        <Col md={3} xs={12} className="mb-3">
                             <Form.Group controlId="province">
                                 <Form.Control
                                     as="select"
@@ -223,7 +223,7 @@ const Application = () => {
                             </Form.Group>
                         </Col>
 
-                        <Col md={3}>
+                        <Col md={3} xs={12} className="mb-3">
                             <Form.Group controlId="district">
                                 <Form.Control
                                     as="select"
@@ -239,7 +239,8 @@ const Application = () => {
                                 </Form.Control>
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+
+                        <Col md={3} xs={12} className="mb-3">
                             <Form.Group controlId="ward">
                                 <Form.Control as="select" disabled={!selectedDistrict}>
                                     <option value="">Xã/Phường/Thị trấn</option>
@@ -251,32 +252,33 @@ const Application = () => {
                                 </Form.Control>
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+
+                        <Col md={3} xs={12} className="mb-3">
                             <Form.Group controlId="houseNumber">
                                 <Form.Control type="text" placeholder="Nhập số nhà, đường, ngõ..." />
                             </Form.Group>
                         </Col>
                     </Row>
-                    <Row className="mt-3">
-                        <Col md={3}>
+                    <Row>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="phoneNumber">
                                 <Form.Label>Số điện thoại thí sinh</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập số điện thoại" />
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="email">
                                 <Form.Label>Email thí sinh</Form.Label>
                                 <Form.Control type="email" placeholder="Nhập email" />
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="parentName">
                                 <Form.Label>Họ và tên phụ huynh</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập họ và tên phụ huynh" />
                             </Form.Group>
                         </Col>
-                        <Col md={3}>
+                        <Col md={3} className="mt-2">
                             <Form.Group controlId="parentPhoneNumber">
                                 <Form.Label>Số điện thoại phụ huynh</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập số điện thoại phụ huynh" />
@@ -303,19 +305,17 @@ const Application = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Label>Nguyện vọng</Form.Label>
-                                    <Col md={6}>
-                                        <Form.Group controlId="majorSelection">
-                                            <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
-                                                <option value="">Chọn ngành</option>
-                                                {majors.map(major => (
-                                                    <option key={major.majorID} value={major.majorID}>
-                                                        {major.majorName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        </Form.Group>
-                                    </Col>
+                                    <Form.Group controlId="majorSelection">
+                                        <Form.Label>Nguyện vọng</Form.Label>
+                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
+                                            <option value="">Chọn ngành</option>
+                                            {majors.map(major => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="graduationYear" className='mt-3'>
@@ -332,7 +332,7 @@ const Application = () => {
                             </Row>
                         </Col>
                         <Col md={6}>
-                            <Form.Group controlId="degreeType" className='ms-5'>
+                            <Form.Group controlId="degreeType" className='ms-md-5 mt-2'>
                                 <Form.Label>Chọn loại bằng</Form.Label>
                                 <Form.Check
                                     type="radio"
@@ -371,7 +371,7 @@ const Application = () => {
                     </Row>
                     <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
                     <Row>
-                        <Col md={6}>
+                        <Col md={6} className='mt-2'>
                             <Form.Group controlId="recipient">
                                 <Form.Label>Người nhận</Form.Label>
                                 <Form.Check
@@ -389,7 +389,7 @@ const Application = () => {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col md={6}>
+                        <Col md={6} className='mt-2'>
                             <Form.Group controlId="address">
                                 <Form.Label>Địa chỉ nhận</Form.Label>
                                 <Form.Check
@@ -423,7 +423,7 @@ const Application = () => {
                     <Row>
                         <Col md={6}>
                             <Row>
-                                <Col md={6}>
+                                <Col md={6} className='mt-2'>
                                     <Form.Group>
                                         <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
                                         <Form.Control
@@ -438,7 +438,7 @@ const Application = () => {
                                         )}
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={6} className='mt-2'>
                                     <Form.Group>
                                         <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
                                         <Form.Control
@@ -456,7 +456,7 @@ const Application = () => {
                             </Row>
                         </Col>
 
-                        <Col md={6}>
+                        <Col md={6} className='mt-2'>
                             <Form.Group>
                                 <Form.Label>Bằng tốt nghiệp (Hoặc giấy tờ xác nhận tốt nghiệp tạm thời)</Form.Label>
                                 <Form.Control
@@ -474,20 +474,20 @@ const Application = () => {
                         {degreeType === 'thpt' && (
                             <Col md={12} >
                                 <Form.Group>
-                                    <Row className='mt-3'>
-                                        <Col md={3} >
+                                    <Row className='mt-2'>
+                                        <Col md={3} className='mt-2'>
                                             <Form.Label>Học bạ kỳ 1 lớp 10</Form.Label>
                                             <Form.Control type="file" accept="image/*" />
                                         </Col>
-                                        <Col md={3}>
+                                        <Col md={3} className='mt-2'>
                                             <Form.Label>Học bạ kỳ 2 lớp 10</Form.Label>
                                             <Form.Control type="file" accept="image/*" />
                                         </Col>
-                                        <Col md={3}>
+                                        <Col md={3} className='mt-2'>
                                             <Form.Label>Học bạ kỳ 1 lớp 11</Form.Label>
                                             <Form.Control type="file" accept="image/*" />
                                         </Col>
-                                        <Col md={3}>
+                                        <Col md={3} className='mt-2'>
                                             <Form.Label>Học bạ kỳ 2 lớp 11</Form.Label>
                                             <Form.Control type="file" accept="image/*" />
                                         </Col>

@@ -51,7 +51,7 @@ function App() {
           <Route path="/thanh-tich" element={<Achievement />} />
           <Route path="/vi-sao-chon-chung-toi" element={<WhyChoose />} />
           <Route path="/tin-tuc" element={<Blog />} />
-          <Route path="/tin-tuc/:id" element={<BlogDetail />} />
+          <Route path="/tin-tuc/:blogId" element={<BlogDetail />} />
           <Route path="/nganh-hoc" element={<Programs />} />
           <Route path="/nganh-hoc/:specializeMajorID" element={<ProgramDetail />} />
           <Route path="/tuyen-sinh" element={<Information />} />

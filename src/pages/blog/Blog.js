@@ -1,8 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Pagination, Breadcrumb, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
 const Blog = () => {

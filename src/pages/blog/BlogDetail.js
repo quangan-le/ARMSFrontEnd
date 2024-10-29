@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Breadcrumb, Card, ListGroup } from 'react-bootstrap';
+import { Container, Row, Col, Breadcrumb, ListGroup, Button } from 'react-bootstrap';
+import { Link, useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
 const BlogDetail = () => {
+    const { selectedCampus } = useOutletContext();
     const { blogId } = useParams();
-    const [blogData, setBlogData] = useState(null); 
+    const [blogData, setBlogData] = useState(null);
     const [relatedBlogs, setRelatedBlogs] = useState([]);
 
     useEffect(() => {
@@ -13,8 +15,20 @@ const BlogDetail = () => {
             try {
                 const response = await api.get(`/Blog/get-blog?BlogId=${blogId}`);
                 setBlogData(response.data);
+
+                const categoryId = response.data.blogCategory.blogCategoryId;
+                fetchRelatedBlogs(categoryId);
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu bài viết:', error);
+            }
+        };
+
+        const fetchRelatedBlogs = async (categoryId) => {
+            try {
+                const response = await api.get(`/Blog/get-top5blogs?CampusId=${selectedCampus.id}&BlogCategoryId=${categoryId}`);
+                setRelatedBlogs(response.data);
+            } catch (error) {
+                console.error('Lỗi khi lấy tin tức liên quan:', error);
             }
         };
 
@@ -24,7 +38,7 @@ const BlogDetail = () => {
     // Khởi tạo và cập nhật plugin bình luận của Facebook khi URL thay đổi
     useEffect(() => {
         if (window.FB) {
-            window.FB.XFBML.parse();  
+            window.FB.XFBML.parse();
         }
     }, [blogData]);
 
@@ -42,20 +56,16 @@ const BlogDetail = () => {
                     <p className="text-muted">Ngày đăng: {new Date(blogData?.dateCreate).toLocaleDateString() || 'Đang tải...'}</p>
 
                     <div className="news-content">
-                        {blogData?.blogDetails?.map((detail, index) => (
-                            <div key={detail.bdId} className="mb-4">
-                                {detail.img && <img src={detail.img} alt="Blog" className="img-fluid mb-3" />}
-                                <p>{detail.description}</p>
-                            </div>
-                        ))}
+                        <p>{blogData?.description || 'Đang tải...'}</p>
+                        <div dangerouslySetInnerHTML={{ __html: blogData?.content || '' }} />
                     </div>
 
                     <div className="facebook-comments mt-4">
-                        <h5>Bình luận Facebook</h5>
-                        <div 
-                            className="fb-comments" 
-                            data-href={window.location.href} 
-                            data-width="100%" 
+                        <h6>Bình luận Facebook</h6>
+                        <div
+                            className="fb-comments"
+                            data-href={window.location.href}
+                            data-width="100%"
                             data-numposts="5">
                         </div>
                     </div>
@@ -63,17 +73,25 @@ const BlogDetail = () => {
                 <Col md={4}>
                     <h5 className="mb-3">Tin tức khác</h5>
                     <ListGroup>
-                        {[...Array(5)].map((_, index) => (
-                            <ListGroup.Item key={index} className="d-flex align-items-center">
+                        {relatedBlogs.map((blog) => (
+                            <ListGroup.Item key={blog.blogId} className="d-flex align-items-center">
                                 <img
-                                    src={`https://via.placeholder.com/80?text=News+${index + 1}`}
-                                    alt={`News ${index + 1}`}
+                                    src="https://via.placeholder.com/80"
+                                    alt={blog.title}
                                     className="me-3"
                                     style={{ width: '80px', height: '80px' }}
                                 />
                                 <div>
-                                    <h6 className="mb-1">Tiêu đề tin tức {index + 1}</h6>
-                                    <p className="mb-0 text-muted">Mô tả ngắn gọn về tin tức {index + 1}</p>
+                                    <h6 className="mb-1">{blog.title}</h6>
+                                    <p className="mb-0 text-muted">{blog.description}</p>
+                                    <Button
+                                        variant="link"
+                                        as={Link}
+                                        to={`/tin-tuc/${blog.blogId}`}
+                                        className="read-more-btn p-0"
+                                    >
+                                        Đọc thêm
+                                    </Button>
                                 </div>
                             </ListGroup.Item>
                         ))}

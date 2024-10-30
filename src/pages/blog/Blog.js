@@ -108,8 +108,7 @@ const Blog = () => {
                             <Card className="blog-card h-100">
                                 <Card.Img
                                     variant="top"
-                                    // src={blog.blogDetails[0]?.img || 'https://via.placeholder.com/150?text=No+Image'}
-                                    src={'https://phothongcaodang.fpt.edu.vn/wp-content/uploads/800x870.jpg'}
+                                    src={blog.img || 'https://phothongcaodang.fpt.edu.vn/wp-content/uploads/800x870.jpg'}
                                     className="blog-card-img"
                                 />
                                 <Card.Body>

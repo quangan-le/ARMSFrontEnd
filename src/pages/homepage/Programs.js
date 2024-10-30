@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Breadcrumb, Table, Spinner } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
@@ -13,8 +12,12 @@ const Programs = () => {
     useEffect(() => {
         const fetchMajors = async () => {
             try {
-                const response = await api.get(`/Major/get-majors?campus=${selectedCampus.id}`);
-                setPrograms(response.data);
+                // Gọi API cho từng cấp học, ví dụ Vocational và College
+                const [collegeResponse, vocationalResponse] = await Promise.all([
+                    api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`),
+                    api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`)
+                ]);
+                setPrograms([...collegeResponse.data, ...vocationalResponse.data]);
             } catch (err) {
                 setError(err);
             } finally {
@@ -34,36 +37,30 @@ const Programs = () => {
                 <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Ngành học</Breadcrumb.Item>
             </Breadcrumb>
-            <div className='mx-5 px-5'>
+            <div className="table-container">
                 {loading && <Spinner animation="border" />}
                 {error && <p className="text-danger">Lỗi: {error.message}</p>}
                 {!loading && !error && (
-                    <Table striped bordered hover className='mx-5'>
+                    <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th class="text-center">STT</th>
-                                <th class="text-center">Tên ngành</th>
-                                <th class="text-center">Chuyên ngành</th>
+                                <th className="text-center">STT</th>
+                                <th className="text-center">Tên ngành</th>
+                                <th className="text-center">Mã ngành</th>
+                                {/* <th className="text-center">Học phí</th>
+                                <th className="text-center">Chỉ tiêu</th>
+                                <th className="text-center">Thời gian học</th> */}
                             </tr>
                         </thead>
                         <tbody>
                             {programs.map((program, index) => (
                                 <tr key={program.majorID}>
-                                    <td class="text-center">{index + 1}</td>
-                                    <td>
-                                        {program.majorName}
-                                    </td>
-                                    <td>
-                                        <ul className="list-unstyled ms-3">
-                                            {program.specializeMajorDTOs.map((specialize, idx) => (
-                                                <li key={specialize.specializeMajorID}>
-                                                    <Link to={`/nganh-hoc/${specialize.specializeMajorID}`} className="text-muted">
-                                                        {specialize.specializeMajorName}
-                                                    </Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </td>
+                                    <td className="text-center">{index + 1}</td>
+                                    <td>{program.majorName}</td>
+                                    <td>{program.majorCode}</td>
+                                    {/* <td>{program.tuition.toLocaleString()} VND</td>
+                                    <td>{program.target}</td>
+                                    <td>{program.timeStudy}</td> */}
                                 </tr>
                             ))}
                         </tbody>

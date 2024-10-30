@@ -17,15 +17,17 @@ const BlogDetail = () => {
                 setBlogData(response.data);
 
                 const categoryId = response.data.blogCategory.blogCategoryId;
-                fetchRelatedBlogs(categoryId);
+                if (selectedCampus) {
+                    fetchRelatedBlogs(categoryId, selectedCampus.id);
+                }
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu bài viết:', error);
             }
         };
 
-        const fetchRelatedBlogs = async (categoryId) => {
+        const fetchRelatedBlogs = async (categoryId, campusId) => {
             try {
-                const response = await api.get(`/Blog/get-top5blogs?CampusId=${selectedCampus.id}&BlogCategoryId=${categoryId}`);
+                const response = await api.get(`/Blog/get-top5blogs?CampusId=${campusId}&BlogCategoryId=${categoryId}`);
                 setRelatedBlogs(response.data);
             } catch (error) {
                 console.error('Lỗi khi lấy tin tức liên quan:', error);
@@ -33,7 +35,7 @@ const BlogDetail = () => {
         };
 
         fetchBlogDetail();
-    }, [blogId]);
+    }, [blogId, selectedCampus]);
 
     // Khởi tạo và cập nhật plugin bình luận của Facebook khi URL thay đổi
     useEffect(() => {
@@ -50,7 +52,7 @@ const BlogDetail = () => {
                 <Breadcrumb.Item active className="text-orange">{blogData?.title || 'Đang tải...'}</Breadcrumb.Item>
             </Breadcrumb>
 
-            <Row>
+            <Row className='px-3'>
                 <Col md={8}>
                     <h2 className="news-title">{blogData?.title || 'Đang tải...'}</h2>
                     <p className="text-muted">Ngày đăng: {new Date(blogData?.dateCreate).toLocaleDateString() || 'Đang tải...'}</p>
@@ -71,27 +73,23 @@ const BlogDetail = () => {
                     </div>
                 </Col>
                 <Col md={4}>
-                    <h5 className="mb-3">Tin tức khác</h5>
+                    <h5 className="mb-3">Tin tức nổi bật</h5>
                     <ListGroup>
                         {relatedBlogs.map((blog) => (
                             <ListGroup.Item key={blog.blogId} className="d-flex align-items-center">
-                                <img
-                                    src="https://via.placeholder.com/80"
+                                <Link to={`/tin-tuc/${blog.blogId}`}>
+                                    <img
+                                    src={blog.img || 'https://phothongcaodang.fpt.edu.vn/wp-content/uploads/800x870.jpg'}
                                     alt={blog.title}
-                                    className="me-3"
-                                    style={{ width: '80px', height: '80px' }}
-                                />
+                                        className="me-3"
+                                        style={{ width: '80px', height: '80px', cursor: 'pointer' }}
+                                    />
+                                </Link>
                                 <div>
-                                    <h6 className="mb-1">{blog.title}</h6>
-                                    <p className="mb-0 text-muted">{blog.description}</p>
-                                    <Button
-                                        variant="link"
-                                        as={Link}
-                                        to={`/tin-tuc/${blog.blogId}`}
-                                        className="read-more-btn p-0"
-                                    >
-                                        Đọc thêm
-                                    </Button>
+                                    <Link to={`/tin-tuc/${blog.blogId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        <h6 className="mb-1" style={{ cursor: 'pointer' }}>{blog.title}</h6>
+                                    </Link>
+                                    <p className="mb-0 text-muted line-clamp">{blog.description}</p>
                                 </div>
                             </ListGroup.Item>
                         ))}

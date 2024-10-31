@@ -1,22 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Breadcrumb, Button, Table } from 'react-bootstrap';
+import { Container, Breadcrumb, Button, Table, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
+import api from '../../apiService';
 
 const Information = () => {
-    const [description, setDescription] = useState('');
+    const { selectedCampus } = useOutletContext();
+    const [admissionTimes, setAdmissionTimes] = useState([]);
+    const [campuses, setCampuses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // useEffect(() => {
-    //     const fetchDescription = async () => {
-    //         try {
-    //             const response = await axios.get('API_URL_HERE');
-    //             setDescription(response.data.description);
-    //         } catch (error) {
-    //             console.error('Lỗi khi lấy dữ liệu mô tả:', error);
-    //         }
-    //     };
-
-    //     fetchDescription();
-    // }, []);
+    useEffect(() => {
+        const fetchAdmissionTimes = async () => {
+            try {
+                setLoading(true);
+                const currentYear = new Date().getFullYear();
+                const [admissionResponse, campusesResponse] = await Promise.all([
+                    api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
+                    api.get('/Campus/get-campuses')
+                ]);
+                setAdmissionTimes(admissionResponse.data);
+                setCampuses(campusesResponse.data);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (selectedCampus.id) {
+            fetchAdmissionTimes();
+        }
+    }, [selectedCampus]);
 
     return (
         <Container className="my-3">
@@ -56,24 +71,31 @@ const Information = () => {
             <p>Lệ phí xét tuyển các chuyên ngành tại trường được áp dụng chung với phí 1.000.000 VND</p>
 
             <h4 className='text-orange mt-4'>III. Thông tin đợt tuyển sinh</h4>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Đợt</th>
-                        <th>Thời gian bắt đầu</th>
-                        <th>Thời gian kết thúc</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Đợt 1</td>
-                        <td>23/9/2023</td>
-                        <td>01/03/2024</td>
-                    </tr>
-                </tbody>
-            </Table>
+            {loading && <Spinner animation="border" />}
+            {error && <p className="text-danger">Lỗi: {error.message}</p>}
+            {!loading && !error && (
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Đợt</th>
+                            <th>Thời gian bắt đầu</th>
+                            <th>Thời gian kết thúc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {admissionTimes.map((admission, index) => (
+                            <tr key={admission.admissionTimeID}>
+                                <td className="text-center">{index + 1}</td>
+                                <td>{admission.admissionTimeName || `Đợt ${index + 1}`}</td>
+                                <td>{new Date(admission.timeStart).toLocaleDateString()}</td>
+                                <td>{new Date(admission.timeEnd).toLocaleDateString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
+
             <h4 className='text-orange mt-4'>IV. Hồ sơ nhập học</h4>
             <ul>
                 <li>01 Bản sao bằng cấp</li>
@@ -83,24 +105,30 @@ const Information = () => {
                 <li>01 Bản sao bảng điểm (nếu xét học bạ)</li>
             </ul>
             <h4 className='text-orange mt-4'>V. Cơ sở đào tạo</h4>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Cơ sở</th>
-                        <th>Địa chỉ</th>
-                        <th>Số điện thoại</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Hà Nội</td>
-                        <td>Hà Nội</td>
-                        <td>0971341555</td>
-                    </tr>
-                </tbody>
-            </Table>
+            {loading && <Spinner animation="border" />}
+            {error && <p className="text-danger">Lỗi: {error.message}</p>}
+            {!loading && !error && (
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Cơ sở</th>
+                            <th>Địa chỉ</th>
+                            <th>Số điện thoại</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {campuses.map((campus, index) => (
+                            <tr key={campus.campusId}>
+                                <td className="text-center">{index + 1}</td>
+                                <td>{campus.campusName}</td>
+                                <td>{campus.address}</td>
+                                <td>{campus.phoneNumber}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
 
             <div className="mt-4 d-flex align-items-center">
                 <h5 className="mb-0">Nộp hồ sơ đăng ký</h5>

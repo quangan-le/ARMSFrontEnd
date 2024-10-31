@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Breadcrumb, Table, Spinner } from 'react-bootstrap';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, Link } from 'react-router-dom'; // Thêm Link
 import api from '../../apiService';
 
 const Programs = () => {
@@ -59,7 +59,11 @@ const Programs = () => {
                                 {collegePrograms.map((program, index) => (
                                     <tr key={program.majorID}>
                                         <td className="text-center">{index + 1}</td>
-                                        <td>{program.majorName}</td>
+                                        <td>
+                                            <Link to={`/nganh-hoc/${program.majorID}`} className="text-decoration-none">
+                                                {program.majorName}
+                                            </Link>
+                                        </td>
                                         <td>{program.majorCode}</td>
                                     </tr>
                                 ))}
@@ -79,7 +83,11 @@ const Programs = () => {
                                 {vocationalPrograms.map((program, index) => (
                                     <tr key={program.majorID}>
                                         <td className="text-center">{index + 1}</td>
-                                        <td>{program.majorName}</td>
+                                        <td>
+                                            <Link to={`/nganh-hoc/${program.majorID}`} className="text-decoration-none">
+                                                {program.majorName}
+                                            </Link>
+                                        </td>
                                         <td>{program.majorCode}</td>
                                     </tr>
                                 ))}

@@ -4,59 +4,56 @@ import { useParams } from 'react-router-dom';
 import api from '../../apiService';
 
 const ProgramDetail = () => {
-    const { specializeMajorID } = useParams();
+    const { majorID } = useParams();
     const [majorInfo, setMajorInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await api.get(
-                    `/Major/get-admission-major?SpecializeMajorID=${specializeMajorID}`
+                    `/Major/get-major-details?MajorId=${majorID}`
                 );
                 setMajorInfo(response.data);
             } catch (error) {
                 console.error('Error fetching major data:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
-    }, [specializeMajorID]);
+    }, [majorID]);
+
+    if (loading) {
+        return <Spinner animation="border" />;
+    }
 
     if (!majorInfo) {
-        return <p>Đang tải dữ liệu...</p>;
+        return <p>Không có dữ liệu ngành học.</p>;
     }
 
     return (
         <Container className="my-3">
+            <h1 className="page-title mb-0" style={{ color: 'orange', textAlign: 'center' }}>{majorInfo.majorName}</h1>
             <Breadcrumb>
                 <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item href="/nganh-hoc">Ngành học</Breadcrumb.Item>
-                <Breadcrumb.Item>{majorInfo.majorName}</Breadcrumb.Item>
-                <Breadcrumb.Item active href={`/nganh-hoc/${majorInfo.specializeMajorName}`}>{majorInfo.specializeMajorName}</Breadcrumb.Item>
+                <Breadcrumb.Item active className="text-orange">{majorInfo.majorName}</Breadcrumb.Item>
             </Breadcrumb>
 
-            <h1>{majorInfo.specializeMajorName}</h1>
-            <div className='mx-5'>
-                <h3>Tổng quan ngành {majorInfo.specializeMajorName}:</h3>
+            <div className="table-container">
+                <h4 className='text-orange mt-4'>I. Tổng quan ngành {majorInfo.majorName}:</h4>
                 <p>{majorInfo.description || 'Không có mô tả'}</p>
-
-                <h4>Thời gian học tập</h4>
-                <p>{majorInfo.timeStudy}</p>
-
-                <h4>Yêu cầu đầu vào</h4>
-                {majorInfo.typeAdmissionForMajors?.map((admission, index) => (
-                    <p key={index}>
-                        <strong>{admission.typeOfDiploma.diplomaName}{admission.typeAcademicRecord?.arName ? ': ' : ''}</strong>
-                        {admission.typeAcademicRecord?.arName || ''}
-                    </p>
-                ))}
-
-                <h4>Cấu trúc chương trình</h4>
-                <div className='mx-5'>
+                <p>• Thời gian học tập: {majorInfo.timeStudy}</p>
+                <p>• Học phí: {majorInfo.tuition.toLocaleString()} VND</p>
+                <p>• Chỉ tiêu tuyển sinh: {majorInfo.target}</p>
+                <h4 className='text-orange mt-4'>II. Cấu trúc chương trình</h4>
+                <div>
                     <table className="table table-bordered">
                         <thead>
                             <tr>
                                 <th>STT</th>
-                                <th>Module</th>
+                                <th>Môn học</th>
                                 <th>Thời gian/Số học phần</th>
                                 <th>Số tín chỉ</th>
                                 <th>Ghi chú</th>
@@ -69,7 +66,7 @@ const ProgramDetail = () => {
                                     <td>{subject.subjectName}</td>
                                     <td>{subject.studyTime}</td>
                                     <td>{subject.numberOfCredits}</td>
-                                    <td>{subject.note ? subject.note : 'N/A'}</td>
+                                    <td>{subject.note || 'N/A'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -77,13 +74,12 @@ const ProgramDetail = () => {
                 </div>
 
                 <p>
-                    Thông tin tuyển sinh ngành {majorInfo.specializeMajorName} chi tiết tại{' '}
+                    Thông tin tuyển sinh ngành {majorInfo.majorName} chi tiết tại{' '}
                     <a href="/tuyen-sinh" className="text-orange">
                         Tuyển sinh
                     </a>
                 </p>
             </div>
-
         </Container>
     );
 };

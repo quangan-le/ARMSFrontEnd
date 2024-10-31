@@ -8,6 +8,8 @@ const Information = () => {
     const { selectedCampus } = useOutletContext();
     const [admissionTimes, setAdmissionTimes] = useState([]);
     const [campuses, setCampuses] = useState([]);
+    const [admissionInfo, setAdmissionInfo] = useState(null);
+    const [priorityGroups, setPriorityGroups] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -16,12 +18,16 @@ const Information = () => {
             try {
                 setLoading(true);
                 const currentYear = new Date().getFullYear();
-                const [admissionResponse, campusesResponse] = await Promise.all([
+                const [admissionResponse, campusesResponse, priorityResponse, admissionInfoResponse] = await Promise.all([
                     api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
-                    api.get('/Campus/get-campuses')
+                    api.get('/Campus/get-campuses'),
+                    api.get('/Priority/get-priority'),
+                    api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`)
                 ]);
                 setAdmissionTimes(admissionResponse.data);
                 setCampuses(campusesResponse.data);
+                setPriorityGroups(priorityResponse.data);
+                setAdmissionInfo(admissionInfoResponse.data);
             } catch (err) {
                 setError(err);
             } finally {
@@ -68,7 +74,14 @@ const Information = () => {
                 </tbody>
             </Table>
             <h4 className='text-orange mt-4'>II. Lệ phí xét tuyển</h4>
-            <p>Lệ phí xét tuyển các chuyên ngành tại trường được áp dụng chung với phí 1.000.000 VND</p>
+            {admissionInfo ? (
+                <>
+                    <p className="mb-1">Lệ phí xét tuyển: <strong>{admissionInfo.feeRegister} VND</strong></p>
+                    <p>Lệ phí nhập học: <strong>{admissionInfo.feeAdmission} VND</strong></p>
+                </>
+            ) : (
+                <p>Không có dữ liệu lệ phí</p>
+            )}
 
             <h4 className='text-orange mt-4'>III. Thông tin đợt tuyển sinh</h4>
             {loading && <Spinner animation="border" />}
@@ -97,14 +110,30 @@ const Information = () => {
             )}
 
             <h4 className='text-orange mt-4'>IV. Hồ sơ nhập học</h4>
-            <ul>
-                <li>01 Bản sao bằng cấp</li>
-                <li>02 Ảnh 3x4</li>
-                <li>01 Bản đơn xin nhập học</li>
-                <li>01 Giấy xác nhận thông tin cư trú</li>
-                <li>01 Bản sao bảng điểm (nếu xét học bạ)</li>
-            </ul>
-            <h4 className='text-orange mt-4'>V. Cơ sở đào tạo</h4>
+            <p>{admissionInfo ? admissionInfo.admissionProfileDescription : "Không có dữ liệu hồ sơ nhập học"}</p>
+
+            <h4 className='text-orange mt-4'>VI. Đối tượng ưu tiên</h4>
+            {loading && <Spinner animation="border" />}
+            {error && <p className="text-danger">Lỗi: {error.message}</p>}
+            {!loading && !error && (
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mô tả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {priorityGroups.map((priority, index) => (
+                            <tr key={priority.priorityID}>
+                                <td className="text-center">{index + 1}</td>
+                                <td>{priority.priorityDescription}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
+            <h4 className='text-orange mt-4'>VI. Cơ sở đào tạo</h4>
             {loading && <Spinner animation="border" />}
             {error && <p className="text-danger">Lỗi: {error.message}</p>}
             {!loading && !error && (

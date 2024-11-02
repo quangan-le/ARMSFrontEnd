@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Breadcrumb, Button, Table, Spinner } from 'react-bootstrap';
+import { Container, Breadcrumb, Button, Table, Spinner, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
 const Information = () => {
     const { selectedCampus } = useOutletContext();
+    const [majors, setMajors] = useState([]);
     const [admissionTimes, setAdmissionTimes] = useState([]);
     const [campuses, setCampuses] = useState([]);
     const [admissionInfo, setAdmissionInfo] = useState(null);
@@ -18,16 +19,29 @@ const Information = () => {
             try {
                 setLoading(true);
                 const currentYear = new Date().getFullYear();
-                const [admissionResponse, campusesResponse, priorityResponse, admissionInfoResponse] = await Promise.all([
+                const [admissionResponse, campusesResponse, priorityResponse, admissionInfoResponse, collegeResponse, vocationalResponse] = await Promise.all([
                     api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
                     api.get('/Campus/get-campuses'),
                     api.get('/Priority/get-priority'),
-                    api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`)
+                    api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`),
+                    api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`),
+                    api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`)
                 ]);
                 setAdmissionTimes(admissionResponse.data);
                 setCampuses(campusesResponse.data);
                 setPriorityGroups(priorityResponse.data);
                 setAdmissionInfo(admissionInfoResponse.data);
+                const collegeMajors = collegeResponse.data.map((major) => ({
+                    ...major,
+                    educationLevel: 'Cao đẳng',
+                }));
+                
+                const vocationalMajors = vocationalResponse.data.map((major) => ({
+                    ...major,
+                    educationLevel: 'Trung cấp',
+                }));
+    
+                setMajors([...collegeMajors, ...vocationalMajors]);
             } catch (err) {
                 setError(err);
             } finally {
@@ -46,33 +60,39 @@ const Information = () => {
                 <Breadcrumb.Item active className='text-orange'>Thông tin tuyển sinh</Breadcrumb.Item>
             </Breadcrumb>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Thông tin tuyển sinh</h1>
-            <h4 className='text-orange mt-4'>I. Chuyên ngành đạo tạo và học phí</h4>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Ngành học</th>
-                        <th>Hệ đào tạo</th>
-                        <th>Thời gian học</th>
-                        <th>Mã ngành</th>
-                        <th>Học phí</th>
-                        <th>Yêu cầu</th>
-                        <th>Trung bình(Xét Học Bạ)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Công nghệ thông tin</td>
-                        <td>Cao đẳng</td>
-                        <td>18 tháng</td>
-                        <td>IT</td>
-                        <td>23tr</td>
-                        <td>Tốt nghiệp THPT</td>
-                        <td>22 điểm</td>
-                    </tr>
-                </tbody>
-            </Table>
+            <h4 className='text-orange mt-4'>I. Chuyên ngành đào tạo và học phí</h4>
+            {loading && <Spinner animation="border" />}
+            {error && <p className="text-danger">Lỗi: {error.message}</p>}
+            {!loading && !error && (
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Ngành học</th>
+                            <th>Hệ đào tạo</th>
+                            <th>Thời gian học</th>
+                            <th>Mã ngành</th>
+                            <th>Học phí</th>
+                            <th>Yêu cầu</th>
+                            <th>Trung bình (Xét Học Bạ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {majors.map((major, index) => (
+                            <tr key={major.majorID}>
+                                <td>{index + 1}</td>
+                                <td>{major.majorName}</td>
+                                <td>{major.educationLevel}</td>
+                                <td>{major.timeStudy}</td>
+                                <td>{major.majorCode}</td>
+                                <td>{major.tuition} VND</td>
+                                <td>Tốt nghiệp THPT</td>
+                                <td>{major.admissionDetailForMajors[0]?.totalScoreAcademic} điểm</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
             <h4 className='text-orange mt-4'>II. Lệ phí xét tuyển</h4>
             {admissionInfo ? (
                 <>
@@ -116,22 +136,50 @@ const Information = () => {
             {loading && <Spinner animation="border" />}
             {error && <p className="text-danger">Lỗi: {error.message}</p>}
             {!loading && !error && (
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mô tả</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {priorityGroups.map((priority, index) => (
-                            <tr key={priority.priorityID}>
-                                <td className="text-center">{index + 1}</td>
-                                <td>{priority.priorityDescription}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                <Row>
+                    <Col md={6}>
+                        <h5>Ưu tiên 1</h5>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {priorityGroups
+                                    .filter(priority => priority.typeOfPriority === 'Ưu tiên 1')
+                                    .map((priority, index) => (
+                                        <tr key={priority.priorityID}>
+                                            <td className="text-center">{index + 1}</td>
+                                            <td>{priority.priorityDescription}</td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
+                    </Col>
+                    <Col md={6}>
+                        <h5>Ưu tiên 2</h5>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {priorityGroups
+                                    .filter(priority => priority.typeOfPriority === 'Ưu tiên 2')
+                                    .map((priority, index) => (
+                                        <tr key={priority.priorityID}>
+                                            <td className="text-center">{index + 1}</td>
+                                            <td>{priority.priorityDescription}</td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
+                    </Col>
+                </Row>
             )}
             <h4 className='text-orange mt-4'>VI. Cơ sở đào tạo</h4>
             {loading && <Spinner animation="border" />}

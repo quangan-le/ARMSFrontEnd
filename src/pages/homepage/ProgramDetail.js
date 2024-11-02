@@ -34,7 +34,8 @@ const ProgramDetail = () => {
 
     return (
         <Container className="my-3">
-            <h1 className="page-title mb-0" style={{ color: 'orange', textAlign: 'center' }}>{majorInfo.majorName}</h1>
+            <h1 className="page-title mb-0" style={{ color: 'orange', textAlign: 'center' }}>Chi tiết ngành học</h1>
+            <h4 className="mb-0" style={{ color: 'orange', textAlign: 'center' }}>Ngành {majorInfo.majorName}</h4>
             <Breadcrumb>
                 <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item href="/nganh-hoc">Ngành học</Breadcrumb.Item>
@@ -54,6 +55,8 @@ const ProgramDetail = () => {
                             <tr>
                                 <th>STT</th>
                                 <th>Môn học</th>
+                                <th>Mã ngành</th>
+                                <th>Kỳ học</th>
                                 <th>Thời gian/Số học phần</th>
                                 <th>Số tín chỉ</th>
                                 <th>Ghi chú</th>
@@ -64,6 +67,8 @@ const ProgramDetail = () => {
                                 <tr key={subject.subjectCode}>
                                     <td>{index + 1}</td>
                                     <td>{subject.subjectName}</td>
+                                    <td>{subject.subjectCode}</td>
+                                    <td>{subject.semesterNumber}</td>
                                     <td>{subject.studyTime}</td>
                                     <td>{subject.numberOfCredits}</td>
                                     <td>{subject.note || 'N/A'}</td>
@@ -72,7 +77,57 @@ const ProgramDetail = () => {
                         </tbody>
                     </table>
                 </div>
-
+                <h4 className='text-orange mt-4'>III. Hình thức xét tuyển</h4>
+                <ul>
+                    {majorInfo.typeAdmissions.map((admission, index) => (
+                        <li key={index}>
+                            {admission.typeDiploma === 0 && 'Tốt nghiệp THCS'}
+                            {admission.typeDiploma === 1 && 'Tốt nghiệp THPT'}
+                            {admission.typeDiploma === 2 && 'Tốt nghiệp Cao đẳng/Đại học'}
+                            {admission.typeDiploma === 3 && 'Xét học bạ THPT'}
+                            {admission.typeDiploma === 4 && 'Liên thông'}
+                            {admission.typeDiploma === 5 && 'Xét điểm thi THPT'}
+                            {admission.typeOfTranscript != null && (
+                                <span> -
+                                    {admission.typeOfTranscript === 0 && ' Xét học bạ lớp 12'}
+                                    {admission.typeOfTranscript === 1 && ' Xét học bạ 3 năm'}
+                                    {admission.typeOfTranscript === 2 && ' Xét học bạ lớp 10, lớp 11 và HK1 lớp 12'}
+                                    {admission.typeOfTranscript === 3 && ' Xét học bạ 5 kỳ'}
+                                    {admission.typeOfTranscript === 4 && ' Xét học bạ 3 kỳ'}
+                                </span>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+                <h4 className='text-orange mt-4'>IV. Điểm xét tuyển</h4>
+                <ul>
+                    {majorInfo.admissionDetailForMajors.map((admission, index) => (
+                        <li key={index}>
+                             {admission.statusScoreAcademic && (
+                                <div>
+                                    <strong>Điểm xét học bạ:</strong> {admission.totalScoreAcademic}
+                                </div>
+                            )}
+                            {admission.statusScore && (
+                                <div>
+                                    <strong>Điểm xét thi THPT:</strong> {admission.totalScore}
+                                </div>
+                            )}
+                            {admission.subjectGroupDTOs && admission.subjectGroupDTOs.length > 0 && (
+                                <div>
+                                    <strong>Tổ hợp môn xét tuyển:</strong>
+                                    <ul>
+                                        {admission.subjectGroupDTOs.map((group, idx) => (
+                                            <li key={idx}>
+                                                {group.subjectGroup} - {group.subjectGroupName}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </li>
+                    ))}
+                </ul>
                 <p>
                     Thông tin tuyển sinh ngành {majorInfo.majorName} chi tiết tại{' '}
                     <a href="/tuyen-sinh" className="text-orange">

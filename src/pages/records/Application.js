@@ -82,19 +82,25 @@ const Application = () => {
 
     // Ngành học
     const [majors, setMajors] = useState([]);
-    const [selectedMajor, setSelectedMajor] = useState('');
-    const [specializations, setSpecializations] = useState([]);
+    const [selectedMajor1, setSelectedMajor1] = useState('');
+    const [selectedMajor2, setSelectedMajor2] = useState('');
+    const [specializations1, setSpecializations1] = useState([]);
+    const [specializations2, setSpecializations2] = useState([]);
 
     // Khi người dùng chọn cơ sở, cập nhật ngành học
     const handleCampusChange = async (e) => {
         const campusId = e.target.value;
         setSelectedCampus(campusId);
-        setSelectedMajor('');
-        setSpecializations([]);
+        setSelectedMajor1('');
+        setSelectedMajor2('');
+        setSpecializations1([]);
+        setSpecializations2([]);
+        console.log(campusId);
         if (campusId) {
             try {
-                const response = await api.get(`/Major/get-majors?campus=${campusId}`);
+                const response = await api.get(`/Major/get-majors-college?campus=${campusId}`);
                 setMajors(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching majors:', error);
             }
@@ -103,14 +109,20 @@ const Application = () => {
         }
     };
 
-    // Khi người dùng chọn ngành, cập nhật danh sách chuyên ngành
-    const handleMajorChange = (e) => {
+    // Khi người dùng chọn ngành cho nguyện vọng 1
+    const handleMajorChange1 = (e) => {
         const selectedMajorId = e.target.value;
-        setSelectedMajor(selectedMajorId);
-
-        // Tìm chuyên ngành theo ngành đã chọn
+        setSelectedMajor1(selectedMajorId);
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
-        setSpecializations(selectedMajor ? selectedMajor.specializeMajorDTOs : []);
+        setSpecializations1(selectedMajor ? selectedMajor.specializeMajorDTOs : []);
+    };
+
+    // Khi người dùng chọn ngành cho nguyện vọng 2
+    const handleMajorChange2 = (e) => {
+        const selectedMajorId = e.target.value;
+        setSelectedMajor2(selectedMajorId);
+        const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
+        setSpecializations2(selectedMajor ? selectedMajor.specializeMajorDTOs : []);
     };
 
     // Xử lý CCCD và bằng
@@ -287,27 +299,25 @@ const Application = () => {
                     </Row>
 
                     <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
-
                     <Row className="mt-3">
                         <Col md={6}>
-                            <Row className="mt-2">
+                            <Form.Group controlId="campusSelection">
+                                <Form.Label>Cơ sở nhập học</Form.Label>
+                                <Form.Control as="select" onChange={handleCampusChange} value={selectedCampus}>
+                                    <option value="">Chọn cơ sở</option>
+                                    {campuses.map(campus => (
+                                        <option key={campus.campusId} value={campus.campusId}>
+                                            {campus.campusName}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+
+                            <Row className="mt-3">
                                 <Col md={6}>
-                                    <Form.Group controlId="campusSelection">
-                                        <Form.Label>Cơ sở nhập học</Form.Label>
-                                        <Form.Control as="select" onChange={handleCampusChange} value={selectedCampus}>
-                                            <option value="">Chọn cơ sở</option>
-                                            {campuses.map(campus => (
-                                                <option key={campus.campusId} value={campus.campusId}>
-                                                    {campus.campusName}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="majorSelection">
-                                        <Form.Label>Nguyện vọng</Form.Label>
-                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange} value={selectedMajor}>
+                                    <Form.Group controlId="majorSelection1">
+                                        <Form.Label>Nguyện vọng 1</Form.Label>
+                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange1} value={selectedMajor1}>
                                             <option value="">Chọn ngành</option>
                                             {majors.map(major => (
                                                 <option key={major.majorID} value={major.majorID}>
@@ -318,19 +328,36 @@ const Application = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="graduationYear" className='mt-3'>
+                                    <Form.Group controlId="majorSelection2">
+                                        <Form.Label>Nguyện vọng 2</Form.Label>
+                                        <Form.Control as="select" disabled={!selectedCampus} onChange={handleMajorChange2} value={selectedMajor2}>
+                                            <option value="">Chọn ngành</option>
+                                            {majors.map(major => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="graduationYear">
                                         <Form.Label>Năm tốt nghiệp</Form.Label>
                                         <Form.Control type="text" placeholder="2024" />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="schoolName" className='mt-3'>
+                                    <Form.Group controlId="schoolName">
                                         <Form.Label>Tên trường</Form.Label>
                                         <Form.Control type="text" placeholder="Trường THCS A" />
                                     </Form.Group>
                                 </Col>
                             </Row>
                         </Col>
+
                         <Col md={6}>
                             <Form.Group controlId="degreeType" className='ms-md-5 mt-2'>
                                 <Form.Label>Chọn loại bằng</Form.Label>

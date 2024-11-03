@@ -9,32 +9,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 
-const content = {
-  "Đối tượng và hình thức": (
-    <div>
-      <h4>Đối tượng</h4>
-      <p>
-        Thí sinh thuộc một trong các đối tượng sau sẽ đủ điều kiện trở thành học sinh của trường:
-      </p>
-      <ul>
-        <li><strong>Hệ chính thức:</strong></li>
-        <li>Tốt nghiệp THCS hoặc tương đương;</li>
-        <li>Sinh viên đã hoàn thành chương trình Trung cấp.</li>
-      </ul>
-
-      <h4>Hình thức tuyển sinh</h4>
-      <p>Xét tuyển hồ sơ</p>
-
-      <h4>Thời gian đào tạo</h4>
-      <p>2 năm, gồm 6 học kỳ liên tục.</p>
-    </div>
-  ),
-  "Thời gian": "Thời gian tuyển sinh sẽ diễn ra từ tháng 3 đến tháng 9 năm 2024, với các đợt xét tuyển khác nhau tùy theo từng ngành.",
-  "Chuyên ngành": "Danh sách các chuyên ngành đào tạo: Công nghệ thông tin, Quản trị kinh doanh, Ngôn ngữ Anh, Marketing, Kỹ thuật phần mềm, và nhiều ngành khác.",
-  "Hồ sơ nhập học": "Hồ sơ nhập học cần bao gồm: bản sao công chứng bằng tốt nghiệp, bảng điểm, giấy khai sinh, và các giấy tờ liên quan khác.",
-  "Học phí": "Học phí sẽ được tính theo tín chỉ, với các mức khác nhau cho từng ngành học. Trung bình từ 500,000 VND đến 1,200,000 VND một tín chỉ."
-};
-
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
@@ -45,20 +19,29 @@ const Homepage = () => {
   // Ngành học
   const [vocationalMajors, setVocationalMajors] = useState([]);
   const [collegeMajors, setCollegeMajors] = useState([]);
+  const [admissionTimes, setAdmissionTimes] = useState([]);
+  const [admissionInfo, setAdmissionInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       if (selectedCampus.id) {
         try {
-          // Gọi API lấy danh sách banner
-          const bannerResponse = await api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`);
-          setBanners(bannerResponse.data);
+          setLoading(true);
+          const currentYear = new Date().getFullYear();
 
-          // Gọi API lấy danh sách ngành học
-          const vocationalResponse = await api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`);
-          const collegeResponse = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
+          const [bannerResponse, vocationalResponse, collegeResponse, admissionTimeResponse, admissionInfoResponse] = await Promise.all([
+            api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`),
+            api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`),
+            api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`),
+            api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
+            api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`)
+          ]);
+
+          setBanners(bannerResponse.data);
           setVocationalMajors(vocationalResponse.data);
           setCollegeMajors(collegeResponse.data);
+          setAdmissionTimes(admissionTimeResponse.data);
+          setAdmissionInfo(admissionInfoResponse.data);
         } catch (error) {
           console.error("Có lỗi khi lấy dữ liệu:", error);
         } finally {
@@ -68,6 +51,77 @@ const Homepage = () => {
     };
     fetchData();
   }, [selectedCampus]);
+
+  const content = {
+    "Đối tượng và hình thức": (
+      <div>
+        <h4>Đối tượng</h4>
+        <p>Thí sinh thuộc một trong các đối tượng sau sẽ đủ điều kiện trở thành học sinh của trường:</p>
+        <ul>
+          <li><strong>Hệ chính thức:</strong> Tốt nghiệp THCS hoặc tương đương; Sinh viên đã hoàn thành chương trình Trung cấp.</li>
+        </ul>
+        <h4>Hình thức tuyển sinh</h4>
+        <p>Xét tuyển hồ sơ</p>
+        <h4>Thời gian đào tạo</h4>
+        <p>2 năm, gồm 6 học kỳ liên tục.</p>
+      </div>
+    ),
+    "Thời gian": admissionTimes.length > 0
+      ? (
+        <div>
+          <p>Thời gian tuyển sinh bao gồm các đợt sau:</p>
+          <ul>
+            {admissionTimes.map((time, index) => (
+              <li key={index}>
+                Đợt {index + 1}: Từ {new Date(time.timeStart).toLocaleDateString()} đến {new Date(time.timeEnd).toLocaleDateString()}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+      : "Đang tải dữ liệu...",
+    "Chuyên ngành": (
+      <Row>
+        <Col md={6}>
+          <h4>Cao đẳng</h4>
+          <ul>
+            {collegeMajors.map((major) => (
+              <li key={major.majorID}>{major.majorName}</li>
+            ))}
+          </ul>
+        </Col>
+        <Col md={6}>
+          <h4>Trung cấp</h4>
+          <ul>
+            {vocationalMajors.map((major) => (
+              <li key={major.majorID}>{major.majorName}</li>
+            ))}
+          </ul>
+        </Col>
+      </Row>
+    ),
+    "Hồ sơ nhập học": admissionInfo
+      ? (
+        <ul>
+          {admissionInfo.admissionProfileDescription
+            .split('\r\n')
+            .filter(item => item.trim() !== '')
+            .map((item, index) => (
+              <li key={index}>{item}</li>
+            ))
+          }
+        </ul>
+      )
+      : "Đang tải dữ liệu...",
+    "Học phí": admissionInfo
+      ? (
+        <div>
+          <p>Lệ phí xét tuyển: {admissionInfo.feeRegister.toLocaleString()} VND</p>
+          <p>Học phí: {admissionInfo.feeAdmission.toLocaleString()} VND</p>
+        </div>
+      )
+      : "Đang tải dữ liệu..."
+  };
 
   // Carousel settings for majors
   const responsive = {

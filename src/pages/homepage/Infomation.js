@@ -5,6 +5,29 @@ import { useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
 const Information = () => {
+    const getDiplomaName = (typeDiploma) => {
+        switch (typeDiploma) {
+            case 0: return "Tốt nghiệp THCS";
+            case 1: return "Tốt nghiệp THPT";
+            case 2: return "Tốt nghiệp CĐ/ĐH";
+            case 3: return "Xét học bạ THPT";
+            case 4: return "Liên thông";
+            case 5: return "Xét điểm thi THPT";
+            default: return "Khác";
+        }
+    };
+
+    const getTranscriptName = (typeOfTranscript) => {
+        switch (typeOfTranscript) {
+            case 0: return "Xét học bạ 12";
+            case 1: return "Xét học bạ 3 năm";
+            case 2: return "Xét học bạ lớp 10, lớp 11, HK1 lớp 12";
+            case 3: return "Xét học bạ 5 kỳ";
+            case 4: return "Xét học bạ 3 kỳ";
+            default: return null;
+        }
+    };
+
     const { selectedCampus } = useOutletContext();
     const [majors, setMajors] = useState([]);
     const [admissionTimes, setAdmissionTimes] = useState([]);
@@ -35,12 +58,12 @@ const Information = () => {
                     ...major,
                     educationLevel: 'Cao đẳng',
                 }));
-                
+
                 const vocationalMajors = vocationalResponse.data.map((major) => ({
                     ...major,
                     educationLevel: 'Trung cấp',
                 }));
-    
+
                 setMajors([...collegeMajors, ...vocationalMajors]);
             } catch (err) {
                 setError(err);
@@ -73,8 +96,10 @@ const Information = () => {
                             <th>Thời gian học</th>
                             <th>Mã ngành</th>
                             <th>Học phí</th>
-                            <th>Yêu cầu</th>
-                            <th>Trung bình (Xét Học Bạ)</th>
+                            <th>Hình thức xét tuyển</th>
+                            <th>Khối xét tuyển</th>
+                            <th>Xét điểm THPT</th>
+                            <th>Xét học bạ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,7 +111,22 @@ const Information = () => {
                                 <td>{major.timeStudy}</td>
                                 <td>{major.majorCode}</td>
                                 <td>{major.tuition} VND</td>
-                                <td>Tốt nghiệp THPT</td>
+                                <td>
+                                    {major.typeAdmissions.map((admission, idx) => (
+                                        <div key={idx}>
+                                            {getDiplomaName(admission.typeDiploma)}{" "}
+                                            {admission.typeOfTranscript !== null && `- ${getTranscriptName(admission.typeOfTranscript)}`}
+                                        </div>
+                                    ))}
+                                </td>
+                                <td>
+                                    {major.admissionDetailForMajors[0]?.subjectGroupDTOs.map((subjectGroup, idx) => (
+                                        <div key={idx}>
+                                            {subjectGroup.subjectGroup}
+                                        </div>
+                                    ))}
+                                </td>
+                                <td>{major.admissionDetailForMajors[0]?.totalScore} điểm</td>
                                 <td>{major.admissionDetailForMajors[0]?.totalScoreAcademic} điểm</td>
                             </tr>
                         ))}

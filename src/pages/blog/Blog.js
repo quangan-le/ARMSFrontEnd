@@ -40,6 +40,7 @@ const Blog = () => {
                         Search: search,
                         CurrentPage: currentPage,
                         PageSize: 8,
+                        CategoryID: selectedCategory || null,
                     },
                 });
                 setBlogs(response.data.item);
@@ -53,12 +54,11 @@ const Blog = () => {
     // Gọi API lấy danh sách blog khi search hoặc currentPage thay đổi
     useEffect(() => {
         fetchBlogs();
-    }, [search, currentPage, campusId]);
+    }, [search, currentPage, campusId, selectedCategory]);
 
     // Hàm xử lý sự kiện thay đổi từ khóa tìm kiếm
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
-        setSelectedCategory('');
         setCurrentPage(1);
     };
     return (

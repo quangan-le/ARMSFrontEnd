@@ -4,7 +4,7 @@ import { useState, useEffect } from '../hooks/Hooks.js';
 import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import api from '../../apiService';
-import uploadImage from '../../uploadImage.js';
+import uploadImage from '../../firebase/uploadImage.js';
 
 const Application = () => {
     // Xử lý lấy danh sách tỉnh huyện
@@ -211,7 +211,7 @@ const Application = () => {
             (type) => type.typeDiploma === typeId
         );
 
-        if (typeId === 5) {
+        if (typeId === 3 || typeId === 5) {
             setSubjectGroups1(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
             setShowSubjectSelection1(true);
         } else {
@@ -232,7 +232,7 @@ const Application = () => {
             (type) => type.typeDiploma === typeId
         );
 
-        if (typeId === 5) {
+        if (typeId === 3 || typeId === 5) {
             setSubjectGroups2(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
             setShowSubjectSelection2(true);
         } else {
@@ -714,7 +714,7 @@ const Application = () => {
                         </Row>
 
                         <Row>
-                            <Col md={6}>
+                            <Col md={3}>
                                 <Form.Group controlId="major1" className='mb-2'>
                                     <Form.Label>Ngành học Nguyện vọng 1</Form.Label>
                                     <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
@@ -726,8 +726,10 @@ const Application = () => {
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
+                            </Col>
 
-                                {typeAdmissions1.length > 0 && (
+                            {typeAdmissions1.length > 0 && (
+                                <Col md={3}>
                                     <Form.Group controlId="typeOfDiplomaMajor1 " className='mb-2'>
                                         <Form.Label>Loại xét tuyển Nguyện vọng 1</Form.Label>
                                         <Form.Control as="select" value={selectedAdmissionType1 || ''} onChange={handleAdmissionTypeChange1}>
@@ -739,10 +741,13 @@ const Application = () => {
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
-                                )}
+                                </Col>
+                            )}
 
-                                {showSubjectSelection1 && (
-                                    <div>
+
+                            {showSubjectSelection1 && (
+                                <div>
+                                    <Col md={3}>
                                         <Form.Group controlId="subjectSelection1" className='mb-2'>
                                             <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
                                             <Form.Control as="select">
@@ -754,47 +759,48 @@ const Application = () => {
                                                 ))}
                                             </Form.Control>
                                         </Form.Group>
+                                    </Col>
+                                    <Form.Group controlId="subjectScores1" className='mb-2'>
+                                        <Form.Label>Nhập điểm 3 môn</Form.Label>
+                                        <Row>
+                                            <Col md={4}>
+                                                <Form.Control
+                                                    className='mb-2'
+                                                    type="number"
+                                                    placeholder="Môn 1"
+                                                    name="subject1"
+                                                    value={scores1.subject1}
+                                                    onChange={handleScoreChange1}
 
-                                        <Form.Group controlId="subjectScores1" className='mb-2'>
-                                            <Form.Label>Nhập điểm 3 môn</Form.Label>
-                                            <Row>
-                                                <Col md={4}>
-                                                    <Form.Control
-                                                        className='mb-2'
-                                                        type="number"
-                                                        placeholder="Môn 1"
-                                                        name="subject1"
-                                                        value={scores1.subject1}
-                                                        onChange={handleScoreChange1}
+                                                />
+                                            </Col>
+                                            <Col md={4}>
+                                                <Form.Control
+                                                    className='mb-2'
+                                                    type="number"
+                                                    placeholder="Môn 2"
+                                                    name="subject2"
+                                                    value={scores1.subject2}
+                                                    onChange={handleScoreChange1}
+                                                />
 
-                                                    />
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Control
-                                                        className='mb-2'
-                                                        type="number"
-                                                        placeholder="Môn 2"
-                                                        name="subject2"
-                                                        value={scores1.subject2}
-                                                        onChange={handleScoreChange1}
-                                                    />
-
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Control
-                                                        className='mb-2'
-                                                        type="number"
-                                                        placeholder="Môn 3"
-                                                        name="subject3"
-                                                        value={scores1.subject3}
-                                                        onChange={handleScoreChange1}
-                                                    />
-                                                </Col>
-                                            </Row>
-                                        </Form.Group>
-                                    </div>
-                                )}
-                            </Col>
+                                            </Col>
+                                            <Col md={4}>
+                                                <Form.Control
+                                                    className='mb-2'
+                                                    type="number"
+                                                    placeholder="Môn 3"
+                                                    name="subject3"
+                                                    value={scores1.subject3}
+                                                    onChange={handleScoreChange1}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Form.Group>
+                                </div>
+                            )}
+                        </Row>
+                        <Row>
                             <Col md={6}>
                                 <Form.Group controlId="majorSelection2" className='mb-2'>
                                     <Form.Label>Ngành học Nguyện vọng 2</Form.Label>
@@ -873,63 +879,63 @@ const Application = () => {
                                     </div>
                                 )}
                             </Col>
-                            <div className="score-input-container">
-                                {displayedFields.includes('semester1Year10') && (
-                                    <div className="score-input">
-                                        <label>Điểm học kỳ 1 lớp 10</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('semester2Year10') && (
-                                    <div className="score-input">
-                                        <label>Điểm học kỳ 2 lớp 10</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('finalYear10') && (
-                                    <div className="score-input">
-                                        <label>Điểm cuối năm lớp 10</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('semester1Year11') && (
-                                    <div className="score-input">
-                                        <label>Điểm học kỳ 1 lớp 11</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('semester2Year11') && (
-                                    <div className="score-input">
-                                        <label>Điểm học kỳ 2 lớp 11</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('finalYear11') && (
-                                    <div className="score-input">
-                                        <label>Điểm cuối năm lớp 11</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('semester1Year12') && (
-                                    <div className="score-input">
-                                        <label>Điểm học kỳ 1 lớp 12</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('semester2Year12') && (
-                                    <div className="score-input">
-                                        <label>Điểm học kỳ 2 lớp 12</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                                {displayedFields.includes('finalYear12') && (
-                                    <div className="score-input">
-                                        <label>Điểm cuối năm lớp 12</label>
-                                        <input placeholder="Nhập điểm" />
-                                    </div>
-                                )}
-                            </div>
                         </Row>
+                        <div className="score-input-container">
+                            {displayedFields.includes('semester1Year10') && (
+                                <div className="score-input">
+                                    <label>Điểm học kỳ 1 lớp 10</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('semester2Year10') && (
+                                <div className="score-input">
+                                    <label>Điểm học kỳ 2 lớp 10</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('finalYear10') && (
+                                <div className="score-input">
+                                    <label>Điểm cuối năm lớp 10</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('semester1Year11') && (
+                                <div className="score-input">
+                                    <label>Điểm học kỳ 1 lớp 11</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('semester2Year11') && (
+                                <div className="score-input">
+                                    <label>Điểm học kỳ 2 lớp 11</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('finalYear11') && (
+                                <div className="score-input">
+                                    <label>Điểm cuối năm lớp 11</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('semester1Year12') && (
+                                <div className="score-input">
+                                    <label>Điểm học kỳ 1 lớp 12</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('semester2Year12') && (
+                                <div className="score-input">
+                                    <label>Điểm học kỳ 2 lớp 12</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                            {displayedFields.includes('finalYear12') && (
+                                <div className="score-input">
+                                    <label>Điểm cuối năm lớp 12</label>
+                                    <input placeholder="Nhập điểm" />
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
                     <Row className="mt-3">
@@ -1157,7 +1163,7 @@ const Application = () => {
                     </div>
                 </Form>
             </Container>
-        </div>
+        </div >
     );
 };
 

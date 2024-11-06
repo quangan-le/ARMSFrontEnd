@@ -117,7 +117,8 @@ a {
 /* Homepage.js*/
 .background-overlay {
   position: relative;
-  background: url("https://cdnphoto.dantri.com.vn/vUHW-y2FTkOSlbFiKZPV-ReWJn0=/thumb_w/1360/2023/04/28/dantri-lo-trinh-hoc-tap-len-cac-cap-hoc-cao-hon-cho-hoc-sinh-phan-luong-sau-thcs-theo-giao-duc-nghe-nghiep-anhntv34docx-1682651902124.jpeg") no-repeat center center;
+  background: url("https://cdnphoto.dantri.com.vn/vUHW-y2FTkOSlbFiKZPV-ReWJn0=/thumb_w/1360/2023/04/28/dantri-lo-trinh-hoc-tap-len-cac-cap-hoc-cao-hon-cho-hoc-sinh-phan-luong-sau-thcs-theo-giao-duc-nghe-nghiep-anhntv34docx-1682651902124.jpeg")
+    no-repeat center center;
   background-size: cover;
   padding: 150px 0 0;
   height: 400px;
@@ -249,7 +250,8 @@ a {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU") no-repeat center center;
+  background: url("https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU")
+    no-repeat center center;
   background-size: cover;
   filter: blur(5px);
   z-index: -1;
@@ -290,8 +292,8 @@ a {
 /* Slider.js */
 .banner-placeholder {
   width: 100%;
-  height: 50vw; 
-  max-height: 600px; 
+  height: 50vw;
+  max-height: 600px;
   background-color: #f5f5f5;
   display: flex;
   justify-content: center;
@@ -304,8 +306,8 @@ a {
 }
 
 .banner-image {
-  height: 50vw; 
-  max-height: 600px; 
+  height: 50vw;
+  max-height: 600px;
   object-fit: cover;
 }
 
@@ -317,8 +319,8 @@ a {
 }
 @media (max-width: 768px) {
   .carousel img {
-    height: auto; 
-    max-height: 200px; 
+    height: auto;
+    max-height: 200px;
   }
 }
 
@@ -370,13 +372,12 @@ a {
   }
 }
 
-
 .text-orange a {
   color: orange !important;
   text-decoration: none !important;
 }
 
-.breadcrumb-item+.breadcrumb-item::before {
+.breadcrumb-item + .breadcrumb-item::before {
   color: orange !important;
 }
 
@@ -429,7 +430,7 @@ a {
 
 @media (max-width: 768px) {
   .table-container {
-      max-width: 90%;
+    max-width: 90%;
   }
 }
 
@@ -489,12 +490,12 @@ a {
 }
 
 .label-fixed {
-  min-width: 80px; 
+  min-width: 80px;
 }
 
-@media (max-width: 576px) { 
+@media (max-width: 576px) {
   .filter-section {
-      flex-direction: column;
+    flex-direction: column;
   }
 }
 /* BlogDetail.js */
@@ -553,21 +554,17 @@ a {
 
 .background-overlay-advisory {
   position: relative;
-  background: url("https://cdnphoto.dantri.com.vn/vUHW-y2FTkOSlbFiKZPV-ReWJn0=/thumb_w/1360/2023/04/28/dantri-lo-trinh-hoc-tap-len-cac-cap-hoc-cao-hon-cho-hoc-sinh-phan-luong-sau-thcs-theo-giao-duc-nghe-nghiep-anhntv34docx-1682651902124.jpeg") no-repeat center center;
+  background: url("https://cdnphoto.dantri.com.vn/vUHW-y2FTkOSlbFiKZPV-ReWJn0=/thumb_w/1360/2023/04/28/dantri-lo-trinh-hoc-tap-len-cac-cap-hoc-cao-hon-cho-hoc-sinh-phan-luong-sau-thcs-theo-giao-duc-nghe-nghiep-anhntv34docx-1682651902124.jpeg")
+    no-repeat center center;
   background-size: cover;
   padding: 310px 0 0 0;
   height: 400px;
 }
 
-.score-input-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-}
-
 .score-input {
   display: flex;
   flex-direction: column;
+  padding: 0 4px;
 }
 
 .score-input label {
@@ -576,20 +573,9 @@ a {
   margin-bottom: 4px;
 }
 
-.score-input input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-@media (max-width: 600px) {
-  .score-input-container {
-      grid-template-columns: 1fr; 
-  }
-
-  .score-input input {
-      font-size: 0.9rem;
+@media (max-width: 767px) {
+  .score-input {
+    width: 100% !important;
   }
 }
 
@@ -649,8 +635,8 @@ a {
   padding: 5px;
 }
 
-.form-check-input:disabled~.form-check-label,
-.form-check-input[disabled]~.form-check-label {
+.form-check-input:disabled ~ .form-check-label,
+.form-check-input[disabled] ~ .form-check-label {
   opacity: 1;
 }
 

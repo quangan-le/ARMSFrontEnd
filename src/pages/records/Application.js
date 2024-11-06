@@ -94,17 +94,14 @@ const Application = () => {
     const [subjectGroups1, setSubjectGroups1] = useState([]);
     const [subjectGroups2, setSubjectGroups2] = useState([]);
 
-    const [scores1, setScores1] = useState({ subject1: '', subject2: '', subject3: '' });
-    const [scores2, setScores2] = useState({ subject1: '', subject2: '', subject3: '' });
     const [showSubjectSelection1, setShowSubjectSelection1] = useState(false);
     const [showSubjectSelection2, setShowSubjectSelection2] = useState(false);
 
-    // State for selected transcript types
-    const [selectedTranscriptType1, setSelectedTranscriptType1] = useState(null);
-    const [selectedTranscriptType2, setSelectedTranscriptType2] = useState(null);
-
-    // State for displayed fields
+    // Form nhập điểm động
     const [displayedFields, setDisplayedFields] = useState([]);
+    const [displayedFields1, setDisplayedFields1] = useState([]);
+    const [displayedFields2, setDisplayedFields2] = useState([]);
+
     // Định nghĩa các state hiển thị ảnh học bạ cho từng kỳ
     const [showSemester1Year10, setShowSemester1Year10] = useState(false);
     const [showSemester2Year10, setShowSemester2Year10] = useState(false);
@@ -115,9 +112,7 @@ const Application = () => {
     const [showFinalYear11, setShowFinalYear11] = useState(false);
 
     const [showSemester1Year12, setShowSemester1Year12] = useState(false);
-    const [showSemester2Year12, setShowSemester2Year12] = useState(false);
     const [showFinalYear12, setShowFinalYear12] = useState(false);
-
 
     const TypeOfDiploma = {
         0: 'Tốt nghiệp THCS',
@@ -128,11 +123,23 @@ const Application = () => {
         5: 'Xét điểm thi THPT',
     };
     const fieldMapping = {
-        0: ['finalYear12'], // Xét học bạ lớp 12
-        1: ['finalYear10', 'finalYear11', 'finalYear12'], // Xét học bạ 3 năm
-        2: ['finalYear10', 'finalYear11', 'semester1Year12'], // Xét học bạ lớp 10, lớp 11, HK1 lớp 12
-        3: ['semester1Year10', 'semester2Year10', 'semester1Year11', 'semester2Year11', 'semester1Year12'], // Xét học bạ 5 kỳ
-        4: ['semester1Year11', 'semester2Year11', 'semester1Year12'] // Xét học bạ 3 kỳ
+        0: ['CN12'], // Xét học bạ lớp 12
+        1: ['CN10', 'CN11', 'CN12'], // Xét học bạ 3 năm
+        2: ['CN10', 'CN11', 'HK1-12'], // Xét học bạ lớp 10, lớp 11, HK1 lớp 12
+        3: ['HK1-10', 'HK2-10', 'HK1-11', 'HK2-11', 'HK1-12'], // Xét học bạ 5 kỳ
+        4: ['HK1-11', 'HK2-11', 'HK1-12'] // Xét học bạ 3 kỳ
+    };
+
+    // Hàm tạo ra các trường nhập liệu động dựa trên khối và typeOfTranscript
+    const generateScoreFields = (subjects, typeOfTranscript) => {
+        const fields = fieldMapping[typeOfTranscript] || [];
+        return subjects.flatMap(subject =>
+            fields.map(field => ({
+                subject,
+                field,
+                name: `${subject}_${field}`
+            }))
+        );
     };
 
     // Hàm lấy các trường nhập điểm duy nhất từ hai loại xét học bạ
@@ -160,8 +167,6 @@ const Application = () => {
         setShowSubjectSelection2(false);
         setSubjectGroups1([]);
         setSubjectGroups2([]);
-        setScores1({ subject1: '', subject2: '', subject3: '' });
-        setScores2({ subject1: '', subject2: '', subject3: '' });
         if (campusId) {
             try {
                 const response = await api.get(`/Major/get-majors-college?campus=${campusId}`);
@@ -177,6 +182,9 @@ const Application = () => {
     const handleMajorChange1 = (e) => {
         const selectedMajorId = e.target.value;
         setSelectedMajor1(selectedMajorId);
+        setSelectedAdmissionType1(null);
+        setDisplayedFields1([]);
+
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
         setTypeAdmissions1(selectedMajor?.typeAdmissions || []);
         setShowSubjectSelection1(false);
@@ -190,6 +198,9 @@ const Application = () => {
     const handleMajorChange2 = (e) => {
         const selectedMajorId = e.target.value;
         setSelectedMajor2(selectedMajorId);
+        setSelectedAdmissionType2(null);
+        setDisplayedFields2([]);
+
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
         setTypeAdmissions2(selectedMajor?.typeAdmissions || []);
         setShowSubjectSelection2(false);
@@ -199,6 +210,7 @@ const Application = () => {
         }));
     };
 
+    // Khi chọn loại xét tuyển NV1
     const handleAdmissionTypeChange1 = (e) => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType1(typeId);
@@ -206,10 +218,8 @@ const Application = () => {
             ...prevData,
             typeOfDiplomaMajor1: typeId
         }));
+        setDisplayedFields1([]);
         const selectedMajor = majors.find((major) => major.majorID === selectedMajor1);
-        const selectedType = selectedMajor?.typeAdmissions.find(
-            (type) => type.typeDiploma === typeId
-        );
 
         if (typeId === 3 || typeId === 5) {
             setSubjectGroups1(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
@@ -219,7 +229,7 @@ const Application = () => {
             setSubjectGroups1([]);
         }
     };
-
+    // Khi chọn loại xét tuyển NV2
     const handleAdmissionTypeChange2 = (e) => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType2(typeId);
@@ -227,10 +237,8 @@ const Application = () => {
             ...prevData,
             typeOfDiplomaMajor2: typeId
         }));
+        setDisplayedFields2([]);
         const selectedMajor = majors.find((major) => major.majorID === selectedMajor2);
-        const selectedType = selectedMajor?.typeAdmissions.find(
-            (type) => type.typeDiploma === typeId
-        );
 
         if (typeId === 3 || typeId === 5) {
             setSubjectGroups2(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
@@ -241,20 +249,128 @@ const Application = () => {
         }
     };
 
-    const handleScoreChange1 = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            academicTranscripts: {
-                ...prevData.academicTranscripts,
-                [name]: value
-            }
-        }));
+    const handleSubjectGroupChange1 = (e) => {
+        const selectedGroup = e.target.value;
+        const selectedGroupData = subjectGroups1.find(group => group.subjectGroup === selectedGroup);
+
+        // Tìm ngành học đã chọn để lấy thông tin typeOfTranscript
+        const selectedMajorData = majors.find((major) => major.majorID === selectedMajor1);
+        const typeOfTranscript = selectedMajorData?.typeAdmissions.find((admission) => admission.typeDiploma === selectedAdmissionType1)?.typeOfTranscript;
+
+        // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
+        if (selectedAdmissionType1 === 5 && selectedGroupData) {
+            // Nếu chọn "Xét điểm thi THPT", chỉ hiển thị 3 ô nhập điểm cho 3 môn đã chọn
+            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+
+            // Tạo các trường nhập điểm cho 3 môn của khối
+            const generatedFields = subjects.slice(0, 3).map(subject => ({
+                subject,
+                field: 'Điểm thi THPT',
+                name: `${subject}_score`,
+                columnWidthPercentage: 33,
+            }));
+
+            setDisplayedFields1(generatedFields);
+        } else if (selectedGroupData && typeOfTranscript !== null) {
+            // Nếu chọn loại xét tuyển học bạ (typeOfTranscript khác null)
+            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+
+            // Tạo các trường nhập điểm theo cấu trúc học bạ
+            const generatedFields = generateScoreFields(subjects, typeOfTranscript).map(field => {
+                // Xử lý logic độ rộng cột
+                const columnWidthPercentage = typeOfTranscript === 3 ? 20 : 33;
+                return { ...field, columnWidthPercentage };
+            });
+
+            setDisplayedFields1(generatedFields);
+        } else {
+            setDisplayedFields1([]);
+        }
     };
 
+    const handleSubjectGroupChange2 = (e) => {
+        const selectedGroup = e.target.value;
+        const selectedGroupData = subjectGroups2.find(group => group.subjectGroup === selectedGroup);
+
+        // Tìm ngành học đã chọn để lấy thông tin typeOfTranscript
+        const selectedMajorData = majors.find((major) => major.majorID === selectedMajor2);
+        const typeOfTranscript = selectedMajorData?.typeAdmissions.find((admission) => admission.typeDiploma === selectedAdmissionType2)?.typeOfTranscript;
+
+        if (selectedGroupData && typeOfTranscript !== null) {
+            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+
+            // Tạo các trường nhập điểm
+            const generatedFields = generateScoreFields(subjects, typeOfTranscript).map(field => {
+                // Xử lý logic độ rộng cột
+                const columnWidthPercentage = typeOfTranscript === 3 ? 20 : 33;
+                return { ...field, columnWidthPercentage };
+            });
+
+            // Cập nhật state với các trường nhập điểm cần hiển thị
+            setDisplayedFields2(generatedFields);
+        } else {
+            setDisplayedFields2([]);
+        }
+    };
+
+    // Xử lý thay đổi điểm cho nguyện vọng 1
+    const handleScoreChange1 = (e) => {
+        const { name, value } = e.target;
+        const [subjectName, field] = name.split("_");
+
+        setFormData(prevData => {
+            const updatedTranscripts = [...prevData.academicTranscripts];
+            const transcriptIndex = updatedTranscripts.findIndex(
+                transcript => transcript.subjectName === subjectName && transcript.isMajor1
+            );
+
+            if (transcriptIndex !== -1) {
+                // Nếu đã có môn này trong academicTranscripts, cập nhật điểm
+                updatedTranscripts[transcriptIndex].subjectPoint = value;
+            } else {
+                // Nếu chưa có môn này, thêm mới
+                updatedTranscripts.push({
+                    subjectName,
+                    subjectPoint: value,
+                    isMajor1: true,
+                    typeOfAcademicTranscript: parseInt(field, 10) // Sử dụng giá trị phù hợp với `TypeOfAcademicTranscript`
+                });
+            }
+
+            return {
+                ...prevData,
+                academicTranscripts: updatedTranscripts
+            };
+        });
+    };
+
+    // Xử lý thay đổi điểm cho nguyện vọng 2
     const handleScoreChange2 = (e) => {
         const { name, value } = e.target;
-        setScores2((prevScores) => ({ ...prevScores, [name]: value }));
+        const [subjectName, field] = name.split("_");
+
+        setFormData(prevData => {
+            const updatedTranscripts = [...prevData.academicTranscripts];
+            const transcriptIndex = updatedTranscripts.findIndex(
+                transcript => transcript.subjectName === subjectName && !transcript.isMajor1
+            );
+
+            if (transcriptIndex !== -1) {
+                updatedTranscripts[transcriptIndex].subjectPoint = value;
+            } else {
+                updatedTranscripts.push({
+                    subjectName,
+                    subjectPoint: value,
+                    isMajor1: false,
+                    typeOfAcademicTranscript: parseInt(field, 10)
+                });
+            }
+
+            return {
+                ...prevData,
+                academicTranscripts: updatedTranscripts
+            };
+        });
     };
 
     useEffect(() => {
@@ -268,24 +384,18 @@ const Application = () => {
             (type) => type.typeDiploma === selectedAdmissionType2
         );
 
-        // Cập nhật loại xét học bạ dựa vào typeOfTranscript nếu typeDiploma là Xét học bạ
-        setSelectedTranscriptType1(selectedType1?.typeOfTranscript || null);
-        setSelectedTranscriptType2(selectedType2?.typeOfTranscript || null);
-
         // Cập nhật displayedFields dựa trên các loại xét học bạ đã chọn
         const fields = getUniqueFields(selectedType1?.typeOfTranscript, selectedType2?.typeOfTranscript);
         setDisplayedFields(fields);
-
         // Xác định có cần hiện form nhập ảnh học bạ
-        setShowSemester1Year10(fields.includes('semester1Year10'));
-        setShowSemester2Year10(fields.includes('semester2Year10'));
-        setShowFinalYear10(fields.includes('finalYear10'));
-        setShowSemester1Year11(fields.includes('semester1Year11'));
-        setShowSemester2Year11(fields.includes('semester2Year11'));
-        setShowFinalYear11(fields.includes('finalYear11'));
-        setShowSemester1Year12(fields.includes('semester1Year12'));
-        setShowSemester2Year12(fields.includes('semester2Year12'));
-        setShowFinalYear12(fields.includes('finalYear12'));
+        setShowSemester1Year10(fields.includes('HK1-10'));
+        setShowSemester2Year10(fields.includes('HK2-10'));
+        setShowFinalYear10(fields.includes('CN10'));
+        setShowSemester1Year11(fields.includes('HK1-11'));
+        setShowSemester2Year11(fields.includes('HK2-11'));
+        setShowFinalYear11(fields.includes('CN11'));
+        setShowSemester1Year12(fields.includes('HK1-12'));
+        setShowFinalYear12(fields.includes('CN12'));
     }, [selectedAdmissionType1, selectedAdmissionType2, selectedMajor1, selectedMajor2, majors]);
 
     // Thông tin ưu tiên
@@ -671,15 +781,37 @@ const Application = () => {
                                 />
                             </Form.Group>
                         </Col>
-                    </Row>
+                        <Col md={3} className="mt-2">
+                            <Form.Group controlId="schoolName">
+                                <Form.Label>Trường học</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Trường THPT FPT"
+                                    value={formData.schoolName}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        </Col>
 
+                        <Col md={3} className="mt-2">
+                            <Form.Group controlId="yearOfGraduation">
+                                <Form.Label>Năm tốt nghiệp</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    placeholder="2024"
+                                    value={formData.yearOfGraduation}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
                     <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
                     <div>
                         <Row className='mb-2'>
-                            <Col md={6}>
+                            <Col md={3}>
                                 <Form.Group controlId="campusId">
                                     <Form.Label>Cơ sở</Form.Label>
-                                    <Form.Control as="select" className='w-50' value={selectedCampus} onChange={handleCampusChange}>
+                                    <Form.Control as="select" value={selectedCampus} onChange={handleCampusChange}>
                                         <option value="">Chọn cơ sở</option>
                                         {campuses.map(campus => (
                                             <option key={campus.campusId} value={campus.campusId}>
@@ -689,31 +821,9 @@ const Application = () => {
                                     </Form.Control>
                                 </Form.Group>
                             </Col>
-                            <Col md={3}>
-                                <Form.Group controlId="yearOfGraduation">
-                                    <Form.Label>Năm tốt nghiệp</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        placeholder="2024"
-                                        value={formData.yearOfGraduation}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={3}>
-                                <Form.Group controlId="schoolName">
-                                    <Form.Label>Trường học</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Trường THPT FPT"
-                                        value={formData.schoolName}
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
                         </Row>
-
                         <Row>
+                            <h6 className='mt-2'>Nguyện vọng 1</h6>
                             <Col md={3}>
                                 <Form.Group controlId="major1" className='mb-2'>
                                     <Form.Label>Ngành học Nguyện vọng 1</Form.Label>
@@ -744,13 +854,12 @@ const Application = () => {
                                 </Col>
                             )}
 
-
                             {showSubjectSelection1 && (
-                                <div>
+                                <Row>
+                                    <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
                                     <Col md={3}>
                                         <Form.Group controlId="subjectSelection1" className='mb-2'>
-                                            <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
-                                            <Form.Control as="select">
+                                            <Form.Control as="select" onChange={handleSubjectGroupChange1}>
                                                 <option value="">Chọn khối</option>
                                                 {subjectGroups1.map(subject => (
                                                     <option key={subject.subjectGroup} value={subject.subjectGroup}>
@@ -760,48 +869,29 @@ const Application = () => {
                                             </Form.Control>
                                         </Form.Group>
                                     </Col>
-                                    <Form.Group controlId="subjectScores1" className='mb-2'>
-                                        <Form.Label>Nhập điểm 3 môn</Form.Label>
-                                        <Row>
-                                            <Col md={4}>
-                                                <Form.Control
-                                                    className='mb-2'
-                                                    type="number"
-                                                    placeholder="Môn 1"
-                                                    name="subject1"
-                                                    value={scores1.subject1}
-                                                    onChange={handleScoreChange1}
-
-                                                />
-                                            </Col>
-                                            <Col md={4}>
-                                                <Form.Control
-                                                    className='mb-2'
-                                                    type="number"
-                                                    placeholder="Môn 2"
-                                                    name="subject2"
-                                                    value={scores1.subject2}
-                                                    onChange={handleScoreChange1}
-                                                />
-
-                                            </Col>
-                                            <Col md={4}>
-                                                <Form.Control
-                                                    className='mb-2'
-                                                    type="number"
-                                                    placeholder="Môn 3"
-                                                    name="subject3"
-                                                    value={scores1.subject3}
-                                                    onChange={handleScoreChange1}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    </Form.Group>
-                                </div>
+                                    <Col md={9}>
+                                        <Form.Group controlId="subjectScores1" className="mb-2">
+                                            <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                {displayedFields1.map((field, index) => (
+                                                    <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                        <Form.Control
+                                                            className="mb-2"
+                                                            type="number"
+                                                            placeholder={`${field.subject} (${field.field})`}
+                                                            name={field.name}
+                                                            onChange={handleScoreChange1}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
                             )}
                         </Row>
-                        <Row>
-                            <Col md={6}>
+                        <Row className='mt-4'>
+                            <h6 className='mt-2'>Nguyện vọng 2</h6>
+                            <Col md={3}>
                                 <Form.Group controlId="majorSelection2" className='mb-2'>
                                     <Form.Label>Ngành học Nguyện vọng 2</Form.Label>
                                     <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
@@ -813,7 +903,10 @@ const Application = () => {
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
-                                {typeAdmissions2.length > 0 && (
+                            </Col>
+
+                            {typeAdmissions2.length > 0 && (
+                                <Col md={3}>
                                     <Form.Group controlId="admissionTypeSelection2" className='mb-2'>
                                         <Form.Label>Loại xét tuyển Nguyện vọng 2</Form.Label>
                                         <Form.Control as="select" value={selectedAdmissionType2 || ''} onChange={handleAdmissionTypeChange2}>
@@ -825,13 +918,14 @@ const Application = () => {
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
-                                )}
-
-                                {showSubjectSelection2 && (
-                                    <div>
+                                </Col>
+                            )}
+                            {showSubjectSelection2 && (
+                                <Row>
+                                    <Form.Label>Khối xét tuyển Nguyện vọng 2</Form.Label>
+                                    <Col md={3}>
                                         <Form.Group controlId="subjectSelection2" className='mb-2'>
-                                            <Form.Label>Khối xét tuyển Nguyện vọng 2</Form.Label>
-                                            <Form.Control as="select">
+                                            <Form.Control as="select" onChange={handleSubjectGroupChange2}>
                                                 <option value="">Chọn khối</option>
                                                 {subjectGroups2.map(subject => (
                                                     <option key={subject.subjectGroup} value={subject.subjectGroup}>
@@ -840,137 +934,61 @@ const Application = () => {
                                                 ))}
                                             </Form.Control>
                                         </Form.Group>
-
-                                        <Form.Group controlId="subjectScores2" className='mb-2'>
-                                            <Form.Label>Nhập điểm 3 môn</Form.Label>
-                                            <Row>
-                                                <Col md={4}>
-                                                    <Form.Control
-                                                        className='mb-2'
-                                                        type="number"
-                                                        placeholder="Môn 1"
-                                                        name="subject1"
-                                                        value={scores2.subject1}
-                                                        onChange={handleScoreChange2}
-                                                    />
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Control
-                                                        className='mb-2'
-                                                        type="number"
-                                                        placeholder="Môn 2"
-                                                        name="subject2"
-                                                        value={scores2.subject2}
-                                                        onChange={handleScoreChange2}
-                                                    />
-                                                </Col>
-                                                <Col md={4}>
-                                                    <Form.Control
-                                                        className='mb-2'
-                                                        type="number"
-                                                        placeholder="Môn 3"
-                                                        name="subject3"
-                                                        value={scores2.subject3}
-                                                        onChange={handleScoreChange2}
-                                                    />
-                                                </Col>
-                                            </Row>
+                                    </Col>
+                                    <Col md={9}>
+                                        <Form.Group controlId="subjectScores2" className="mb-2">
+                                            <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                {displayedFields2.map((field, index) => (
+                                                    <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                        <Form.Control
+                                                            className="mb-2"
+                                                            type="number"
+                                                            placeholder={`${field.subject} (${field.field})`}
+                                                            name={field.name}
+                                                            onChange={handleScoreChange2}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </Form.Group>
-                                    </div>
-                                )}
+                                    </Col>
+                                </Row>
+                            )}
+                        </Row>
+                        <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
+                        <Row className="mt-3">
+                            <Col md={6}>
+                                <Row>
+                                    <Form.Label>Chọn đối tượng ưu tiên</Form.Label>
+                                </Row>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group controlId="prioritySelection">
+                                            <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
+                                                <option value="">Chọn đối tượng</option>
+                                                {priorityData.map((priority) => (
+                                                    <option key={priority.priorityID} value={priority.priorityID}>
+                                                        {priority.priorityName} ({priority.typeOfPriority})
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Button variant="light" className="read-more-btn" onClick={() => setShowPriorityModal(true)}>
+                                            Mô tả chi tiết
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group controlId="priorityDocument">
+                                    <Form.Label>Giấy tờ ưu tiên</Form.Label>
+                                    <Form.Control type="file" onChange={handleFileChangePriority} />
+                                </Form.Group>
                             </Col>
                         </Row>
-                        <div className="score-input-container">
-                            {displayedFields.includes('semester1Year10') && (
-                                <div className="score-input">
-                                    <label>Điểm học kỳ 1 lớp 10</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('semester2Year10') && (
-                                <div className="score-input">
-                                    <label>Điểm học kỳ 2 lớp 10</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('finalYear10') && (
-                                <div className="score-input">
-                                    <label>Điểm cuối năm lớp 10</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('semester1Year11') && (
-                                <div className="score-input">
-                                    <label>Điểm học kỳ 1 lớp 11</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('semester2Year11') && (
-                                <div className="score-input">
-                                    <label>Điểm học kỳ 2 lớp 11</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('finalYear11') && (
-                                <div className="score-input">
-                                    <label>Điểm cuối năm lớp 11</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('semester1Year12') && (
-                                <div className="score-input">
-                                    <label>Điểm học kỳ 1 lớp 12</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('semester2Year12') && (
-                                <div className="score-input">
-                                    <label>Điểm học kỳ 2 lớp 12</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                            {displayedFields.includes('finalYear12') && (
-                                <div className="score-input">
-                                    <label>Điểm cuối năm lớp 12</label>
-                                    <input placeholder="Nhập điểm" />
-                                </div>
-                            )}
-                        </div>
                     </div>
-                    <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
-                    <Row className="mt-3">
-                        <Col md={6}>
-                            <Row>
-                                <Form.Label>Chọn đối tượng ưu tiên</Form.Label>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="prioritySelection">
-                                        <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
-                                            <option value="">Chọn đối tượng</option>
-                                            {priorityData.map((priority) => (
-                                                <option key={priority.priorityID} value={priority.priorityID}>
-                                                    {priority.priorityName} ({priority.typeOfPriority})
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                                <Col md={4}>
-                                    <Button variant="light" className="read-more-btn" onClick={() => setShowPriorityModal(true)}>
-                                        Mô tả chi tiết
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group controlId="priorityDocument">
-                                <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                <Form.Control type="file" onChange={handleFileChangePriority} />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
 
                     <Modal show={showPriorityModal} onHide={() => setShowPriorityModal(false)} size="lg">
                         <Modal.Header closeButton>
@@ -1137,12 +1155,6 @@ const Application = () => {
                                     {showSemester1Year12 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ học kỳ 1 lớp 12</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
-                                        </Col>
-                                    )}
-                                    {showSemester2Year12 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ học kỳ 2 lớp 12</Form.Label>
                                             <Form.Control type="file" accept="image/*" />
                                         </Col>
                                     )}

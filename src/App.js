@@ -31,11 +31,14 @@ import IntermediateApplication from "./pages/records/IntermediateApplication.js"
 import MajorsList from "./pages/admin/MajorsList.js";
 import UserList from "./pages/admin/UserList.js";
 import AccountList from "./pages/admin/AccountList.js";
-import EnrollmentPlan from "./pages/admin/EnrollmentPlan.js";
-import EnrollmentPlanEdit from "./pages/admin/EnrollmentPlanEdit.js";
-
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
+import MajorDetail from "./pages/admin/MajorDetail.js";
+import EnrollmentPlanList from "./pages/admissionCouncil/EnrollmentPlanList.js";
+import EnrollmentPlanEdit from "./pages/admissionCouncil/EnrollmentPlanEdit.js";
+import ThresholdScoreList from "./pages/admissionCouncil/ThresholdScoreList.js";
+import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
+import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdrawalList.js";
 
 
 function App() {
@@ -70,21 +73,40 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
         )} */}
-{/* 
-        <Route element={<ManagerLayout role="admin" />}>
+
+        {/* <Route element={<ManagerLayout role="admin" />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/danh-sach-nganh-hoc" element={<MajorsList />} />
+          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
           <Route path="/danh-sach-nguoi-dung" element={<UserList />} />
           <Route path="/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
-          <Route path="/ke-hoach-tuyen-sinh" element={<EnrollmentPlan />} />
-          <Route path="/chinh-sua-ke-hoach-tuyen-sinh" element={<EnrollmentPlanEdit />} />
         </Route> */}
 
         <Route element={<ManagerLayout role="schoolService" />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
+          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
           <Route path="/danh-sach-tin-tuc" element={<NewsList />} />
+          <Route path="/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
+          <Route path="/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
+
         </Route>
+
+        {/* <Route element={<ManagerLayout role="admissionsOfficer" />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
+          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+        </Route> */}
+
+        {/* <Route element={<ManagerLayout role="admissionCouncil" />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
+          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+          <Route path="/ke-hoach-tuyen-sinh" element={<EnrollmentPlanList />} />
+           <Route path="/chinh-sua-ke-hoach-tuyen-sinh" element={<EnrollmentPlanEdit />} />
+          <Route path="/thong-tin-tuyen-sinh" element={<ThresholdScoreList />} />
+        </Route> */}
+
 
         {/* Redirect nếu không có quyền */}
         <Route path="*" element={<Navigate to="/" />} />

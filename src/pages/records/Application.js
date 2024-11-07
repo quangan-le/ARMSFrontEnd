@@ -113,7 +113,76 @@ const Application = () => {
 
     const [showSemester1Year12, setShowSemester1Year12] = useState(false);
     const [showFinalYear12, setShowFinalYear12] = useState(false);
-
+    const [formData, setFormData] = useState({
+        fullname: "",
+        dob: "",
+        gender: "",
+        nation: "",
+        citizenIentificationNumber: "",
+        ciDate: "",
+        ciAddress: "",
+        province: "",
+        district: "",
+        ward: "",
+        specificAddress: "",
+        emailStudent: "",
+        phoneStudent: "",
+        fullnameParents: "",
+        phoneParents: "",
+        campusId: "",
+        major1: "",
+        major2: "",
+        yearOfGraduation: 0,
+        schoolName: "",
+        recipientResults: true,
+        permanentAddress: true,
+        addressRecipientResults: "",
+        imgCitizenIdentification1: "",
+        imgCitizenIdentification2: "",
+        imgDiplomaMajor1: "",
+        imgDiplomaMajor2: "",
+        imgpriority: "",
+        imgAcademicTranscript1: "",
+        imgAcademicTranscript2: "",
+        imgAcademicTranscript3: "",
+        imgAcademicTranscript4: "",
+        imgAcademicTranscript5: "",
+        imgAcademicTranscript6: "",
+        imgAcademicTranscript7: "",
+        imgAcademicTranscript8: "",
+        imgAcademicTranscript9: "",
+        typeOfDiplomaMajor1: 0,
+        typeOfTranscriptMajor1: 0,
+        typeOfDiplomaMajor2: 0,
+        typeOfTranscriptMajor2: 0,
+        priorityDetailPriorityID: 0,
+        typeofStatusMajor1: 0,
+        typeofStatusMajor2: 0,
+        typeofStatusProfile: 0,
+        academicTranscripts: [],
+        campusName: "",
+        priorityDetail: {
+            priorityID: 0,
+            priorityName: "",
+            priorityDescription: "",
+            typeOfPriority: 0
+        },
+        payFeeAdmission: {
+            txnRef: "",
+            amount: 0,
+            bankCode: "",
+            bankTranNo: "",
+            cardType: "",
+            orderInfo: "",
+            payDate: "",
+            responseCode: "",
+            tmnCode: "",
+            transactionNo: "",
+            transactionStatus: "",
+            secureHash: "",
+            isFeeRegister: true
+        }
+    });
     const TypeOfDiploma = {
         0: 'Tốt nghiệp THCS',
         1: 'Tốt nghiệp THPT',
@@ -263,10 +332,11 @@ const Application = () => {
             const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
 
             // Tạo các trường nhập điểm cho 3 môn của khối
+            let fieldIndex = 0;
             const generatedFields = subjects.slice(0, 3).map(subject => ({
                 subject,
                 field: 'Điểm thi THPT',
-                name: `${subject}_score`,
+                name: `${subject}_${fieldIndex++}`,
                 columnWidthPercentage: 33,
             }));
 
@@ -296,17 +366,32 @@ const Application = () => {
         const selectedMajorData = majors.find((major) => major.majorID === selectedMajor2);
         const typeOfTranscript = selectedMajorData?.typeAdmissions.find((admission) => admission.typeDiploma === selectedAdmissionType2)?.typeOfTranscript;
 
-        if (selectedGroupData && typeOfTranscript !== null) {
+        // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
+        if (selectedAdmissionType2 === 5 && selectedGroupData) {
+            // Nếu chọn "Xét điểm thi THPT", chỉ hiển thị 3 ô nhập điểm cho 3 môn đã chọn
             const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
 
-            // Tạo các trường nhập điểm
+            // Tạo các trường nhập điểm cho 3 môn của khối
+            let fieldIndex = 0;
+            const generatedFields = subjects.slice(0, 3).map(subject => ({
+                subject,
+                field: 'Điểm thi THPT',
+                name: `${subject}_${fieldIndex++}`,
+                columnWidthPercentage: 33,
+            }));
+
+            setDisplayedFields2(generatedFields);
+        } else if (selectedGroupData && typeOfTranscript !== null) {
+            // Nếu chọn loại xét tuyển học bạ (typeOfTranscript khác null)
+            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+
+            // Tạo các trường nhập điểm theo cấu trúc học bạ
             const generatedFields = generateScoreFields(subjects, typeOfTranscript).map(field => {
                 // Xử lý logic độ rộng cột
                 const columnWidthPercentage = typeOfTranscript === 3 ? 20 : 33;
                 return { ...field, columnWidthPercentage };
             });
 
-            // Cập nhật state với các trường nhập điểm cần hiển thị
             setDisplayedFields2(generatedFields);
         } else {
             setDisplayedFields2([]);
@@ -316,61 +401,157 @@ const Application = () => {
     // Xử lý thay đổi điểm cho nguyện vọng 1
     const handleScoreChange1 = (e) => {
         const { name, value } = e.target;
-        const [subjectName, field] = name.split("_");
 
-        setFormData(prevData => {
-            const updatedTranscripts = [...prevData.academicTranscripts];
-            const transcriptIndex = updatedTranscripts.findIndex(
-                transcript => transcript.subjectName === subjectName && transcript.isMajor1
-            );
+        if (selectedAdmissionType1 === 5) {
+            const [subject, index] = name.split("_");
+            // Cập nhật `academicTranscripts` với môn học và điểm
+            setFormData(prevData => {
+                const updatedTranscripts = [...prevData.academicTranscripts];
 
-            if (transcriptIndex !== -1) {
-                // Nếu đã có môn này trong academicTranscripts, cập nhật điểm
-                updatedTranscripts[transcriptIndex].subjectPoint = value;
-            } else {
-                // Nếu chưa có môn này, thêm mới
-                updatedTranscripts.push({
-                    subjectName,
-                    subjectPoint: value,
-                    isMajor1: true,
-                    typeOfAcademicTranscript: parseInt(field, 10) // Sử dụng giá trị phù hợp với `TypeOfAcademicTranscript`
-                });
+                // Kiểm tra nếu môn xét thpt và điểm đã tồn tại trong `academicTranscripts`
+                const existingTranscriptIndex = updatedTranscripts.findIndex(
+                    item => item.isMajor1 === true && item.typeOfAcademicTranscript === index
+                );
+
+                if (existingTranscriptIndex !== -1) {
+                    // Cập nhật điểm môn học đã tồn tại
+                    updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
+                } else {
+                    // Thêm mới điểm môn học vào `academicTranscripts`
+                    updatedTranscripts.push({
+                        subjectName: subject,
+                        subjectPoint: Number(value),
+                        isMajor1: true,
+                        typeOfAcademicTranscript: index
+                    });
+                }
+                return {
+                    ...prevData,
+                    academicTranscripts: updatedTranscripts,
+                };
+            });
+        } else { //Xét học bạ
+            const [subject, field] = name.split("_");
+            const typeOfTranscript = formData.typeOfTranscriptMajor1;
+
+            // Lấy vị trí của Môn học trong `subjectGroups1` (danh sách môn học)
+            const subjectIndex = subjectGroups1
+                .flatMap(group => group.subjectGroupName.split("–").map(sub => sub.trim()))
+                .indexOf(subject);
+
+            // Lấy vị trí của cột trong `fieldMapping[typeOfTranscript]` (danh sách kỳ học)
+            const fieldIndex = fieldMapping[typeOfTranscript]?.indexOf(field);
+            // Kiểm tra tính hợp lệ của subjectIndex và fieldIndex
+            if (subjectIndex === -1 || fieldIndex === -1) {
+                console.error("Subject or field not found in mappings");
+                return;
             }
 
-            return {
-                ...prevData,
-                academicTranscripts: updatedTranscripts
-            };
-        });
+            // Tính toán `typeOfAcademicTranscript` dựa trên vị trí của `subjectIndex` và `fieldIndex`
+            const typeOfAcademicTranscript = subjectIndex * fieldMapping[typeOfTranscript].length + fieldIndex;
+
+            // Cập nhật `academicTranscripts` trong `formData`
+            setFormData(prevData => {
+                const updatedTranscripts = [...prevData.academicTranscripts];
+
+                // Kiểm tra xem điểm của môn học và kỳ học này đã tồn tại trong `academicTranscripts` chưa
+                const existingTranscriptIndex = updatedTranscripts.findIndex(
+                    item => item.isMajor1 === true && item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                );
+
+                if (existingTranscriptIndex !== -1) {
+                    // Nếu đã tồn tại, cập nhật `subjectPoint`
+                    updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
+                } else {
+                    // Nếu chưa tồn tại, thêm mới vào `academicTranscripts`
+                    updatedTranscripts.push({
+                        subjectName: subject,
+                        subjectPoint: Number(value),
+                        isMajor1: true,
+                        typeOfAcademicTranscript
+                    });
+                }
+
+                return {
+                    ...prevData,
+                    academicTranscripts: updatedTranscripts
+                };
+            });
+        }
     };
 
     // Xử lý thay đổi điểm cho nguyện vọng 2
     const handleScoreChange2 = (e) => {
         const { name, value } = e.target;
-        const [subjectName, field] = name.split("_");
-
-        setFormData(prevData => {
-            const updatedTranscripts = [...prevData.academicTranscripts];
-            const transcriptIndex = updatedTranscripts.findIndex(
-                transcript => transcript.subjectName === subjectName && !transcript.isMajor1
-            );
-
-            if (transcriptIndex !== -1) {
-                updatedTranscripts[transcriptIndex].subjectPoint = value;
-            } else {
-                updatedTranscripts.push({
-                    subjectName,
-                    subjectPoint: value,
-                    isMajor1: false,
-                    typeOfAcademicTranscript: parseInt(field, 10)
-                });
+        if (selectedAdmissionType2 === 5) {
+            // Trường hợp xét điểm thi THPT cho nguyện vọng 2
+            const [subject, index] = name.split("_");
+    
+            setFormData(prevData => {
+                const updatedTranscripts = [...prevData.academicTranscripts];
+    
+                // Kiểm tra nếu môn xét thpt và điểm đã tồn tại trong `academicTranscripts`
+                const existingTranscriptIndex = updatedTranscripts.findIndex(
+                    item => item.isMajor1 === false && item.typeOfAcademicTranscript === index
+                );
+    
+                if (existingTranscriptIndex !== -1) {
+                    // Cập nhật điểm môn học đã tồn tại
+                    updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
+                } else {
+                    // Thêm mới điểm môn học vào `academicTranscripts`
+                    updatedTranscripts.push({
+                        subjectName: subject,
+                        subjectPoint: Number(value),
+                        isMajor1: false,
+                        typeOfAcademicTranscript: index
+                    });
+                }
+                return {
+                    ...prevData,
+                    academicTranscripts: updatedTranscripts,
+                };
+            });
+        } else {
+            // Trường hợp xét học bạ cho nguyện vọng 2
+            const [subject, field] = name.split("_");
+            const typeOfTranscript = formData.typeOfTranscriptMajor2;
+    
+            const subjectIndex = subjectGroups2
+                .flatMap(group => group.subjectGroupName.split("–").map(sub => sub.trim()))
+                .indexOf(subject);
+    
+            const fieldIndex = fieldMapping[typeOfTranscript]?.indexOf(field);
+            if (subjectIndex === -1 || fieldIndex === -1) {
+                console.error("Subject or field not found in mappings");
+                return;
             }
-
-            return {
-                ...prevData,
-                academicTranscripts: updatedTranscripts
-            };
-        });
+    
+            const typeOfAcademicTranscript = subjectIndex * fieldMapping[typeOfTranscript].length + fieldIndex;
+    
+            setFormData(prevData => {
+                const updatedTranscripts = [...prevData.academicTranscripts];
+    
+                const existingTranscriptIndex = updatedTranscripts.findIndex(
+                    item => item.isMajor1 === false && item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                );
+    
+                if (existingTranscriptIndex !== -1) {
+                    updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
+                } else {
+                    updatedTranscripts.push({
+                        subjectName: subject,
+                        subjectPoint: Number(value),
+                        isMajor1: false,
+                        typeOfAcademicTranscript
+                    });
+                }
+                return {
+                    ...prevData,
+                    academicTranscripts: updatedTranscripts
+                };
+            });
+        }
     };
 
     useEffect(() => {
@@ -453,76 +634,6 @@ const Application = () => {
         }
     };
 
-    const [formData, setFormData] = useState({
-        fullname: "",
-        dob: "",
-        gender: "",
-        nation: "",
-        citizenIentificationNumber: "",
-        ciDate: "",
-        ciAddress: "",
-        province: "",
-        district: "",
-        ward: "",
-        specificAddress: "",
-        emailStudent: "",
-        phoneStudent: "",
-        fullnameParents: "",
-        phoneParents: "",
-        campusId: "",
-        major1: "",
-        major2: "",
-        yearOfGraduation: 0,
-        schoolName: "",
-        recipientResults: true,
-        permanentAddress: true,
-        addressRecipientResults: "",
-        imgCitizenIdentification1: "",
-        imgCitizenIdentification2: "",
-        imgDiplomaMajor1: "",
-        imgDiplomaMajor2: "",
-        imgpriority: "",
-        imgAcademicTranscript1: "",
-        imgAcademicTranscript2: "",
-        imgAcademicTranscript3: "",
-        imgAcademicTranscript4: "",
-        imgAcademicTranscript5: "",
-        imgAcademicTranscript6: "",
-        imgAcademicTranscript7: "",
-        imgAcademicTranscript8: "",
-        imgAcademicTranscript9: "",
-        typeOfDiplomaMajor1: 0,
-        typeOfTranscriptMajor1: 0,
-        typeOfDiplomaMajor2: 0,
-        typeOfTranscriptMajor2: 0,
-        priorityDetailPriorityID: 0,
-        typeofStatusMajor1: 0,
-        typeofStatusMajor2: 0,
-        typeofStatusProfile: 0,
-        academicTranscripts: [],
-        campusName: "",
-        priorityDetail: {
-            priorityID: 0,
-            priorityName: "",
-            priorityDescription: "",
-            typeOfPriority: 0
-        },
-        payFeeAdmission: {
-            txnRef: "",
-            amount: 0,
-            bankCode: "",
-            bankTranNo: "",
-            cardType: "",
-            orderInfo: "",
-            payDate: "",
-            responseCode: "",
-            tmnCode: "",
-            transactionNo: "",
-            transactionStatus: "",
-            secureHash: "",
-            isFeeRegister: true
-        }
-    });
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
         setFormData(prevState => ({

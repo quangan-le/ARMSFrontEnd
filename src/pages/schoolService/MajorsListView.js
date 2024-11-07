@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Table, Form, Button, Pagination } from "react-bootstrap";
+import { Link } from 'react-router-dom';
 
 const MajorsListView = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -56,16 +57,16 @@ const MajorsListView = () => {
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Mã</th>
-                        <th>Tên</th>
+                        <th>Tên ngành</th>
+                        <th>Mã ngành</th>
                     </tr>
                 </thead>
                 <tbody>
                     {currentMajors.map((major) => (
                         <tr key={major.id}>
                             <td>{major.id}</td>
+                            <td><Link to={`/chi-tiet-nganh-hoc/${major.id}`}>{major.name}</Link></td>
                             <td>{major.code}</td>
-                            <td>{major.name}</td>
                         </tr>
                     ))}
                 </tbody>

@@ -24,23 +24,21 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
-              <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
-                <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
-              </Nav.Link>
-              <Nav className="flex-column ms-3">
+
+              {/* <Nav className="flex-column ms-3">
                 <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
                   <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
                 </Nav.Link>
                 <Nav.Link href="/chi-tieu-tuyen-sinh" className="d-flex align-items-center">
                   <FileEarmarkText className="me-2" /> Chỉ tiêu tuyển sinh
                 </Nav.Link>
-              </Nav>
+              </Nav> */}
 
             </>
           )}
           {role === "schoolService" && (
             <>
-             <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
               <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
@@ -49,12 +47,38 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/danh-sach-tin-tuc" className="d-flex align-items-center">
                 <Book className="me-2" /> Danh sách tin tức
               </Nav.Link>
+              <Nav.Link href="/danh-sach-yeu-cau-chuyen-nganh" className="d-flex align-items-center">
+                <Book className="me-2" /> Yêu cầu chuyển ngành
+              </Nav.Link>
+              <Nav.Link href="/danh-sach-yeu-cau-rut-ho-so" className="d-flex align-items-center">
+                <Book className="me-2" /> Yêu cầu rút hồ sơ
+              </Nav.Link>
             </>
           )}
-          {role === "supervisor" && (
+          {role === "admissionsOfficer" && (
             <>
-              <Nav.Link href="/overview">Tổng quan</Nav.Link>
-              <Nav.Link href="/tasks">Nhiệm vụ</Nav.Link>
+              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+                <House className="me-2" /> Trang chủ
+              </Nav.Link>
+              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+                <Book className="me-2" /> Ngành đào tạo
+              </Nav.Link>
+            </>
+          )}
+          {role === "admissionCouncil" && (
+            <>
+              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+                <House className="me-2" /> Trang chủ
+              </Nav.Link>
+              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+                <Book className="me-2" /> Ngành đào tạo
+              </Nav.Link>
+              <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
+                <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
+              </Nav.Link>
+              <Nav.Link href="/thong-tin-tuyen-sinh" className="d-flex align-items-center">
+                <FileEarmarkText className="me-2" /> Thông tin tuyển sinh
+              </Nav.Link>
             </>
           )}
         </Nav>

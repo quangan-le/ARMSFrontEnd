@@ -4,7 +4,7 @@ import { Bell, PersonCircle, List  } from "react-bootstrap-icons";
 
 const ManagerHeader = ({ toggleSidebar }) => { 
     const [selectedBranch, setSelectedBranch] = useState("Hà Nội");
-    const [selectedRole, setSelectedRole] = useState("School Service");
+    const [selectedRole, setSelectedRole] = useState("admissionsOfficer");
 
     return (
         <Navbar collapseOnSelect expand="lg" className="manager-header bg-body-tertiary px-4 py-2 header-fixed">
@@ -22,9 +22,9 @@ const ManagerHeader = ({ toggleSidebar }) => {
                         className="mx-3"
                         style={{ fontWeight: 'bold', color: 'orange' }}
                     >
-                        <NavDropdown.Item eventKey="Admin">Admin</NavDropdown.Item>
+                        <NavDropdown.Item eventKey="admin">Admin</NavDropdown.Item>
                         <NavDropdown.Item eventKey="schoolService">School Service</NavDropdown.Item>
-                        <NavDropdown.Item eventKey="Supervisor">Supervisor</NavDropdown.Item>
+                        <NavDropdown.Item eventKey="admissionsOfficer">Admissions Officer</NavDropdown.Item>
                     </NavDropdown>
                     <NavDropdown
                         title={selectedBranch}

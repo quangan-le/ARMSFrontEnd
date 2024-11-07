@@ -73,9 +73,11 @@ const RequestForTransfer = () => {
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Nội dung</th>
-                        <th>Đơn chuyển ngành</th>
-                        <th>Thời gian tạo đơn</th>
+                        <th>Tên ngành cũ</th>
+                        <th>Tên ngành mới</th>
+                        <th>Nội dung yêu cầu</th>
+                        <th>Đơn yêu cầu</th>
+                        <th>Phản hồi</th>
                         <th>Trạng thái đơn</th>
                     </tr>
                 </thead>
@@ -83,9 +85,11 @@ const RequestForTransfer = () => {
                     {requests.map((request, index) => (
                         <tr key={request.id}>
                             <td>{index + 1}</td>
+                            <td>Công nghệ thông tin</td>
+                            <td>Công nghệ thông tin</td>
                             <td>{request.content}</td>
                             <td>{request.fileName}</td>
-                            <td>{request.createdAt}</td>
+                            <td>Đồng ý</td>
                             <td style={{ color: request.status === 'Chấp nhận' ? 'green' : request.status === 'Từ chối' ? 'red' : 'orange' }}>
                                 {request.status}
                             </td>

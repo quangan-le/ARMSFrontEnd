@@ -54,8 +54,9 @@ const NewsList = () => {
     };
     return (
         <Container>
-            <h3 className="text-center mb-4">Danh sách tin tức</h3>
-            <p className="text-center text-muted">Quản lý danh sách tin tức thuộc campus</p>
+            <h2 className="text-center">Danh sách tin tức</h2>
+            <p className="text-center mb-4 fw-bold">Quản lý danh sách tin tức thuộc campus</p>
+
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
@@ -82,6 +83,7 @@ const NewsList = () => {
             <Table bordered>
                 <thead>
                     <tr>
+                        <th>STT</th>
                         <th>Tiêu đề</th>
                         <th>Mô tả</th>
                         <th>Thời gian đăng bài</th>
@@ -91,6 +93,7 @@ const NewsList = () => {
                 <tbody>
                     {newsPosts.map((news) => (
                         <tr key={news.id}>
+                            <td>1</td>
                             <td>
                                 <div className="d-flex align-items-center">
                                     <img src={news.imgSrc} alt="News" className="img-thumbnail" width="80" />
@@ -142,41 +145,6 @@ const NewsList = () => {
                                     readOnly={!isEditing}
                                 />
                             </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>I. Nội dung:</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    rows={5}
-                                    name="content1"
-                                    value={selectedNews.content1}
-                                    onChange={handleInputChange}
-                                    readOnly={!isEditing}
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>Ảnh:</Form.Label>
-                                <img src={selectedNews.imgSrc} alt="News" className="img-fluid" />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>II. Nội dung:</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    rows={5}
-                                    name="content2"
-                                    value={selectedNews.content2}
-                                    onChange={handleInputChange}
-                                    readOnly={!isEditing}
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>Ảnh:</Form.Label>
-                                <img src={selectedNews.imgSrc} alt="News" className="img-fluid" />
-                            </Form.Group>
-
                             <Form.Group className="mb-3">
                                 <Form.Label>Loại bài viết:</Form.Label>
                                 <Form.Select
@@ -189,6 +157,17 @@ const NewsList = () => {
                                     <option value="Loại 1">Loại 1</option>
                                     <option value="Loại 2">Loại 2</option>
                                 </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Nội dung:</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={5}
+                                    name="content1"
+                                    value={selectedNews.content1}
+                                    onChange={handleInputChange}
+                                    readOnly={!isEditing}
+                                />
                             </Form.Group>
                         </Modal.Body>
                         <Modal.Footer>

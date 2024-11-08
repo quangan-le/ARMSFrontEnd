@@ -5,8 +5,11 @@ import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import api from '../../apiService';
 import uploadImage from '../../firebase/uploadImage.js';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Application = () => {
+    const { selectedCampus } = useOutletContext();
     // Xử lý lấy danh sách tỉnh huyện
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -66,9 +69,39 @@ const Application = () => {
         }
     }, [selectedDistrict]);
 
+    const handleProvinceChange = (e) => {
+        const selected = e.target.value;
+        setSelectedProvince(selected);
+        setFormData(prevState => ({
+            ...prevState,
+            province: selected,
+            district: "",
+            ward: ""
+        }));
+        setSelectedDistrict('');
+    };
+
+    const handleDistrictChange = (e) => {
+        const selected = e.target.value;
+        setSelectedDistrict(selected);
+        setFormData(prevState => ({
+            ...prevState,
+            district: selected,
+            ward: ""
+        }));
+    };
+
+    const handleWardChange = (e) => {
+        const selected = e.target.value;
+        setFormData(prevState => ({
+            ...prevState,
+            ward: selected
+        }));
+    };
+
     // Cơ sở
     const [campuses, setCampuses] = useState([]);
-    const [selectedCampus, setSelectedCampus] = useState('');
+    const [selectedCampusForm, setSelectedCampusForm] = useState('');
     useEffect(() => {
         const fetchCampuses = async () => {
             try {
@@ -91,11 +124,19 @@ const Application = () => {
     const [selectedAdmissionType1, setSelectedAdmissionType1] = useState(null);
     const [selectedAdmissionType2, setSelectedAdmissionType2] = useState(null);
 
+    const [typeOfTranscriptMajor1, setTypeOfTranscriptMajor1] = useState(null);
+    const [typeOfTranscriptMajor2, setTypeOfTranscriptMajor2] = useState(null);
+
     const [subjectGroups1, setSubjectGroups1] = useState([]);
     const [subjectGroups2, setSubjectGroups2] = useState([]);
+    const [selectedGroupData1, setSelectedGroupData1] = useState(null);
+    const [selectedGroupData2, setSelectedGroupData2] = useState(null);
 
     const [showSubjectSelection1, setShowSubjectSelection1] = useState(false);
     const [showSubjectSelection2, setShowSubjectSelection2] = useState(false);
+
+    const [academicTranscripts1, setAcademicTranscripts1] = useState([]);
+    const [academicTranscripts2, setAcademicTranscripts2] = useState([]);
 
     // Form nhập điểm động
     const [displayedFields, setDisplayedFields] = useState([]);
@@ -113,6 +154,10 @@ const Application = () => {
 
     const [showSemester1Year12, setShowSemester1Year12] = useState(false);
     const [showFinalYear12, setShowFinalYear12] = useState(false);
+    // Ảnh bằng tốt nghiệp
+    const [showGraduationImage1, setShowGraduationImage1] = useState(false);
+    const [showGraduationImage2, setShowGraduationImage2] = useState(false);
+
     const [formData, setFormData] = useState({
         fullname: "",
         dob: "",
@@ -151,22 +196,22 @@ const Application = () => {
         imgAcademicTranscript7: "",
         imgAcademicTranscript8: "",
         imgAcademicTranscript9: "",
-        typeOfDiplomaMajor1: 0,
-        typeOfTranscriptMajor1: 0,
-        typeOfDiplomaMajor2: 0,
-        typeOfTranscriptMajor2: 0,
+        typeOfDiplomaMajor1: null,
+        typeOfTranscriptMajor1: null,
+        typeOfDiplomaMajor2: null,
+        typeOfTranscriptMajor2: null,
         priorityDetailPriorityID: 0,
         typeofStatusMajor1: 0,
         typeofStatusMajor2: 0,
         typeofStatusProfile: 0,
-        academicTranscripts: [],
-        campusName: "",
-        priorityDetail: {
-            priorityID: 0,
-            priorityName: "",
-            priorityDescription: "",
-            typeOfPriority: 0
-        },
+        academicTranscripts1: [],
+        academicTranscripts2: [],
+        // priorityDetail: {
+        //     priorityID: 0,
+        //     priorityName: "",
+        //     priorityDescription: "",
+        //     typeOfPriority: 0
+        // },
         payFeeAdmission: {
             txnRef: "",
             amount: 0,
@@ -182,6 +227,23 @@ const Application = () => {
             secureHash: "",
             isFeeRegister: true
         }
+    });
+
+    // Lu trữ ảnh tạm thời
+    const [tempImages, setTempImages] = useState({
+        imgpriority: null,
+        imgCitizenIdentification1: null,
+        imgCitizenIdentification2: null,
+        imgDiplomaMajor1: null,
+        imgDiplomaMajor2: null,
+        imgAcademicTranscript1: null,
+        imgAcademicTranscript2: null,
+        imgAcademicTranscript3: null,
+        imgAcademicTranscript4: null,
+        imgAcademicTranscript5: null,
+        imgAcademicTranscript6: null,
+        imgAcademicTranscript7: null,
+        imgAcademicTranscript9: null,
     });
     const TypeOfDiploma = {
         0: 'Tốt nghiệp THCS',
@@ -206,7 +268,7 @@ const Application = () => {
             fields.map(field => ({
                 subject,
                 field,
-                name: `${subject}_${field}`
+                name: `${subject}_${field}`,
             }))
         );
     };
@@ -221,7 +283,7 @@ const Application = () => {
     // Khi người dùng chọn cơ sở, cập nhật ngành học
     const handleCampusChange = async (e) => {
         const campusId = e.target.value;
-        setSelectedCampus(campusId);
+        setSelectedCampusForm(campusId);
         setFormData(prevData => ({
             ...prevData,
             campusId: campusId
@@ -236,6 +298,9 @@ const Application = () => {
         setShowSubjectSelection2(false);
         setSubjectGroups1([]);
         setSubjectGroups2([]);
+        setAcademicTranscripts1([]);
+        setAcademicTranscripts2([]);
+
         if (campusId) {
             try {
                 const response = await api.get(`/Major/get-majors-college?campus=${campusId}`);
@@ -253,10 +318,14 @@ const Application = () => {
         setSelectedMajor1(selectedMajorId);
         setSelectedAdmissionType1(null);
         setDisplayedFields1([]);
+        setAcademicTranscripts1([]);
+
+        setShowGraduationImage1(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
         setTypeAdmissions1(selectedMajor?.typeAdmissions || []);
         setShowSubjectSelection1(false);
+
         setFormData(prevData => ({
             ...prevData,
             major1: selectedMajorId
@@ -269,6 +338,9 @@ const Application = () => {
         setSelectedMajor2(selectedMajorId);
         setSelectedAdmissionType2(null);
         setDisplayedFields2([]);
+        setAcademicTranscripts2([]);
+
+        setShowGraduationImage2(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
         setTypeAdmissions2(selectedMajor?.typeAdmissions || []);
@@ -283,13 +355,20 @@ const Application = () => {
     const handleAdmissionTypeChange1 = (e) => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType1(typeId);
+        setDisplayedFields1([]);
+        setAcademicTranscripts1([]);
+        setSelectedGroupData1([]);
+
+        const selectedMajor = majors.find((major) => major.majorID === selectedMajor1);
+        const selectedAdmissionType = selectedMajor?.typeAdmissions.find(admission => admission.typeDiploma === typeId);
+        const typeOfTranscript = selectedAdmissionType?.typeOfTranscript ?? null;
+
+        setTypeOfTranscriptMajor1(typeOfTranscript);
         setFormData(prevData => ({
             ...prevData,
-            typeOfDiplomaMajor1: typeId
+            typeOfDiplomaMajor1: typeId,
+            typeOfTranscriptMajor1: typeOfTranscript
         }));
-        setDisplayedFields1([]);
-        const selectedMajor = majors.find((major) => major.majorID === selectedMajor1);
-
         if (typeId === 3 || typeId === 5) {
             setSubjectGroups1(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
             setShowSubjectSelection1(true);
@@ -302,12 +381,20 @@ const Application = () => {
     const handleAdmissionTypeChange2 = (e) => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType2(typeId);
+        setDisplayedFields2([]);
+        setAcademicTranscripts2([]);
+        setSelectedGroupData2([]);
+
+        const selectedMajor = majors.find((major) => major.majorID === selectedMajor2);
+        const selectedAdmissionType = selectedMajor?.typeAdmissions.find(admission => admission.typeDiploma === typeId);
+        const typeOfTranscript = selectedAdmissionType?.typeOfTranscript ?? null;
+
+        setTypeOfTranscriptMajor2(typeOfTranscript);
         setFormData(prevData => ({
             ...prevData,
-            typeOfDiplomaMajor2: typeId
+            typeOfDiplomaMajor2: typeId,
+            typeOfTranscriptMajor2: typeOfTranscript
         }));
-        setDisplayedFields2([]);
-        const selectedMajor = majors.find((major) => major.majorID === selectedMajor2);
 
         if (typeId === 3 || typeId === 5) {
             setSubjectGroups2(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
@@ -321,10 +408,9 @@ const Application = () => {
     const handleSubjectGroupChange1 = (e) => {
         const selectedGroup = e.target.value;
         const selectedGroupData = subjectGroups1.find(group => group.subjectGroup === selectedGroup);
-
-        // Tìm ngành học đã chọn để lấy thông tin typeOfTranscript
-        const selectedMajorData = majors.find((major) => major.majorID === selectedMajor1);
-        const typeOfTranscript = selectedMajorData?.typeAdmissions.find((admission) => admission.typeDiploma === selectedAdmissionType1)?.typeOfTranscript;
+        setSelectedGroupData1(selectedGroupData);
+        setAcademicTranscripts1([]);
+        setDisplayedFields1([]);
 
         // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
         if (selectedAdmissionType1 === 5 && selectedGroupData) {
@@ -341,14 +427,14 @@ const Application = () => {
             }));
 
             setDisplayedFields1(generatedFields);
-        } else if (selectedGroupData && typeOfTranscript !== null) {
+        } else if (selectedGroupData && typeOfTranscriptMajor1 !== null) {
             // Nếu chọn loại xét tuyển học bạ (typeOfTranscript khác null)
             const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
 
             // Tạo các trường nhập điểm theo cấu trúc học bạ
-            const generatedFields = generateScoreFields(subjects, typeOfTranscript).map(field => {
+            const generatedFields = generateScoreFields(subjects, typeOfTranscriptMajor1).map(field => {
                 // Xử lý logic độ rộng cột
-                const columnWidthPercentage = typeOfTranscript === 3 ? 20 : 33;
+                const columnWidthPercentage = typeOfTranscriptMajor1 === 3 ? 20 : 33;
                 return { ...field, columnWidthPercentage };
             });
 
@@ -361,10 +447,9 @@ const Application = () => {
     const handleSubjectGroupChange2 = (e) => {
         const selectedGroup = e.target.value;
         const selectedGroupData = subjectGroups2.find(group => group.subjectGroup === selectedGroup);
-
-        // Tìm ngành học đã chọn để lấy thông tin typeOfTranscript
-        const selectedMajorData = majors.find((major) => major.majorID === selectedMajor2);
-        const typeOfTranscript = selectedMajorData?.typeAdmissions.find((admission) => admission.typeDiploma === selectedAdmissionType2)?.typeOfTranscript;
+        setSelectedGroupData2(selectedGroupData);
+        setAcademicTranscripts2([]);
+        setDisplayedFields2([]);
 
         // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
         if (selectedAdmissionType2 === 5 && selectedGroupData) {
@@ -381,14 +466,14 @@ const Application = () => {
             }));
 
             setDisplayedFields2(generatedFields);
-        } else if (selectedGroupData && typeOfTranscript !== null) {
+        } else if (selectedGroupData && typeOfTranscriptMajor2 !== null) {
             // Nếu chọn loại xét tuyển học bạ (typeOfTranscript khác null)
             const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
 
             // Tạo các trường nhập điểm theo cấu trúc học bạ
-            const generatedFields = generateScoreFields(subjects, typeOfTranscript).map(field => {
+            const generatedFields = generateScoreFields(subjects, typeOfTranscriptMajor2).map(field => {
                 // Xử lý logic độ rộng cột
-                const columnWidthPercentage = typeOfTranscript === 3 ? 20 : 33;
+                const columnWidthPercentage = typeOfTranscriptMajor2 === 3 ? 20 : 33;
                 return { ...field, columnWidthPercentage };
             });
 
@@ -397,85 +482,76 @@ const Application = () => {
             setDisplayedFields2([]);
         }
     };
-
+    // Mảng ánh xạ thứ tự vị trí
+    const indexMap = [
+        [0, 3, 6, 9, 12],
+        [1, 4, 7, 10, 13],
+        [2, 5, 8, 11, 14]
+    ];
     // Xử lý thay đổi điểm cho nguyện vọng 1
     const handleScoreChange1 = (e) => {
         const { name, value } = e.target;
 
+        // Xét điểm THPT
         if (selectedAdmissionType1 === 5) {
             const [subject, index] = name.split("_");
             // Cập nhật `academicTranscripts` với môn học và điểm
-            setFormData(prevData => {
-                const updatedTranscripts = [...prevData.academicTranscripts];
+            setAcademicTranscripts1(prevTranscripts => {
+                const updatedTranscripts = [...prevTranscripts];
 
-                // Kiểm tra nếu môn xét thpt và điểm đã tồn tại trong `academicTranscripts`
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.isMajor1 === true && item.typeOfAcademicTranscript === index
+                    item => item.typeOfAcademicTranscript === index
                 );
 
                 if (existingTranscriptIndex !== -1) {
                     // Cập nhật điểm môn học đã tồn tại
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
-                    // Thêm mới điểm môn học vào `academicTranscripts`
+                    // Thêm mới điểm môn học vào `academicTranscripts1`
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
-                        isMajor1: true,
                         typeOfAcademicTranscript: index
                     });
                 }
-                return {
-                    ...prevData,
-                    academicTranscripts: updatedTranscripts,
-                };
+                return updatedTranscripts;
             });
         } else { //Xét học bạ
             const [subject, field] = name.split("_");
-            const typeOfTranscript = formData.typeOfTranscriptMajor1;
-
-            // Lấy vị trí của Môn học trong `subjectGroups1` (danh sách môn học)
-            const subjectIndex = subjectGroups1
-                .flatMap(group => group.subjectGroupName.split("–").map(sub => sub.trim()))
-                .indexOf(subject);
+            // Lấy vị trí của Môn học trong tổ hợp đã chọn
+            const selectedSubjects = selectedGroupData1.subjectGroupName.split("–").map(sub => sub.trim());
+            const subjectIndex = selectedSubjects.indexOf(subject);
 
             // Lấy vị trí của cột trong `fieldMapping[typeOfTranscript]` (danh sách kỳ học)
-            const fieldIndex = fieldMapping[typeOfTranscript]?.indexOf(field);
+            const fieldIndex = fieldMapping[typeOfTranscriptMajor1]?.indexOf(field);
+
             // Kiểm tra tính hợp lệ của subjectIndex và fieldIndex
             if (subjectIndex === -1 || fieldIndex === -1) {
                 console.error("Subject or field not found in mappings");
                 return;
             }
-
             // Tính toán `typeOfAcademicTranscript` dựa trên vị trí của `subjectIndex` và `fieldIndex`
-            const typeOfAcademicTranscript = subjectIndex * fieldMapping[typeOfTranscript].length + fieldIndex;
+            const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
 
-            // Cập nhật `academicTranscripts` trong `formData`
-            setFormData(prevData => {
-                const updatedTranscripts = [...prevData.academicTranscripts];
+            // Cập nhật `academicTranscripts1` 
+            setAcademicTranscripts1(prevTranscripts => {
+                const updatedTranscripts = [...prevTranscripts];
 
-                // Kiểm tra xem điểm của môn học và kỳ học này đã tồn tại trong `academicTranscripts` chưa
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.isMajor1 === true && item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
                 );
 
                 if (existingTranscriptIndex !== -1) {
-                    // Nếu đã tồn tại, cập nhật `subjectPoint`
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
-                    // Nếu chưa tồn tại, thêm mới vào `academicTranscripts`
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
-                        isMajor1: true,
                         typeOfAcademicTranscript
                     });
                 }
 
-                return {
-                    ...prevData,
-                    academicTranscripts: updatedTranscripts
-                };
+                return updatedTranscripts;
             });
         }
     };
@@ -486,70 +562,62 @@ const Application = () => {
         if (selectedAdmissionType2 === 5) {
             // Trường hợp xét điểm thi THPT cho nguyện vọng 2
             const [subject, index] = name.split("_");
-    
-            setFormData(prevData => {
-                const updatedTranscripts = [...prevData.academicTranscripts];
-    
-                // Kiểm tra nếu môn xét thpt và điểm đã tồn tại trong `academicTranscripts`
+
+            setAcademicTranscripts2(prevTranscripts => {
+                const updatedTranscripts = [...prevTranscripts];
+
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.isMajor1 === false && item.typeOfAcademicTranscript === index
+                    item => item.typeOfAcademicTranscript === index
                 );
-    
+
                 if (existingTranscriptIndex !== -1) {
                     // Cập nhật điểm môn học đã tồn tại
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
-                    // Thêm mới điểm môn học vào `academicTranscripts`
+                    // Thêm mới điểm môn học vào `academicTranscripts2`
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
-                        isMajor1: false,
                         typeOfAcademicTranscript: index
                     });
                 }
-                return {
-                    ...prevData,
-                    academicTranscripts: updatedTranscripts,
-                };
+
+                return updatedTranscripts;
             });
         } else {
             // Trường hợp xét học bạ cho nguyện vọng 2
             const [subject, field] = name.split("_");
-            const typeOfTranscript = formData.typeOfTranscriptMajor2;
-    
-            const subjectIndex = subjectGroups2
-                .flatMap(group => group.subjectGroupName.split("–").map(sub => sub.trim()))
-                .indexOf(subject);
-    
-            const fieldIndex = fieldMapping[typeOfTranscript]?.indexOf(field);
+
+            // Lấy vị trí của Môn học trong tổ hợp đã chọn
+            const selectedSubjects = selectedGroupData2.subjectGroupName.split("–").map(sub => sub.trim());
+            const subjectIndex = selectedSubjects.indexOf(subject);
+
+            const fieldIndex = fieldMapping[typeOfTranscriptMajor2]?.indexOf(field);
             if (subjectIndex === -1 || fieldIndex === -1) {
                 console.error("Subject or field not found in mappings");
                 return;
             }
-    
-            const typeOfAcademicTranscript = subjectIndex * fieldMapping[typeOfTranscript].length + fieldIndex;
-    
-            setFormData(prevData => {
-                const updatedTranscripts = [...prevData.academicTranscripts];
-    
+
+            const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
+
+            setAcademicTranscripts2(prevTranscripts => {
+                const updatedTranscripts = [...prevTranscripts];
+
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.isMajor1 === false && item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
                 );
-    
+
                 if (existingTranscriptIndex !== -1) {
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
-                        isMajor1: false,
                         typeOfAcademicTranscript
                     });
                 }
-                return {
-                    ...prevData,
-                    academicTranscripts: updatedTranscripts
-                };
+
+                return updatedTranscripts;
             });
         }
     };
@@ -582,7 +650,6 @@ const Application = () => {
     // Thông tin ưu tiên
     const [priorityData, setPriorityData] = useState([]);
     const [selectedPriority, setSelectedPriority] = useState('');
-    const [priorityDocument, setPriorityDocument] = useState(null);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
 
     useEffect(() => {
@@ -606,34 +673,54 @@ const Application = () => {
             priorityDetailPriorityID: selectedPriorityID,
         }));
     };
-    const handleFileChangePriority = async (e) => {
+    const handleFileChangePriority = (e) => {
         const file = e.target.files[0];
-        setPriorityDocument(file);
-        const folder = 'RegisterAdmission';
-        try {
-            const url = await uploadImage(file, folder);
-            setFormData(prevData => ({
-                ...prevData,
-                imgpriority: url
-            }));
-        } catch (error) {
-            console.error("Error uploading file: ", error);
-        }
+        setTempImages(prev => ({ ...prev, imgpriority: file }));
     };
 
     // Xử lý CCCD và bằng
     const [showOtherAddress, setShowOtherAddress] = useState(false);
     const [frontCCCD, setFrontCCCD] = useState(null);
     const [backCCCD, setBackCCCD] = useState(null);
-    const [graduationCertificate, setGraduationCertificate] = useState(null);
 
-    const handleFileChange = (e, setFile) => {
+    // Ảnh mặt trước
+    const handleFrontCCCDChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFile(URL.createObjectURL(file));
+            setFrontCCCD(URL.createObjectURL(file));
+            setTempImages(prev => ({ ...prev, imgCitizenIdentification1: file }));
+        }
+    };
+    // Ảnh mặt sau
+    const handleBackCCCDChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setBackCCCD(URL.createObjectURL(file));
+            setTempImages(prev => ({ ...prev, imgCitizenIdentification2: file }));
+        }
+    };
+    // Ảnh tốt nghiệp
+    const handleGraduationCertificateChange = (e, isMajor1) => {
+        const file = e.target.files[0];
+        if (file) {
+            setTempImages(prev => ({
+                ...prev,
+                [isMajor1 ? 'imgDiplomaMajor1' : 'imgDiplomaMajor2']: file
+            }));
+        }
+    };
+    // Ảnh học bạ
+    const handleAcademicTranscriptUpload = (e, index) => {
+        const file = e.target.files[0];
+        if (file) {
+            setTempImages(prev => ({
+                ...prev,
+                [`imgAcademicTranscript${index}`]: file // Lưu từng học bạ vào ảnh tương ứng
+            }));
         }
     };
 
+    // formData
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
         setFormData(prevState => ({
@@ -641,43 +728,65 @@ const Application = () => {
             [id]: type === "checkbox" ? checked : value
         }));
     };
-    const handleProvinceChange = (e) => {
-        const selected = e.target.value;
-        setSelectedProvince(selected);
-        setFormData(prevState => ({
-            ...prevState,
-            province: selected,
-            district: "",
-            ward: ""
-        }));
-        setSelectedDistrict('');
-    };
 
-    const handleDistrictChange = (e) => {
-        const selected = e.target.value;
-        setSelectedDistrict(selected);
-        setFormData(prevState => ({
-            ...prevState,
-            district: selected,
-            ward: ""
-        }));
-    };
-
-    const handleWardChange = (e) => {
-        const selected = e.target.value;
-        setFormData(prevState => ({
-            ...prevState,
-            ward: selected
-        }));
-    };
-
-    const handleSubmit = (e) => {
+    // Gửi dữ liệu và upload ảnh
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Dữ liệu gửi đi:", formData);
+
+        // Khởi tạo updatedFormData với dữ liệu ban đầu
+        const updatedFormData = {
+            ...formData,
+            academicTranscripts1,
+            academicTranscripts2
+        };
+
+        // Duyệt qua các ảnh trong tempImages và upload
+        for (const [key, file] of Object.entries(tempImages)) {
+            if (file) {
+                const folder = 'RegisterAdmission';
+                try {
+                    // Upload ảnh và lấy URL
+                    const url = await uploadImage(file, folder);
+
+                    // Cập nhật updatedFormData với URL ảnh đã upload
+                    updatedFormData[key] = url;
+                } catch (error) {
+                    console.error(`Error uploading ${key}:`, error);
+                }
+            }
+        }
+        // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
+        setFormData(updatedFormData);
+        console.log(updatedFormData);
+
+        const selectedCampusPost = {
+            campus: selectedCampus.id
+        };
+        try {
+            // Gửi yêu cầu thanh toán đến VNPAY
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            const { paymentUrl } = paymentResponse.data;
+
+            // Chuyển hướng người dùng đến trang thanh toán của VNPAY
+            window.location.href = paymentUrl;
+        } catch (error) {
+            toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+        }
+
+        //Gửi dữ liệu formData lên API
+        // try {
+        //     const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+        //     console.log('Đơn đã được gửi thành công:', response.data);
+        //     toast.success('Đơn đã được gửi thành công!');
+        // } catch (error) {
+        //     console.error('Lỗi khi gửi đơn:', error);
+        //     toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+        // }
     };
 
     return (
         <div>
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="background-overlay">
                 <div className="overlay"></div>
                 <Container>
@@ -922,7 +1031,7 @@ const Application = () => {
                             <Col md={3}>
                                 <Form.Group controlId="campusId">
                                     <Form.Label>Cơ sở</Form.Label>
-                                    <Form.Control as="select" value={selectedCampus} onChange={handleCampusChange}>
+                                    <Form.Control as="select" value={selectedCampusForm} onChange={handleCampusChange}>
                                         <option value="">Chọn cơ sở</option>
                                         {campuses.map(campus => (
                                             <option key={campus.campusId} value={campus.campusId}>
@@ -951,9 +1060,12 @@ const Application = () => {
 
                             {typeAdmissions1.length > 0 && (
                                 <Col md={3}>
-                                    <Form.Group controlId="typeOfDiplomaMajor1 " className='mb-2'>
+                                    <Form.Group controlId="typeOfDiplomaMajor1" className='mb-2'>
                                         <Form.Label>Loại xét tuyển Nguyện vọng 1</Form.Label>
-                                        <Form.Control as="select" value={selectedAdmissionType1 || ''} onChange={handleAdmissionTypeChange1}>
+                                        <Form.Control as="select"
+                                            value={selectedAdmissionType1 !== null && selectedAdmissionType1 !== undefined ? selectedAdmissionType1 : ''}
+                                            onChange={handleAdmissionTypeChange1}
+                                        >
                                             <option value="">Chọn loại xét tuyển</option>
                                             {typeAdmissions1.map((admission, index) => (
                                                 <option key={index} value={admission.typeDiploma}>
@@ -970,7 +1082,10 @@ const Application = () => {
                                     <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
                                     <Col md={3}>
                                         <Form.Group controlId="subjectSelection1" className='mb-2'>
-                                            <Form.Control as="select" onChange={handleSubjectGroupChange1}>
+                                            <Form.Control as="select"
+                                                value={selectedGroupData1.subjectGroup !== null && selectedGroupData1.subjectGroup !== undefined ? selectedGroupData1.subjectGroup : ''}
+                                                onChange={handleSubjectGroupChange1}
+                                            >
                                                 <option value="">Chọn khối</option>
                                                 {subjectGroups1.map(subject => (
                                                     <option key={subject.subjectGroup} value={subject.subjectGroup}>
@@ -983,17 +1098,43 @@ const Application = () => {
                                     <Col md={9}>
                                         <Form.Group controlId="subjectScores1" className="mb-2">
                                             <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                {displayedFields1.map((field, index) => (
-                                                    <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
-                                                        <Form.Control
-                                                            className="mb-2"
-                                                            type="number"
-                                                            placeholder={`${field.subject} (${field.field})`}
-                                                            name={field.name}
-                                                            onChange={handleScoreChange1}
-                                                        />
-                                                    </div>
-                                                ))}
+                                                {displayedFields1.map((field, index) => {
+                                                    let transcript;
+                                                    if (selectedAdmissionType1 === 5) {
+                                                        // Xét điểm THPT
+                                                        const [subject, index] = field.name.split("_");
+
+                                                        transcript = academicTranscripts1.find(
+                                                            item => item.typeOfAcademicTranscript === index
+                                                        );
+                                                    } else {
+                                                        // Xét học bạ
+                                                        const selectedSubjects = selectedGroupData1.subjectGroupName.split("–").map(sub => sub.trim());
+                                                        const subjectIndex = selectedSubjects.indexOf(field.subject);
+                                                        const fieldIndex = fieldMapping[typeOfTranscriptMajor1]?.indexOf(field.name.split("_")[1]);
+
+                                                        // Tính toán typeOfAcademicTranscript
+                                                        const typeOfAcademicTranscript =
+                                                            subjectIndex !== -1 && fieldIndex !== -1 ? indexMap[subjectIndex][fieldIndex] : null;
+
+                                                        transcript = academicTranscripts1.find(
+                                                            item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                            <Form.Control
+                                                                className="mb-2"
+                                                                type="number"
+                                                                placeholder={`${field.subject} (${field.field})`}
+                                                                name={field.name}
+                                                                value={transcript ? transcript.subjectPoint : ""}
+                                                                onChange={handleScoreChange1}
+                                                            />
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </Form.Group>
                                     </Col>
@@ -1020,7 +1161,10 @@ const Application = () => {
                                 <Col md={3}>
                                     <Form.Group controlId="admissionTypeSelection2" className='mb-2'>
                                         <Form.Label>Loại xét tuyển Nguyện vọng 2</Form.Label>
-                                        <Form.Control as="select" value={selectedAdmissionType2 || ''} onChange={handleAdmissionTypeChange2}>
+                                        <Form.Control as="select"
+                                            value={selectedAdmissionType2 !== null && selectedAdmissionType2 !== undefined ? selectedAdmissionType2 : ''}
+                                            onChange={handleAdmissionTypeChange2}
+                                        >
                                             <option value="">Chọn loại xét tuyển</option>
                                             {typeAdmissions2.map((admission, index) => (
                                                 <option key={index} value={admission.typeDiploma}>
@@ -1036,7 +1180,10 @@ const Application = () => {
                                     <Form.Label>Khối xét tuyển Nguyện vọng 2</Form.Label>
                                     <Col md={3}>
                                         <Form.Group controlId="subjectSelection2" className='mb-2'>
-                                            <Form.Control as="select" onChange={handleSubjectGroupChange2}>
+                                            <Form.Control as="select"
+                                                value={selectedGroupData2.subjectGroup !== null && selectedGroupData2.subjectGroup !== undefined ? selectedGroupData2.subjectGroup : ''}
+                                                onChange={handleSubjectGroupChange2}
+                                            >
                                                 <option value="">Chọn khối</option>
                                                 {subjectGroups2.map(subject => (
                                                     <option key={subject.subjectGroup} value={subject.subjectGroup}>
@@ -1049,17 +1196,43 @@ const Application = () => {
                                     <Col md={9}>
                                         <Form.Group controlId="subjectScores2" className="mb-2">
                                             <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                {displayedFields2.map((field, index) => (
-                                                    <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
-                                                        <Form.Control
-                                                            className="mb-2"
-                                                            type="number"
-                                                            placeholder={`${field.subject} (${field.field})`}
-                                                            name={field.name}
-                                                            onChange={handleScoreChange2}
-                                                        />
-                                                    </div>
-                                                ))}
+                                                {displayedFields2.map((field, index) => {
+                                                    let transcript2;
+                                                    if (selectedAdmissionType2 === 5) {
+                                                        // Xét điểm THPT cho nguyện vọng 2
+                                                        const [subject, index] = field.name.split("_");
+
+                                                        transcript2 = academicTranscripts2.find(
+                                                            item => item.typeOfAcademicTranscript === index
+                                                        );
+                                                    } else {
+                                                        // Xét học bạ cho nguyện vọng 2
+                                                        const selectedSubjects2 = selectedGroupData2.subjectGroupName.split("–").map(sub => sub.trim());
+                                                        const subjectIndex2 = selectedSubjects2.indexOf(field.subject);
+                                                        const fieldIndex2 = fieldMapping[typeOfTranscriptMajor2]?.indexOf(field.name.split("_")[1]);
+
+                                                        // Tính toán typeOfAcademicTranscript cho nguyện vọng 2
+                                                        const typeOfAcademicTranscript2 =
+                                                            subjectIndex2 !== -1 && fieldIndex2 !== -1 ? indexMap[subjectIndex2][fieldIndex2] : null;
+
+                                                        transcript2 = academicTranscripts2.find(
+                                                            item => item.typeOfAcademicTranscript === typeOfAcademicTranscript2
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                            <Form.Control
+                                                                className="mb-2"
+                                                                type="number"
+                                                                placeholder={`${field.subject} (${field.field})`}
+                                                                name={field.name}
+                                                                value={transcript2 ? transcript2.subjectPoint : ""}
+                                                                onChange={handleScoreChange2}
+                                                            />
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </Form.Group>
                                     </Col>
@@ -1131,26 +1304,37 @@ const Application = () => {
                                     type="radio"
                                     label="Thí sinh"
                                     name="recipient"
-                                    id="recipientStudent"
+                                    id="recipientResults"
+                                    value="true"
+                                    onChange={handleChange}
                                 />
                                 <Form.Check
                                     type="radio"
                                     label="Phụ huynh/Người bảo trợ"
                                     name="recipient"
-                                    id="recipientParent"
+                                    id="recipientResults"
+                                    value="false"
                                     className="pt-3"
+                                    onChange={handleChange}
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={6} className='mt-2'>
-                            <Form.Group controlId="address">
+                            <Form.Group controlId="addressRecipientResults">
                                 <Form.Label>Địa chỉ nhận</Form.Label>
                                 <Form.Check
                                     type="radio"
                                     label="Địa chỉ thường trú"
                                     name="address"
                                     id="permanentAddress"
-                                    onChange={() => setShowOtherAddress(false)}
+                                    onChange={() => {
+                                        setFormData(prevData => ({
+                                            ...prevData,
+                                            permanentAddress: true,
+                                            addressRecipientResults: "" // Xóa địa chỉ khác nếu chọn địa chỉ thường trú
+                                        }));
+                                        setShowOtherAddress(false);
+                                    }}
                                 />
                                 <div className='d-flex align-items-end'>
                                     <Form.Check
@@ -1158,7 +1342,10 @@ const Application = () => {
                                         label="Khác"
                                         name="address"
                                         id="otherAddress"
-                                        onChange={() => setShowOtherAddress(true)}
+                                        onChange={() => {
+                                            setFormData(prevData => ({ ...prevData, permanentAddress: false }));
+                                            setShowOtherAddress(true);
+                                        }}
                                         className="pt-3"
                                     />
                                     {showOtherAddress && (
@@ -1166,6 +1353,8 @@ const Application = () => {
                                             type="text"
                                             placeholder="Nhập địa chỉ khác"
                                             className="ms-2"
+                                            value={formData.addressRecipientResults !== undefined ? formData.addressRecipientResults : ''}
+                                            onChange={handleChange}
                                         />
                                     )}
                                 </div>
@@ -1174,105 +1363,155 @@ const Application = () => {
                     </Row>
                     <h4 className='text-orange mt-3'>Tải lên giấy tờ xác thực hồ sơ đăng ký học</h4>
                     <Row>
-                        <Col md={6}>
-                            <Row>
-                                <Col md={6} className='mt-2'>
-                                    <Form.Group>
-                                        <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
-                                        <Form.Control
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(e, setFrontCCCD)}
-                                        />
-                                        {frontCCCD && (
-                                            <div className="image-preview-container mt-2">
-                                                <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
-                                            </div>
-                                        )}
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6} className='mt-2'>
-                                    <Form.Group>
-                                        <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
-                                        <Form.Control
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(e, setBackCCCD)}
-                                        />
-                                        {backCCCD && (
-                                            <div className="image-preview-container mt-2">
-                                                <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
-                                            </div>
-                                        )}
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                        </Col>
-
-                        <Col md={6} className='mt-2'>
+                        <Col md={3} className='mt-2'>
                             <Form.Group>
-                                <Form.Label>Bằng tốt nghiệp (Hoặc giấy tờ xác nhận tốt nghiệp tạm thời)</Form.Label>
+                                <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
                                 <Form.Control
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => handleFileChange(e, setGraduationCertificate)}
+                                    onChange={handleFrontCCCDChange}
                                 />
-                                {graduationCertificate && (
+                                {frontCCCD && (
                                     <div className="image-preview-container mt-2">
-                                        <img src={graduationCertificate} alt="Ảnh bằng tốt nghiệp" className="img-preview" />
+                                        <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
                                     </div>
                                 )}
                             </Form.Group>
                         </Col>
+                        <Col md={3} className='mt-2'>
+                            <Form.Group>
+                                <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleBackCCCDChange}
+                                />
+                                {backCCCD && (
+                                    <div className="image-preview-container mt-2">
+                                        <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
+                                    </div>
+                                )}
+                            </Form.Group>
+                        </Col>
+
+                        {showGraduationImage1 && (
+                            <Col md={3} className='mt-2'>
+                                <Form.Group>
+                                    <Form.Label>Bằng tốt nghiệp xét NV1</Form.Label>
+                                    <Form.Control
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleGraduationCertificateChange(e, true)}
+                                    />
+                                    {formData.imgDiplomaMajor1 && (
+                                        <div className="image-preview-container mt-2">
+                                            <img src={formData.imgDiplomaMajor1} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
+                                        </div>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                        )}
+
+                        {showGraduationImage2 && (
+                            <Col md={3} className='mt-2'>
+                                <Form.Group>
+                                    <Form.Label>Bằng tốt nghiệp xét NV2</Form.Label>
+                                    <Form.Control
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleGraduationCertificateChange(e, false)}
+                                    />
+                                    {formData.imgDiplomaMajor2 && (
+                                        <div className="image-preview-container mt-2">
+                                            <img src={formData.imgDiplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
+                                        </div>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                        )}
+                    </Row>
+                    <Row>
                         <Col md={12}>
                             <Form.Group>
                                 <Row className="mt-2">
                                     {showSemester1Year10 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ học kỳ 1 lớp 10</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
+                                            />
                                         </Col>
                                     )}
                                     {showSemester2Year10 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ học kỳ 2 lớp 10</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
+                                            />
                                         </Col>
                                     )}
                                     {showFinalYear10 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ cuối năm lớp 10</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
+                                            />
                                         </Col>
                                     )}
                                     {showSemester1Year11 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ học kỳ 1 lớp 11</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
+                                            />
                                         </Col>
                                     )}
                                     {showSemester2Year11 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ học kỳ 2 lớp 11</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
+                                            />
                                         </Col>
                                     )}
                                     {showFinalYear11 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ cuối năm lớp 11</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
+                                            />
                                         </Col>
                                     )}
                                     {showSemester1Year12 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ học kỳ 1 lớp 12</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
+                                            />
                                         </Col>
                                     )}
                                     {showFinalYear12 && (
                                         <Col md={3} className="mt-2">
                                             <Form.Label>Ảnh học bạ cuối năm lớp 12</Form.Label>
-                                            <Form.Control type="file" accept="image/*" />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
+                                            />
                                         </Col>
                                     )}
                                 </Row>

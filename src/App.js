@@ -1,44 +1,37 @@
-import logo from "./logo.svg";
-import "./App.css";
 import {
-  Routes,
-  Route,
   Navigate,
+  Route,
+  Routes,
 } from "react-router-dom";
-import StudentLayout from "./pages/layouts/StudentLayout";
-import ManagerLayout from "./pages/layouts/ManagerLayout.js";
-import { AuthProvider } from "./contexts/authContext"; 
-import HomePage from "./pages/homepage/Homepage";
-import History from "./pages/homepage/History";
-import Motto from "./pages/homepage/Motto.js";
-import Achievement from "./pages/homepage/Achievement.js";
-import WhyChoose from "./pages/homepage/WhyChoose.js";
-import Programs from "./pages/homepage/Programs.js";
-import ProgramDetail from './pages/homepage/ProgramDetail.js';
+import "./App.css";
+import { AuthProvider } from "./contexts/authContext";
+import MajorDetail from "./pages/admin/MajorDetail.js";
 import Blog from "./pages/blog/Blog.js";
 import BlogDetail from "./pages/blog/BlogDetail.js";
-import Information from "./pages/homepage/Infomation.js";
-import Application from "./pages/records/Application.js";
+import Dashboard from "./pages/dashboard/DashBoard.js";
+import Achievement from "./pages/homepage/Achievement.js";
 import Advisory from "./pages/homepage/Advisory.js";
+import History from "./pages/homepage/History";
+import HomePage from "./pages/homepage/Homepage";
+import Information from "./pages/homepage/Infomation.js";
+import Motto from "./pages/homepage/Motto.js";
+import ProgramDetail from './pages/homepage/ProgramDetail.js';
+import Programs from "./pages/homepage/Programs.js";
+import WhyChoose from "./pages/homepage/WhyChoose.js";
+import ManagerLayout from "./pages/layouts/ManagerLayout.js";
+import StudentLayout from "./pages/layouts/StudentLayout";
 import Login from "./pages/login/Login.js";
+import Application from "./pages/records/Application.js";
 import ApplicationSearch from "./pages/records/ApplicationSearch.js";
 import ApplicationUpdate from "./pages/records/ApplicationUpdate.js";
-import Dashboard from "./pages/dashboard/DashBoard.js";
+import IntermediateApplication from "./pages/records/IntermediateApplication.js";
+import MajorsListView from "./pages/schoolService/MajorsListView.js";
+import NewsList from "./pages/schoolService/NewsList.js";
+import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
+import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdrawalList.js";
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
-import IntermediateApplication from "./pages/records/IntermediateApplication.js";
-import MajorsList from "./pages/admin/MajorsList.js";
-import UserList from "./pages/admin/UserList.js";
-import AccountList from "./pages/admin/AccountList.js";
-import MajorsListView from "./pages/schoolService/MajorsListView.js";
-import NewsList from "./pages/schoolService/NewsList.js";
-import MajorDetail from "./pages/admin/MajorDetail.js";
-import EnrollmentPlanList from "./pages/admissionCouncil/EnrollmentPlanList.js";
-import EnrollmentPlanEdit from "./pages/admissionCouncil/EnrollmentPlanEdit.js";
-import ThresholdScoreList from "./pages/admissionCouncil/ThresholdScoreList.js";
-import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
-import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdrawalList.js";
 
 
 function App() {
@@ -81,14 +74,13 @@ function App() {
           <Route path="/danh-sach-nguoi-dung" element={<UserList />} />
           <Route path="/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
         </Route> */}
-
         <Route element={<ManagerLayout role="schoolService" />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
-          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/danh-sach-tin-tuc" element={<NewsList />} />
-          <Route path="/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
-          <Route path="/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
+          <Route path="/school-service/dashboard" element={<Dashboard />} />
+          <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
+          <Route path="/school-service/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+          <Route path="/school-service/danh-sach-tin-tuc" element={<NewsList />} />
+          <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
+          <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
 
         </Route>
 

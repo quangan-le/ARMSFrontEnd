@@ -74,23 +74,35 @@ const NewsList = () => {
         setActivePage(pageNumber);
     };
 
-    const handleShowModal = (news) => {
-        setSelectedNews(news);
-        setShowModal(true);
+    const handleShowModal = async (news) => {
+        try {
+            
+            const response = await api.get(`/Blog/get-blog?BlogId=${news.blogId}`);
+            const blogData = response.data;
+            
+            setSelectedNews(blogData);
+            setShowModal(true); // Hiển thị modal
+            
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu bài viết:', error);
+        }
     };
+    
 
     const handleCloseModal = () => {
         setShowModal(false);
         setSelectedNews(null);
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setSelectedNews((prevNews) => ({
-            ...prevNews,
-            [name]: value,
+    const handleInputChange = (newCategoryId) => {
+        // Cập nhật lại danh mục trong selectedNews theo ID mới
+        const selectedCategory = categories.find(category => category.blogCategoryId === newCategoryId);
+        setSelectedNews((prevState) => ({
+            ...prevState,
+            blogCategory: selectedCategory
         }));
     };
+    
 
     const handleSaveChanges = () => {
         console.log('Saving updated news:', selectedNews);
@@ -104,7 +116,6 @@ const NewsList = () => {
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
-                        <Form.Label className="mb-0 me-2">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Nhập từ khóa tìm kiếm..."
@@ -125,20 +136,29 @@ const NewsList = () => {
                         setCurrentPage(1);
                     }}
                     >
-                        <option>Chọn loại bài viết</option>
+                        <option value="">Tất cả bài viết</option>
                         {categories.map((category) => (
                                 <option key={category.blogCategoryId} value={category.blogCategoryId}>
                                     {category.blogCategoryName}
                                 </option>
                             ))}
                     </Form.Select>
+                    <Button
+                        variant="orange"
+                        className="text-white"
+                        style={{ whiteSpace: 'nowrap' }}
+                    >
+                        Tạo mới
+                    </Button>
                 </Col>
+                
             </Row>
 
             <Table bordered>
                 <thead>
                     <tr>
                         <th>STT</th>
+                        <th>Ảnh</th>
                         <th>Tiêu đề</th>
                         <th>Mô tả</th>
                         <th>Thời gian đăng bài</th>
@@ -149,11 +169,22 @@ const NewsList = () => {
                     {blogs && blogs.length > 0 ? (
                         blogs.map((news, index) => (
                             <tr key={news.id}>
-                                <td>{index + 1}</td>
+                                <td className="text-center fw-bold">{index + 1}</td>
+                                <td>
+                                {news.img && (
+                                        <div className="mt-2">
+                                            <img 
+                                                src={news.img}
+                                                alt= {news.title} 
+                                                style={{ width: '100px', height: 'auto', objectFit: 'cover' }} 
+                                            />
+                                        </div>
+                                    )}
+                                </td>
                                 <td>
                                     <div className="d-flex align-items-center">
-                                        <img src={news.img} alt="News" className="img-thumbnail" width="80" />
-                                        <div className="ms-3">
+                                    
+                                    <div className="ms-3">
                                             <span
                                                 className="text-orange fw-bold"
                                                 onClick={() => handleShowModal(news)}
@@ -168,7 +199,7 @@ const NewsList = () => {
                                 <td>{new Date(news.dateCreate).toLocaleDateString('vi-VN')}</td>
                                 <td>
                                 <Button
-                                    variant="warning"
+                                    variant="orange"
                                     className="text-white"
                                     style={{ whiteSpace: 'nowrap' }}
                                     //onClick={() => handleEdit(news.id)}
@@ -226,6 +257,18 @@ const NewsList = () => {
                             <Modal.Title>{isEditing ? 'Chỉnh sửa tin tức' : 'Chi tiết tin tức'}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Ảnh bài viết:</Form.Label>
+                            {selectedNews.img && (
+                                <div className="mt-2">
+                                    <img 
+                                        src={selectedNews.img}  // URL lấy từ cơ sở dữ liệu
+                                        alt="Blog Image" 
+                                        style={{ width: '200px', height: 'auto', objectFit: 'cover' }} 
+                                    />
+                                </div>
+                            )}
+                        </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Tiêu đề:</Form.Label>
                                 <Form.Control
@@ -238,24 +281,37 @@ const NewsList = () => {
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Loại bài viết:</Form.Label>
-                                <Form.Select
+                                <Form.Select 
                                     name="postType"
-                                    value={selectedNews.postType}
+                                    value={selectedNews.blogCategory.blogCategoryId}
                                     onChange={handleInputChange}
                                     disabled={!isEditing}
                                 >
-                                    <option value="Tuyển sinh">Tuyển sinh</option>
-                                    <option value="Loại 1">Loại 1</option>
-                                    <option value="Loại 2">Loại 2</option>
+                                        {categories.map((category) => (
+                                            <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                                {category.blogCategoryName}
+                                            </option>
+                                        ))}
                                 </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Mô tả:</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={5}
+                                    name="description"
+                                    value={selectedNews.description}
+                                    onChange={handleInputChange}
+                                    readOnly={!isEditing}
+                                />
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Nội dung:</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     rows={5}
-                                    name="content1"
-                                    value={selectedNews.content1}
+                                    name="content"
+                                    value={selectedNews.content}
                                     onChange={handleInputChange}
                                     readOnly={!isEditing}
                                 />

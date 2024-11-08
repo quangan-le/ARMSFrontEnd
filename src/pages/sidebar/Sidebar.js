@@ -1,6 +1,6 @@
 import React from "react";
 import { Nav } from "react-bootstrap";
-import { House, Book, Bell, FileText, BarChart, InfoCircle, People, FileEarmarkText } from 'react-bootstrap-icons'; // Import các icon
+import { BarChart, Bell, Book, FileEarmarkText, FileText, House, People } from 'react-bootstrap-icons'; // Import các icon
 
 const Sidebar = ({ role }) => {
   return (
@@ -38,19 +38,19 @@ const Sidebar = ({ role }) => {
           )}
           {role === "schoolService" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/school-service/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/school-service/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
-              <Nav.Link href="/danh-sach-tin-tuc" className="d-flex align-items-center">
+              <Nav.Link href="/school-service/danh-sach-tin-tuc" className="d-flex align-items-center">
                 <Book className="me-2" /> Danh sách tin tức
               </Nav.Link>
-              <Nav.Link href="/danh-sach-yeu-cau-chuyen-nganh" className="d-flex align-items-center">
+              <Nav.Link href="/school-service/danh-sach-yeu-cau-chuyen-nganh" className="d-flex align-items-center">
                 <Book className="me-2" /> Yêu cầu chuyển ngành
               </Nav.Link>
-              <Nav.Link href="/danh-sach-yeu-cau-rut-ho-so" className="d-flex align-items-center">
+              <Nav.Link href="/school-service/danh-sach-yeu-cau-rut-ho-so" className="d-flex align-items-center">
                 <Book className="me-2" /> Yêu cầu rút hồ sơ
               </Nav.Link>
             </>

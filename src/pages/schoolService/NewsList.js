@@ -1,26 +1,70 @@
-import React, { useState } from "react";
-import { Button, Table, Form, Pagination, Container, Row, Col, Modal } from "react-bootstrap";
+import React, { useEffect, useState } from 'react';
+import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
+import { useOutletContext } from 'react-router-dom';
+import api from "../../apiService.js";
 
 const NewsList = () => {
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [blogs, setBlogs] = useState([]);
+    const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [categories, setCategories] = useState([]);
     const [searchTitle, setSearchTitle] = useState("");
+    const { selectedCampus } = useOutletContext();
+    const campusId = selectedCampus.id;
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                if (campusId) {
+                    const response = await api.get(`/Blog/get-blogcategories?CampusId=${campusId}`);
+                    setCategories(response.data);
+                }
+            } catch (error) {
+                console.error("Có lỗi xảy ra khi lấy danh sách loại tin tức:", error);
+            }
+        };
 
-    // Dummy data for news posts
-    const newsPosts = [
-        { id: 1, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 2, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 3, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 4, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 5, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 6, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 7, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" },
-        { id: 8, title: "Thông tin tuyển sinh năm 2024", description: "Lorem ipsum dolor sit amet...", date: "12/12/2024", imgSrc: "/path/to/image.png" }
-    ];
+        fetchCategories();
+    }, [campusId]);
+    // Gọi API để lấy danh sách các blog theo điều kiện tìm kiếm
+    const fetchBlogs = async () => {
+        try {
+            if (campusId) {
+                const response = await api.get(`/Blog/get-blogs`, {
+                    params: {
+                        CampusId: campusId,
+                        Search: search,
+                        CurrentPage: currentPage,
+                        PageSize: 8,
+                        CategoryID: selectedCategory || null,
+                    },
+                });
+                setBlogs(response.data.item);
+                setTotalPages(response.data.pageCount);
+                setTotalItems(response.data.totalItems);
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra khi lấy danh sách blog:", error);
+        }
+    };
+    // Gọi API lấy danh sách blog khi search hoặc currentPage thay đổi
+    useEffect(() => {
+        fetchBlogs();
+    }, [search, currentPage, campusId, selectedCategory]);
 
+    // Hàm xử lý sự kiện thay đổi từ khóa tìm kiếm
+    const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+        setCurrentPage(1);
+    };
     // Pagination and state
-    const [activePage, setActivePage] = useState(2); // Current page
-    const totalItems = 120; // Total news items
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const [activePage, setActivePage] = useState(1); // Current page
+    const itemsPerPage = 8;
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    
     // Modal state
     const [showModal, setShowModal] = useState(false);
     const [selectedNews, setSelectedNews] = useState(null);
@@ -30,23 +74,35 @@ const NewsList = () => {
         setActivePage(pageNumber);
     };
 
-    const handleShowModal = (news) => {
-        setSelectedNews(news);
-        setShowModal(true);
+    const handleShowModal = async (news) => {
+        try {
+            
+            const response = await api.get(`/Blog/get-blog?BlogId=${news.blogId}`);
+            const blogData = response.data;
+            
+            setSelectedNews(blogData);
+            setShowModal(true); // Hiển thị modal
+            
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu bài viết:', error);
+        }
     };
+    
 
     const handleCloseModal = () => {
         setShowModal(false);
         setSelectedNews(null);
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setSelectedNews((prevNews) => ({
-            ...prevNews,
-            [name]: value,
+    const handleInputChange = (newCategoryId) => {
+        // Cập nhật lại danh mục trong selectedNews theo ID mới
+        const selectedCategory = categories.find(category => category.blogCategoryId === newCategoryId);
+        setSelectedNews((prevState) => ({
+            ...prevState,
+            blogCategory: selectedCategory
         }));
     };
+    
 
     const handleSaveChanges = () => {
         console.log('Saving updated news:', selectedNews);
@@ -54,36 +110,55 @@ const NewsList = () => {
     };
     return (
         <Container>
-            <h2 className="text-center">Danh sách tin tức</h2>
-            <p className="text-center mb-4 fw-bold">Quản lý danh sách tin tức thuộc campus</p>
+            <h2 className="text-center text-orange fw-bold">Danh sách tin tức</h2>
+            <p className="text-center mb-4 fw-bold text-orange">Quản lý danh sách tin tức thuộc campus</p>
 
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
-                        <Form.Label className="mb-0 me-2">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Nhập tiêu đề bài viết"
-                            value={searchTitle}
-                            onChange={(e) => setSearchTitle(e.target.value)}
+                            placeholder="Nhập từ khóa tìm kiếm..."
+                            value={search}
+                            onChange={handleSearchChange}
+                            className="flex-grow-1"
                         />
                     </Form.Group>
                 </Col>
                 <Col xs={12} md={6} className="d-flex justify-content-end">
 
-                    <Form.Select className="me-2" style={{ width: '200px' }}>
-                        <option>Chọn loại bài viết</option>
-                        <option value="1">Loại 1</option>
-                        <option value="2">Loại 2</option>
-                        <option value="3">Loại 3</option>
+                    <Form.Select 
+                    className="me-2" 
+                    style={{ width: '200px' }}
+                    value={selectedCategory}
+                    onChange={(e) => {
+                        setSelectedCategory(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                    >
+                        <option value="">Tất cả bài viết</option>
+                        {categories.map((category) => (
+                                <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                    {category.blogCategoryName}
+                                </option>
+                            ))}
                     </Form.Select>
+                    <Button
+                        variant="orange"
+                        className="text-white"
+                        style={{ whiteSpace: 'nowrap' }}
+                    >
+                        Tạo mới
+                    </Button>
                 </Col>
+                
             </Row>
 
             <Table bordered>
                 <thead>
                     <tr>
                         <th>STT</th>
+                        <th>Ảnh</th>
                         <th>Tiêu đề</th>
                         <th>Mô tả</th>
                         <th>Thời gian đăng bài</th>
@@ -91,41 +166,88 @@ const NewsList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {newsPosts.map((news) => (
-                        <tr key={news.id}>
-                            <td>1</td>
-                            <td>
-                                <div className="d-flex align-items-center">
-                                    <img src={news.imgSrc} alt="News" className="img-thumbnail" width="80" />
+                    {blogs && blogs.length > 0 ? (
+                        blogs.map((news, index) => (
+                            <tr key={news.id}>
+                                <td className="text-center fw-bold">{index + 1}</td>
+                                <td>
+                                {news.img && (
+                                        <div className="mt-2">
+                                            <img 
+                                                src={news.img}
+                                                alt= {news.title} 
+                                                style={{ width: '100px', height: 'auto', objectFit: 'cover' }} 
+                                            />
+                                        </div>
+                                    )}
+                                </td>
+                                <td>
+                                    <div className="d-flex align-items-center">
+                                    
                                     <div className="ms-3">
-                                        <span className="text-orange fw-bold" onClick={() => handleShowModal(news)} style={{ cursor: "pointer" }}>
-                                            {news.title}
-                                        </span>
+                                            <span
+                                                className="text-orange fw-bold"
+                                                onClick={() => handleShowModal(news)}
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                {news.title}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>{news.description}</td>
-                            <td>{news.date}</td>
-                            <td>
-                                <Button variant="warning" className="text-white">Chỉnh sửa</Button>
+                                </td>
+                                <td>{news.description}</td>
+                                <td>{new Date(news.dateCreate).toLocaleDateString('vi-VN')}</td>
+                                <td>
+                                <Button
+                                    variant="orange"
+                                    className="text-white"
+                                    style={{ whiteSpace: 'nowrap' }}
+                                    //onClick={() => handleEdit(news.id)}
+                                >
+                                    Chỉnh sửa
+                                </Button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5" className="text-center">
+                                Không có bài viết nào
                             </td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
+
             </Table>
 
             {/* Pagination Section */}
             <div className="d-flex justify-content-between">
-                <span>Hiển thị {activePage * itemsPerPage - itemsPerPage + 1}-{Math.min(activePage * itemsPerPage, totalItems)} trên tổng số {totalItems} ngành học</span>
-                <Pagination>
-                    <Pagination.Prev disabled={activePage === 1} onClick={() => handlePageChange(activePage - 1)} />
-                    {[...Array(totalPages)].map((_, i) => (
-                        <Pagination.Item key={i + 1} active={i + 1 === activePage} onClick={() => handlePageChange(i + 1)}>
-                            {i + 1}
-                        </Pagination.Item>
-                    ))}
-                    <Pagination.Next disabled={activePage === totalPages} onClick={() => handlePageChange(activePage + 1)} />
-                </Pagination>
+                <span>
+                    Hiển thị {startItem}-{endItem} trên tổng số {totalItems} tin tức
+                </span>
+                {totalPages > 1 && totalItems > 0 &&(
+                    <Pagination>
+                        <Pagination.Prev
+                            onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
+                            disabled={currentPage === 1}
+                        />
+                        {[...Array(totalPages)].map((_, index) => (
+                            <Pagination.Item
+                                key={index}
+                                active={index + 1 === currentPage}
+                                onClick={() => setCurrentPage(index + 1)}
+                            >
+                                {index + 1}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Next
+                            onClick={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                        />
+                    </Pagination>
+                )}
+
+              
             </div>
 
             <Modal show={showModal} onHide={handleCloseModal} size="lg" centered>
@@ -135,6 +257,18 @@ const NewsList = () => {
                             <Modal.Title>{isEditing ? 'Chỉnh sửa tin tức' : 'Chi tiết tin tức'}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Ảnh bài viết:</Form.Label>
+                            {selectedNews.img && (
+                                <div className="mt-2">
+                                    <img 
+                                        src={selectedNews.img}  // URL lấy từ cơ sở dữ liệu
+                                        alt="Blog Image" 
+                                        style={{ width: '200px', height: 'auto', objectFit: 'cover' }} 
+                                    />
+                                </div>
+                            )}
+                        </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Tiêu đề:</Form.Label>
                                 <Form.Control
@@ -147,24 +281,37 @@ const NewsList = () => {
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Loại bài viết:</Form.Label>
-                                <Form.Select
+                                <Form.Select 
                                     name="postType"
-                                    value={selectedNews.postType}
+                                    value={selectedNews.blogCategory.blogCategoryId}
                                     onChange={handleInputChange}
                                     disabled={!isEditing}
                                 >
-                                    <option value="Tuyển sinh">Tuyển sinh</option>
-                                    <option value="Loại 1">Loại 1</option>
-                                    <option value="Loại 2">Loại 2</option>
+                                        {categories.map((category) => (
+                                            <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                                {category.blogCategoryName}
+                                            </option>
+                                        ))}
                                 </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Mô tả:</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={5}
+                                    name="description"
+                                    value={selectedNews.description}
+                                    onChange={handleInputChange}
+                                    readOnly={!isEditing}
+                                />
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Nội dung:</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     rows={5}
-                                    name="content1"
-                                    value={selectedNews.content1}
+                                    name="content"
+                                    value={selectedNews.content}
                                     onChange={handleInputChange}
                                     readOnly={!isEditing}
                                 />

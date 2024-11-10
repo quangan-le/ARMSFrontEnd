@@ -52,8 +52,8 @@ const Application = () => {
         // Gọi API
         const submitApplication = async () => {
             try {
-                //const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
-                const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+                const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
+                //const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
 
                 console.log('Đơn đã được gửi thành công:', response.data);
 

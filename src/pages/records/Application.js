@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button, Modal } from 'react-bootstrap';
 import { useState, useEffect } from '../hooks/Hooks.js';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import api from '../../apiService';
 import uploadImage from '../../firebase/uploadImage.js';
@@ -9,6 +9,72 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Application = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    // Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
+    function formatVNPayDate(vnpDate) {
+        if (!vnpDate || vnpDate.length !== 14) return null;
+
+        // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
+        const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
+        return formattedDate;
+    }
+    // Xử lý thanh toán
+    useEffect(() => {
+        // Lấy dữ liệu formData từ sessionStorage
+        const storedFormData = JSON.parse(sessionStorage.getItem('formData'));
+        if (!storedFormData) return;
+
+        // Lấy dữ liệu trả về từ VNPAY trong query params
+        const queryParams = new URLSearchParams(location.search);
+        const payFeeAdmission = {
+            txnRef: queryParams.get('vnp_TxnRef'),
+            amount: queryParams.get('vnp_Amount'),
+            bankCode: queryParams.get('vnp_BankCode'),
+            bankTranNo: queryParams.get('vnp_BankTranNo'),
+            cardType: queryParams.get('vnp_CardType'),
+            orderInfo: queryParams.get('vnp_OrderInfo'),
+            payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
+            responseCode: queryParams.get('vnp_ResponseCode'),
+            tmnCode: queryParams.get('vnp_TmnCode'),
+            transactionNo: queryParams.get('vnp_TransactionNo'),
+            transactionStatus: queryParams.get('vnp_TransactionStatus'),
+            secureHash: queryParams.get('vnp_SecureHash'),
+            isFeeRegister: true,
+        };
+
+        // Kết hợp dữ liệu formData và payFeeAdmission
+        const updatedFormData = {
+            ...storedFormData,
+            payFeeAdmission
+        };
+        console.log(updatedFormData);
+        // Gọi API
+        const submitApplication = async () => {
+            try {
+                //const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
+                const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+
+                console.log('Đơn đã được gửi thành công:', response.data);
+
+                // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
+                sessionStorage.setItem('admissionSuccess', 'true');
+
+                // Xóa formData sau khi gửi và chuyển hướng
+                sessionStorage.removeItem('formData');
+                navigate('/tra-cuu-ho-so');
+            } catch (error) {
+                console.error('Lỗi khi gửi đơn:', error);
+                toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+            }
+        };
+
+        // Chỉ gọi submitApplication nếu thanh toán thành công
+        if (queryParams.get('vnp_ResponseCode') === '00') {
+            submitApplication();
+        }
+    }, [location, navigate]);
+
     const { selectedCampus } = useOutletContext();
     // Xử lý lấy danh sách tỉnh huyện
     const [provinces, setProvinces] = useState([]);
@@ -135,8 +201,8 @@ const Application = () => {
     const [showSubjectSelection1, setShowSubjectSelection1] = useState(false);
     const [showSubjectSelection2, setShowSubjectSelection2] = useState(false);
 
-    const [academicTranscripts1, setAcademicTranscripts1] = useState([]);
-    const [academicTranscripts2, setAcademicTranscripts2] = useState([]);
+    const [academicTranscriptsMajor1, setAcademicTranscriptsMajor1] = useState([]);
+    const [academicTranscriptsMajor2, setAcademicTranscriptsMajor2] = useState([]);
 
     // Form nhập điểm động
     const [displayedFields, setDisplayedFields] = useState([]);
@@ -204,29 +270,29 @@ const Application = () => {
         typeofStatusMajor1: 0,
         typeofStatusMajor2: 0,
         typeofStatusProfile: 0,
-        academicTranscripts1: [],
-        academicTranscripts2: [],
+        academicTranscriptsMajor1: [],
+        academicTranscriptsMajor2: [],
         // priorityDetail: {
         //     priorityID: 0,
         //     priorityName: "",
         //     priorityDescription: "",
         //     typeOfPriority: 0
         // },
-        payFeeAdmission: {
-            txnRef: "",
-            amount: 0,
-            bankCode: "",
-            bankTranNo: "",
-            cardType: "",
-            orderInfo: "",
-            payDate: "",
-            responseCode: "",
-            tmnCode: "",
-            transactionNo: "",
-            transactionStatus: "",
-            secureHash: "",
-            isFeeRegister: true
-        }
+        // payFeeAdmission: {
+        //     txnRef: "",
+        //     amount: 0,
+        //     bankCode: "",
+        //     bankTranNo: "",
+        //     cardType: "",
+        //     orderInfo: "",
+        //     payDate: "",
+        //     responseCode: "",
+        //     tmnCode: "",
+        //     transactionNo: "",
+        //     transactionStatus: "",
+        //     secureHash: "",
+        //     isFeeRegister: true
+        // }
     });
 
     // Lu trữ ảnh tạm thời
@@ -298,8 +364,8 @@ const Application = () => {
         setShowSubjectSelection2(false);
         setSubjectGroups1([]);
         setSubjectGroups2([]);
-        setAcademicTranscripts1([]);
-        setAcademicTranscripts2([]);
+        setAcademicTranscriptsMajor1([]);
+        setAcademicTranscriptsMajor2([]);
 
         if (campusId) {
             try {
@@ -318,7 +384,7 @@ const Application = () => {
         setSelectedMajor1(selectedMajorId);
         setSelectedAdmissionType1(null);
         setDisplayedFields1([]);
-        setAcademicTranscripts1([]);
+        setAcademicTranscriptsMajor1([]);
 
         setShowGraduationImage1(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
@@ -338,7 +404,7 @@ const Application = () => {
         setSelectedMajor2(selectedMajorId);
         setSelectedAdmissionType2(null);
         setDisplayedFields2([]);
-        setAcademicTranscripts2([]);
+        setAcademicTranscriptsMajor2([]);
 
         setShowGraduationImage2(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
@@ -356,7 +422,7 @@ const Application = () => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType1(typeId);
         setDisplayedFields1([]);
-        setAcademicTranscripts1([]);
+        setAcademicTranscriptsMajor1([]);
         setSelectedGroupData1([]);
 
         const selectedMajor = majors.find((major) => major.majorID === selectedMajor1);
@@ -382,7 +448,7 @@ const Application = () => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType2(typeId);
         setDisplayedFields2([]);
-        setAcademicTranscripts2([]);
+        setAcademicTranscriptsMajor2([]);
         setSelectedGroupData2([]);
 
         const selectedMajor = majors.find((major) => major.majorID === selectedMajor2);
@@ -409,7 +475,7 @@ const Application = () => {
         const selectedGroup = e.target.value;
         const selectedGroupData = subjectGroups1.find(group => group.subjectGroup === selectedGroup);
         setSelectedGroupData1(selectedGroupData);
-        setAcademicTranscripts1([]);
+        setAcademicTranscriptsMajor1([]);
         setDisplayedFields1([]);
 
         // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
@@ -448,7 +514,7 @@ const Application = () => {
         const selectedGroup = e.target.value;
         const selectedGroupData = subjectGroups2.find(group => group.subjectGroup === selectedGroup);
         setSelectedGroupData2(selectedGroupData);
-        setAcademicTranscripts2([]);
+        setAcademicTranscriptsMajor2([]);
         setDisplayedFields2([]);
 
         // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
@@ -496,7 +562,7 @@ const Application = () => {
         if (selectedAdmissionType1 === 5) {
             const [subject, index] = name.split("_");
             // Cập nhật `academicTranscripts` với môn học và điểm
-            setAcademicTranscripts1(prevTranscripts => {
+            setAcademicTranscriptsMajor1(prevTranscripts => {
                 const updatedTranscripts = [...prevTranscripts];
 
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
@@ -507,7 +573,7 @@ const Application = () => {
                     // Cập nhật điểm môn học đã tồn tại
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
-                    // Thêm mới điểm môn học vào `academicTranscripts1`
+                    // Thêm mới điểm môn học vào `academicTranscriptsMajor1`
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
@@ -533,8 +599,8 @@ const Application = () => {
             // Tính toán `typeOfAcademicTranscript` dựa trên vị trí của `subjectIndex` và `fieldIndex`
             const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
 
-            // Cập nhật `academicTranscripts1` 
-            setAcademicTranscripts1(prevTranscripts => {
+            // Cập nhật `academicTranscriptsMajor1` 
+            setAcademicTranscriptsMajor1(prevTranscripts => {
                 const updatedTranscripts = [...prevTranscripts];
 
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
@@ -563,7 +629,7 @@ const Application = () => {
             // Trường hợp xét điểm thi THPT cho nguyện vọng 2
             const [subject, index] = name.split("_");
 
-            setAcademicTranscripts2(prevTranscripts => {
+            setAcademicTranscriptsMajor2(prevTranscripts => {
                 const updatedTranscripts = [...prevTranscripts];
 
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
@@ -574,7 +640,7 @@ const Application = () => {
                     // Cập nhật điểm môn học đã tồn tại
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
-                    // Thêm mới điểm môn học vào `academicTranscripts2`
+                    // Thêm mới điểm môn học vào `academicTranscriptsMajor2`
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
@@ -600,7 +666,7 @@ const Application = () => {
 
             const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
 
-            setAcademicTranscripts2(prevTranscripts => {
+            setAcademicTranscriptsMajor2(prevTranscripts => {
                 const updatedTranscripts = [...prevTranscripts];
 
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
@@ -725,7 +791,7 @@ const Application = () => {
         const { id, value, type, checked } = e.target;
         setFormData(prevState => ({
             ...prevState,
-            [id]: type === "checkbox" ? checked : value
+            [id]: (id === "gender" || id === "recipientResults") ? (value === "true") : (type === "checkbox" ? checked : value)
         }));
     };
 
@@ -736,8 +802,8 @@ const Application = () => {
         // Khởi tạo updatedFormData với dữ liệu ban đầu
         const updatedFormData = {
             ...formData,
-            academicTranscripts1,
-            academicTranscripts2
+            academicTranscriptsMajor1,
+            academicTranscriptsMajor2
         };
 
         // Duyệt qua các ảnh trong tempImages và upload
@@ -757,14 +823,18 @@ const Application = () => {
         }
         // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         setFormData(updatedFormData);
-        console.log(updatedFormData);
+        sessionStorage.setItem('formData', JSON.stringify(updatedFormData));
 
         const selectedCampusPost = {
             campus: selectedCampus.id
         };
         try {
             // Gửi yêu cầu thanh toán đến VNPAY
-            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            const paymentResponse = await axios.post(
+                'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-register-admission',
+                selectedCampusPost
+            );
             const { paymentUrl } = paymentResponse.data;
 
             // Chuyển hướng người dùng đến trang thanh toán của VNPAY
@@ -772,16 +842,6 @@ const Application = () => {
         } catch (error) {
             toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
         }
-
-        //Gửi dữ liệu formData lên API
-        // try {
-        //     const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
-        //     console.log('Đơn đã được gửi thành công:', response.data);
-        //     toast.success('Đơn đã được gửi thành công!');
-        // } catch (error) {
-        //     console.error('Lỗi khi gửi đơn:', error);
-        //     toast.error('Gửi đơn thất bại, vui lòng thử lại!');
-        // }
     };
 
     return (
@@ -1104,7 +1164,7 @@ const Application = () => {
                                                         // Xét điểm THPT
                                                         const [subject, index] = field.name.split("_");
 
-                                                        transcript = academicTranscripts1.find(
+                                                        transcript = academicTranscriptsMajor1.find(
                                                             item => item.typeOfAcademicTranscript === index
                                                         );
                                                     } else {
@@ -1117,7 +1177,7 @@ const Application = () => {
                                                         const typeOfAcademicTranscript =
                                                             subjectIndex !== -1 && fieldIndex !== -1 ? indexMap[subjectIndex][fieldIndex] : null;
 
-                                                        transcript = academicTranscripts1.find(
+                                                        transcript = academicTranscriptsMajor1.find(
                                                             item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
                                                         );
                                                     }
@@ -1202,7 +1262,7 @@ const Application = () => {
                                                         // Xét điểm THPT cho nguyện vọng 2
                                                         const [subject, index] = field.name.split("_");
 
-                                                        transcript2 = academicTranscripts2.find(
+                                                        transcript2 = academicTranscriptsMajor2.find(
                                                             item => item.typeOfAcademicTranscript === index
                                                         );
                                                     } else {
@@ -1215,7 +1275,7 @@ const Application = () => {
                                                         const typeOfAcademicTranscript2 =
                                                             subjectIndex2 !== -1 && fieldIndex2 !== -1 ? indexMap[subjectIndex2][fieldIndex2] : null;
 
-                                                        transcript2 = academicTranscripts2.find(
+                                                        transcript2 = academicTranscriptsMajor2.find(
                                                             item => item.typeOfAcademicTranscript === typeOfAcademicTranscript2
                                                         );
                                                     }

@@ -1,8 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col, Card, Breadcrumb } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ApplicationSearch = () => {
+    // Xử lý thông báo thanh toán
+    useEffect(() => {
+        // Kiểm tra cờ trong sessionStorage
+        const admissionSuccess = sessionStorage.getItem('admissionSuccess');
+        if (admissionSuccess) {
+            // Hiển thị toast thành công
+            toast.success('Đơn đã được gửi thành công!');
+            
+            // Sử dụng setTimeout để xóa cờ sau khi toast hiển thị
+            const timeout = setTimeout(() => {
+                sessionStorage.removeItem('admissionSuccess');
+            }, 2000); // khoảng thời gian chờ (3000ms = 3 giây)
+    
+            // Dọn dẹp timeout khi component unmount
+            return () => clearTimeout(timeout);
+        }
+    }, []);
+
     const [cccd, setCccd] = useState('');
     const [applicationData, setApplicationData] = useState(null);
     const navigate = useNavigate();
@@ -20,6 +40,7 @@ const ApplicationSearch = () => {
 
     return (
         <Container className="my-3">
+            <ToastContainer position="top-right" autoClose={3000} />
             <Breadcrumb>
                 <Breadcrumb.Item href="/" className="text-orange">Trang chủ</Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>

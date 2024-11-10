@@ -14,35 +14,33 @@ const ManagerLayout = ({ role }) => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-   // Hàm thay đổi campus
-   const handleCampusChange = (campus) => {
+  // Hàm thay đổi campus
+  const handleCampusChange = (campus) => {
     setSelectedCampus(campus);
   };
   return (
     <div>
-  {/* Header */}
-  <ManageHeader onCampusChange={handleCampusChange} toggleSidebar={toggleSidebar} />
+      {/* Header */}
+      <ManageHeader onCampusChange={handleCampusChange} toggleSidebar={toggleSidebar} />
 
-  <Container fluid>
-    <Row>
-      {/* Sidebar */}
-      {isSidebarOpen && (
-        <Col md={2} className="sidebar-container">
-          <Sidebar role={role} />
-        </Col>
-      )}
+      <Container fluid>
+        <Row>
+          {isSidebarOpen && (
+            <Col md={2} className="sidebar-container">
+              <Sidebar role={role} />
+            </Col>
+          )}
 
-      {/* Main Content */}
-      <Col
-        md={isSidebarOpen ? 10 : 12}
-        className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}
-      >
-        {/* Render nested routes with context */}
-        <Outlet context={{ selectedCampus }} />
-      </Col>
-    </Row>
-  </Container>
-</div>
+          <Col
+            md={isSidebarOpen ? 10 : 12}
+            className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}
+          >
+            {/* Render nested routes with context */}
+            <Outlet context={{ selectedCampus }} />
+          </Col>
+        </Row>
+      </Container>
+    </div>
 
   );
 };

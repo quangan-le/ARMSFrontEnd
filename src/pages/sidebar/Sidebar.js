@@ -47,6 +47,9 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/school-service/danh-sach-tin-tuc" className="d-flex align-items-center">
                 <Book className="me-2" /> Danh sách tin tức
               </Nav.Link>
+              <Nav.Link href="/school-service/danh-sach-dang-ky-tuyen-sinh" className="d-flex align-items-center">
+                <Book className="me-2" /> Yêu cầu đăng ký tuyển sinh
+              </Nav.Link>
               <Nav.Link href="/school-service/danh-sach-yeu-cau-chuyen-nganh" className="d-flex align-items-center">
                 <Book className="me-2" /> Yêu cầu chuyển ngành
               </Nav.Link>

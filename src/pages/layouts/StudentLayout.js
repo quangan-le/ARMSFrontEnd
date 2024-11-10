@@ -19,12 +19,14 @@ const StudentLayout = () => {
     setSelectedCampus(campus);
   };
   return (
-    <div>
+    <div className="layout-container">
       {!hideHeaderFooter && (
-         <Header onCampusChange={handleCampusChange} />
+        <Header onCampusChange={handleCampusChange} />
       )}
 
-      <Outlet context={{ selectedCampus }} />
+      <div className="content">
+        <Outlet context={{ selectedCampus }} />
+      </div>
 
       {!hideHeaderFooter && <Footer />}
     </div>

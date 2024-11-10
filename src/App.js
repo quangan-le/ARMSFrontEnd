@@ -32,6 +32,7 @@ import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdraw
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
+import AdmissionRegistrationList from "./pages/schoolService/AdmissionRegistrationList.js";
 
 
 function App() {
@@ -79,6 +80,7 @@ function App() {
           <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
           <Route path="/school-service/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
           <Route path="/school-service/danh-sach-tin-tuc" element={<NewsList />} />
+          <Route path="/school-service/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
           <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
           <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
 
@@ -95,7 +97,7 @@ function App() {
           <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
           <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
           <Route path="/ke-hoach-tuyen-sinh" element={<EnrollmentPlanList />} />
-           <Route path="/chinh-sua-ke-hoach-tuyen-sinh" element={<EnrollmentPlanEdit />} />
+          <Route path="/chinh-sua-ke-hoach-tuyen-sinh" element={<EnrollmentPlanEdit />} />
           <Route path="/thong-tin-tuyen-sinh" element={<ThresholdScoreList />} />
         </Route> */}
 

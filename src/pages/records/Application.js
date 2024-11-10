@@ -52,8 +52,8 @@ const Application = () => {
         // Gọi API
         const submitApplication = async () => {
             try {
-                const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
-                //const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+                //const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
+                const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
 
                 console.log('Đơn đã được gửi thành công:', response.data);
 
@@ -267,9 +267,10 @@ const Application = () => {
         typeOfDiplomaMajor2: null,
         typeOfTranscriptMajor2: null,
         priorityDetailPriorityID: 0,
-        typeofStatusMajor1: 0,
-        typeofStatusMajor2: 0,
-        typeofStatusProfile: 0,
+        campusName: "",
+        // typeofStatusMajor1: 0,
+        // typeofStatusMajor2: 0,
+        // typeofStatusProfile: 0,
         academicTranscriptsMajor1: [],
         academicTranscriptsMajor2: [],
         // priorityDetail: {
@@ -349,10 +350,13 @@ const Application = () => {
     // Khi người dùng chọn cơ sở, cập nhật ngành học
     const handleCampusChange = async (e) => {
         const campusId = e.target.value;
+        const campusName = campuses.find(campus => campus.campusId === campusId)?.campusName || '';
+
         setSelectedCampusForm(campusId);
         setFormData(prevData => ({
             ...prevData,
-            campusId: campusId
+            campusId: campusId,
+            campusName: campusName
         }));
         setSelectedMajor1('');
         setSelectedMajor2('');
@@ -566,7 +570,7 @@ const Application = () => {
                 const updatedTranscripts = [...prevTranscripts];
 
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.typeOfAcademicTranscript === index
+                    item => item.typeOfAcademicTranscript === Number(index)
                 );
 
                 if (existingTranscriptIndex !== -1) {
@@ -577,7 +581,7 @@ const Application = () => {
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
-                        typeOfAcademicTranscript: index
+                        typeOfAcademicTranscript: Number(index)
                     });
                 }
                 return updatedTranscripts;
@@ -633,7 +637,7 @@ const Application = () => {
                 const updatedTranscripts = [...prevTranscripts];
 
                 const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.typeOfAcademicTranscript === index
+                    item => item.typeOfAcademicTranscript === Number(index)
                 );
 
                 if (existingTranscriptIndex !== -1) {
@@ -644,7 +648,7 @@ const Application = () => {
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
-                        typeOfAcademicTranscript: index
+                        typeOfAcademicTranscript: Number(index)
                     });
                 }
 
@@ -1165,7 +1169,7 @@ const Application = () => {
                                                         const [subject, index] = field.name.split("_");
 
                                                         transcript = academicTranscriptsMajor1.find(
-                                                            item => item.typeOfAcademicTranscript === index
+                                                            item => item.typeOfAcademicTranscript === Number(index)
                                                         );
                                                     } else {
                                                         // Xét học bạ
@@ -1263,7 +1267,7 @@ const Application = () => {
                                                         const [subject, index] = field.name.split("_");
 
                                                         transcript2 = academicTranscriptsMajor2.find(
-                                                            item => item.typeOfAcademicTranscript === index
+                                                            item => item.typeOfAcademicTranscript === Number(index)
                                                         );
                                                     } else {
                                                         // Xét học bạ cho nguyện vọng 2

@@ -93,13 +93,6 @@ const MajorsListView = () => {
                         <option value="false">Trung Cấp</option>
                     </Form.Select>
 
-                    <Button
-                        variant="orange"
-                        className="text-white"
-                        style={{ whiteSpace: 'nowrap' }}
-                    >
-                        Tạo mới
-                    </Button>
                 </Col>
             </Row>
             <Table striped bordered hover>

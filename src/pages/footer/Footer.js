@@ -13,7 +13,7 @@ const Footer = () => {
                         <div className="row">
                             <div className="col-md-6">
                                 <p><strong>Cơ sở Hà Nội</strong><br />
-                                    Công số 1, Tòa nhà FPT Polytechnic, 13 phố Trịnh Văn Bô, phường Phương Canh, quận Nam Từ Liêm, TP Hà Nội <br />
+                                    Công số 1, Tòa nhà A5, 13 phố Trịnh Văn Bô, phường Phương Canh, quận Nam Từ Liêm, TP Hà Nội <br />
                                     (024) 8582 0808
                                 </p>
                             </div>

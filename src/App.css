@@ -131,8 +131,8 @@ footer {
 /* Homepage.js*/
 .background-overlay {
   position: relative;
-  background: url("https://cdnphoto.dantri.com.vn/vUHW-y2FTkOSlbFiKZPV-ReWJn0=/thumb_w/1360/2023/04/28/dantri-lo-trinh-hoc-tap-len-cac-cap-hoc-cao-hon-cho-hoc-sinh-phan-luong-sau-thcs-theo-giao-duc-nghe-nghiep-anhntv34docx-1682651902124.jpeg")
-    no-repeat center center;
+  background: url("https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Banner%2FAnh_nen.jpg?alt=media&token=e476de3c-985f-4df0-ad37-b2894aea4406")
+    no-repeat top center;
   background-size: cover;
   padding: 150px 0 0;
   height: 400px;
@@ -340,7 +340,7 @@ footer {
 
 /* History.js */
 .homeguest-banner {
-  background-image: url("https://channel.mediacdn.vn/428462621602512896/2023/4/27/photo-2-16825656134001528505251.jpg");
+  background-image: url("https://brightoncollege.edu.vn/wp-content/uploads/2024/04/tuyen-sinh-2425-brighton-college-vietnam.jpg");
   background-position: center;
   height: 200px;
   position: relative;

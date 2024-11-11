@@ -149,7 +149,7 @@ const Homepage = () => {
     const fixedTestimonials = [
       {
         alumiStudentId: 1,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://watermark.lovepik.com/photo/20211208/large/lovepik-classroom-learning-image-of-postgraduate-students-picture_501685870.jpg',
         fullName: 'Nguyễn Thị Thúy Diễm',
         desciption: 'Là một người trẻ, năng động thích môi trường năng động và được học những kiến thức thực tế. Mình nhận thấy đây là môi trường hoàn hảo để chắp cánh ước mơ trở thành nhà quản trị khách sạn của mình!',
         specializeMajorName: 'Sinh viên ngành Quản trị khách sạn',
@@ -157,7 +157,7 @@ const Homepage = () => {
       },
       {
         alumiStudentId: 2,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://file.huongnghiep24h.com/2024/01/12/hoc-2-bang-dai-hoc-cung-luc.jpeg',
         fullName: 'Trần Thị B',
         desciption: 'Một trải nghiệm học tập đáng nhớ!',
         specializeMajorName: 'Marketing',
@@ -165,7 +165,7 @@ const Homepage = () => {
       },
       {
         alumiStudentId: 3,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://watermark.lovepik.com/photo/20211202/large/lovepik-college-student-laptop-learning-to-cheer-picture_501391448.jpg',
         fullName: 'Phạm Văn C',
         desciption: 'Giảng viên rất tận tình và hỗ trợ.',
         specializeMajorName: 'Lập trình game',
@@ -173,7 +173,7 @@ const Homepage = () => {
       },
       {
         alumiStudentId: 4,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://cdn-images.vtv.vn/zoom/640_400/66349b6076cb4dee98746cf1/2024/09/06/ptl00043--1--27023522607387627437922-77896873407837139219651.jpg',
         fullName: 'Lê Thị D',
         desciption: 'Cơ sở vật chất hiện đại và tiện nghi.',
         specializeMajorName: 'Ngôn ngữ anh',

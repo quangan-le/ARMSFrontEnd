@@ -131,7 +131,7 @@ footer {
 /* Homepage.js*/
 .background-overlay {
   position: relative;
-  background: url("https://firebasestorage.googleapis.com/v0/b/arms-acdfc.appspot.com/o/Banner%2FAnh_nen.jpg?alt=media&token=e476de3c-985f-4df0-ad37-b2894aea4406")
+  background: url("https://www.rmit.edu.vn/content/dam/rmit/vn/smart-crop/full-width-banner/students-outdoors-writing-1920x500.jpg")
     no-repeat top center;
   background-size: cover;
   padding: 150px 0 0;
@@ -340,8 +340,8 @@ footer {
 
 /* History.js */
 .homeguest-banner {
-  background-image: url("https://brightoncollege.edu.vn/wp-content/uploads/2024/04/tuyen-sinh-2425-brighton-college-vietnam.jpg");
-  background-position: center;
+  background-image: url("https://buildingos.com/images/CACHE/images/reportimage/9f/9fdfd712-8c4e-4c53-bde4-6ca1313a2c7b/961d2b8652beca4ac502707f48a5cb34.jpg?");
+  background-position: bottom;
   height: 200px;
   position: relative;
   display: flex;

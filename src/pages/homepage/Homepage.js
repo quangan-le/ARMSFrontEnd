@@ -8,6 +8,8 @@ import api from "../../apiService.js";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
@@ -247,14 +249,15 @@ const Homepage = () => {
   ]);
 
   // Đăng ký thông tin 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     fullName: '',
     email: '',
     phoneNumber: '',
     linkFB: '',
     majorID: '',
-    campusId: selectedCampus.id,
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -265,20 +268,29 @@ const Homepage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!formData.majorID) {
+      toast.error('Vui lòng chọn ngành học!');
+      return;
+    }
     try {
       const response = await api.post('/StudentConsultation', {
         ...formData,
         dateReceive: new Date().toISOString(),
+        campusId: selectedCampus.id
       });
 
       if (response.status === 200) {
-        alert('Đăng ký thành công!');
+        if (response.data.status) {
+          toast.success(response.data.message);
+          setFormData(initialFormData);
+        } else {
+          toast.error(response.data.message);
+        }
       } else {
-        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+        toast.error(response.data.message);
       }
     } catch (error) {
-      console.error('Lỗi khi đăng ký:', error);
-      alert('Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
   return (
@@ -290,6 +302,7 @@ const Homepage = () => {
       ) : (
         <SliderBanner banners={banners} />
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="text-center background-overlay">
         <div className="overlay"></div>
         <div className="background-content">
@@ -435,6 +448,7 @@ const Homepage = () => {
                   value={formData.majorID}
                   onChange={handleChange}
                 >
+                  <option value="">Chọn ngành học</option>
                   {collegeMajors.length > 0 && (
                     <optgroup label="Ngành học Cao đẳng">
                       {collegeMajors.map((major) => (

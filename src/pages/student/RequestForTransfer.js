@@ -1,8 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Breadcrumb, Table, Button, Modal, Form, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import api from "../../apiService.js";
+import { useOutletContext } from 'react-router-dom';
 
 const RequestForTransfer = () => {
+    const { selectedCampus } = useOutletContext();
+    const campusId = selectedCampus.id;
+
+    // Lấy ngành học
+    const [vocationalMajors, setVocationalMajors] = useState([]);
+    const [collegeMajors, setCollegeMajors] = useState([]);
+    useEffect(() => {
+        const fetchData = async () => {
+            if (campusId) {
+                try {
+                    const [vocationalResponse, collegeResponse] = await Promise.all([
+                        api.get(`/Major/get-majors-vocational-school?campus=${campusId}`),
+                        api.get(`/Major/get-majors-college?campus=${campusId}`),
+                    ]);
+
+                    setVocationalMajors(vocationalResponse.data);
+                    setCollegeMajors(collegeResponse.data);
+                } catch (error) {
+                    console.error("Có lỗi khi lấy dữ liệu:", error);
+                }
+            }
+        };
+        fetchData();
+    }, [campusId]);
+
     const [show, setShow] = useState(false); // Quản lý trạng thái hiển thị modal
 
     const handleClose = () => setShow(false);
@@ -149,6 +175,34 @@ const RequestForTransfer = () => {
                                     <option value="Chuyên ngành 3">Chuyên ngành 3</option>
                                 </Form.Control>
                             </Col>
+                            {/* <Form.Group className="mb-3">
+                                <Form.Label>Ngành mới</Form.Label>
+                                <Form.Select
+                                    value={newMajorID}
+                                    onChange={(e) => setNewMajorID(e.target.value)}
+                                >
+                                    <option value="">Chọn ngành mới</option>
+                                    {collegeMajors.length > 0 && (
+                                        <optgroup label="Ngành học Cao đẳng">
+                                            {collegeMajors.map((major) => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+
+                                    {vocationalMajors.length > 0 && (
+                                        <optgroup label="Ngành học Trung cấp">
+                                            {vocationalMajors.map((major) => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                </Form.Select>
+                            </Form.Group> */}
                         </Row>
                         <Row className="mb-3">
                             <Col md={3}>

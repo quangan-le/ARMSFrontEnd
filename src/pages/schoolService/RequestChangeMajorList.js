@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Form, Pagination, Row, Table } from "react-bootstrap";
+import { Button, Col, Form, Pagination, Row, Table, Modal } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const RequestChangeMajorList = () => {
     const [requestMajors, setRequestMajors] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -28,8 +31,8 @@ const RequestChangeMajorList = () => {
                     },
                 });
                 setRequestMajors(response.data.item);
-                 setTotalPages(response.data.pageCount);
-                 setTotalItems(response.data.totalItems);
+                setTotalPages(response.data.pageCount);
+                setTotalItems(response.data.totalItems);
             }
         } catch (error) {
             console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
@@ -37,15 +40,78 @@ const RequestChangeMajorList = () => {
     };
     useEffect(() => {
         fetchRequestChangeMajors();
-    }, [currentPage, campusId,selectedStatus,searchTerm ]);
+    }, [currentPage, campusId, selectedStatus, searchTerm]);
     const RequestStatus = {
-        Pending: 2, 
-        Approved: 0, 
-        Rejected: 1, 
-      };
+        Pending: 2,
+        Approved: 0,
+        Rejected: 1,
+    };
+
+
+
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [feedback, setFeedback] = useState("");
+
+    const handleShowModal = (request) => {
+        setSelectedRequest(request);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedRequest(null);
+        setShowModal(false);
+        setFeedback("");
+    };
+
+    const handleConfirm = async () => {
+        if (!selectedRequest) return;
+        try {
+            const response = await api.post(
+                `/SchoolService/RequestChangeMajor/accept-request-change-major`,
+                {
+                    reply: feedback,
+                    status: 0,
+                },
+                {
+                    params: { RequestID: selectedRequest.requestID },
+                }
+            );
+            toast.success(response.data.message);
+        } catch (error) {
+            console.error("Lỗi khi chấp nhận yêu cầu chuyển ngành:", error);
+            toast.error("Có lỗi xảy ra khi xử lý yêu cầu.");
+        } finally {
+            handleCloseModal();
+        }
+    };
+
+
+    const handleReject = async () => {
+        if (!selectedRequest) return;
+        try {
+            const response = await api.post(
+                `/SchoolService/RequestChangeMajor/accept-request-change-major`,
+                {
+                    reply: feedback,
+                    status: 1,
+                },
+                {
+                    params: { RequestID: selectedRequest.requestID }, 
+                }
+            );
+            toast.success(response.data.message);
+        } catch (error) {
+            console.error("Lỗi khi từ chối yêu cầu chuyển ngành:", error);
+            toast.error("Có lỗi xảy ra khi xử lý yêu cầu.");
+        } finally {
+            handleCloseModal();
+        }
+    };
 
     return (
         <div className="me-3">
+            <ToastContainer position="top-right" autoClose={3000} />
             <h2 className="text-center mb-4">Yêu cầu chuyển ngành</h2>
             <Row className="mb-3">
                 <Col xs={12} md={6}>
@@ -94,17 +160,16 @@ const RequestChangeMajorList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                {requestMajors && requestMajors.length > 0 ? (
+                    {requestMajors && requestMajors.length > 0 ? (
                         requestMajors.map((requestMajor, index) => (
                             <tr key={requestMajor.requestID}>
                                 <td className="text-center fw-bold">{index + 1}</td>
                                 <td>
                                     <div className="d-flex align-items-center">
-                                    
-                                    <div className="ms-3">
+
+                                        <div className="ms-3">
                                             <span
                                                 className="text-orange"
-                                                //onClick={() => handleShowModal(major)}
                                                 style={{ cursor: "pointer" }}
                                             >
                                                 {requestMajor.account.studentCode}
@@ -119,20 +184,21 @@ const RequestChangeMajorList = () => {
                                 <td>{requestMajor.fileReasonRequestChangeMajor}</td>
                                 <td></td>
                                 <td style={{ color: requestMajor.status === 0 ? 'green' : requestMajor.status === 1 ? 'red' : requestMajor.status === 2 ? 'lightblue' : 'black' }}>
-                                {
-                                    requestMajor.status === 0 ? "Chấp Nhận" :
-                                    requestMajor.status === 1 ? "Reject" :
-                                    requestMajor.status === 2 ? "Đang Xử lý" : ""
-                                }
+                                    {
+                                        requestMajor.status === 0 ? "Chấp Nhận" :
+                                            requestMajor.status === 1 ? "Reject" :
+                                                requestMajor.status === 2 ? "Đang Xử lý" : ""
+                                    }
                                 </td>
                                 <td>
-                                <Button
-                                    variant="orange"
-                                    className="text-white"
-                                    style={{ whiteSpace: 'nowrap' }}
-                                >
-                                    Xử lý đơn
-                                </Button>
+                                    <Button
+                                        variant="orange"
+                                        className="text-white"
+                                        style={{ whiteSpace: 'nowrap' }}
+                                        onClick={() => handleShowModal(requestMajor)}
+                                    >
+                                        Xử lý đơn
+                                    </Button>
                                 </td>
                             </tr>
                         ))
@@ -149,7 +215,7 @@ const RequestChangeMajorList = () => {
                 <span>
                     Hiển thị {startItem}-{endItem} trên tổng số {totalItems} yêu cầu
                 </span>
-                {totalPages > 1 && totalItems > 0 &&(
+                {totalPages > 1 && totalItems > 0 && (
                     <Pagination>
                         <Pagination.Prev
                             onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
@@ -171,6 +237,41 @@ const RequestChangeMajorList = () => {
                     </Pagination>
                 )}
             </div>
+            <Modal show={showModal} onHide={handleCloseModal} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Xử lý yêu cầu chuyển ngành</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedRequest && (
+                        <>
+                            <p><strong>Họ tên:</strong> {selectedRequest.account.fullname}</p>
+                            <p><strong>Mã sinh viên:</strong> {selectedRequest.account.studentCode}</p>
+                            <p><strong>Ngành cũ:</strong> {selectedRequest.majorO.majorName}</p>
+                            <p><strong>Ngành mới:</strong> {selectedRequest.majorN.majorName}</p>
+                            <p><strong>Nội dung yêu cầu:</strong> {selectedRequest.description}</p>
+                            <p><strong>Đơn yêu cầu:</strong> {selectedRequest.fileReasonRequestChangeMajor}</p>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Nội dung phản hồi</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                />
+                            </Form.Group>
+                        </>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleReject}>
+                        Từ chối
+                    </Button>
+                    <Button variant="primary" onClick={handleConfirm}>
+                        Xác nhận
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

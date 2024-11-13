@@ -56,15 +56,21 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/school-service/danh-sach-yeu-cau-rut-ho-so" className="d-flex align-items-center">
                 <Book className="me-2" /> Yêu cầu rút hồ sơ
               </Nav.Link>
+              <Nav.Link href="/school-service/danh-sach-thong-bao" className="d-flex align-items-center">
+                <Book className="me-2" /> Quản lý thông báo
+              </Nav.Link>
             </>
           )}
           {role === "admissionsOfficer" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-officer/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-officer/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
+              </Nav.Link>
+              <Nav.Link href="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" className="d-flex align-items-center">
+                <Book className="me-2" /> Danh sách đăng ký tư vấn tuyển sinh
               </Nav.Link>
             </>
           )}

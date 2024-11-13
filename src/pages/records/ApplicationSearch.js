@@ -69,9 +69,15 @@ const ApplicationSearch = () => {
                 }
             });
             toast.success('Xác thực thành công!');
-            const dataResponse = await api.post('/RegisterAdmission/search-register-admission', {
-                citizenIentificationNumber: cccd
-            });
+            const dataResponse = await api.post(
+                '/RegisterAdmission/search-register-admission',
+                { citizenIentificationNumber: cccd },
+                {
+                    headers: {
+                        Authorization: `Bearer ${response.data.token}`
+                    }
+                }
+            );
             setApplicationData(dataResponse.data);
             handleClose();
         } catch (error) {
@@ -437,7 +443,23 @@ const ApplicationSearch = () => {
                                     <div className="info-item">
                                         <span className="label">Trạng thái hồ sơ</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusProfile === null ? "Chờ xét duyệt" : applicationData.typeofStatusProfile}
+                                            {applicationData.typeofStatusProfile === null
+                                                ? "Chờ xét duyệt"
+                                                : applicationData.typeofStatusProfile === 0
+                                                    ? "Đăng ký hồ sơ thành công"
+                                                    : applicationData.typeofStatusProfile === 1
+                                                        ? "Xác nhận đăng ký hồ sơ thành công"
+                                                        : applicationData.typeofStatusProfile === 2
+                                                            ? "Hồ sơ nhập học thành công"
+                                                            : applicationData.typeofStatusProfile === 3
+                                                                ? "Xác nhận hồ sơ nhập học thành công"
+                                                                : applicationData.typeofStatusProfile === 4
+                                                                    ? "Chờ thanh toán nhập học"
+                                                                    : applicationData.typeofStatusProfile === 5
+                                                                        ? "Đang xử lý nhập học"
+                                                                        : applicationData.typeofStatusProfile === 6
+                                                                            ? "Hoàn thành"
+                                                                            : ""}
                                         </span>
                                     </div>
                                 </Col>
@@ -445,17 +467,32 @@ const ApplicationSearch = () => {
                                     <div className="info-item">
                                         <span className="label">Trạng thái xét duyệt</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusMajor1 === null ? "Chờ xét duyệt" : applicationData.typeofStatusMajor1}
+                                            {applicationData.typeofStatusMajor1 === null
+                                                ? "Chờ xét duyệt"
+                                                : applicationData.typeofStatusMajor1 === 0
+                                                    ? "Không đạt"
+                                                    : applicationData.typeofStatusMajor1 === 1
+                                                        ? "Đạt"
+                                                        : applicationData.typeofStatusMajor1 === 2
+                                                            ? "Đang xử lý"
+                                                            : ""}
                                         </span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Trạng thái xét duyệt</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusMajor2 === null ? "Chờ xét duyệt" : applicationData.typeofStatusMajor2}
+                                            {applicationData.typeofStatusMajor2 === null
+                                                ? "Chờ xét duyệt"
+                                                : applicationData.typeofStatusMajor2 === 0
+                                                    ? "Không đạt"
+                                                    : applicationData.typeofStatusMajor2 === 1
+                                                        ? "Đạt"
+                                                        : applicationData.typeofStatusMajor2 === 2
+                                                            ? "Đang xử lý"
+                                                            : ""}
                                         </span>
                                     </div>
                                 </Col>
-
                             </Row>
                             <Col className="d-flex justify-content-end">
                                 <Button

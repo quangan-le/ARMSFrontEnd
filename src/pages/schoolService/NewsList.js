@@ -75,6 +75,7 @@ const NewsList = () => {
         try {
 
             const response = await api.get(`/Blog/get-blog?BlogId=${news.blogId}`);
+            
             const blogData = response.data;
 
             setSelectedNews(blogData);
@@ -109,9 +110,24 @@ const NewsList = () => {
         }));
     };
 
+    const handleEditorChange = (content) => {
+        setSelectedNews((prevState) => ({
+            ...prevState,
+            content,
+        }));
+    };
+
     const handleSaveChanges = async () => {
         try {
-            await api.put(`/Blog/update-blog`, selectedNews);
+            const updatedNew= {
+                blogId: selectedNews.blogId,
+                title: selectedNews.title,
+                img: selectedNews.img,
+                description: selectedNews.description,
+                content: selectedNews.content,
+                blogCategoryId: selectedNews.blogCategory.blogCategoryId,
+            };
+            await api.put(`/school-service/Blog/update-blog`, updatedNew)
             fetchBlogs();
             toast.success("Bài viết đã được cập nhật thành công!");
         } catch (error) {
@@ -144,14 +160,14 @@ const NewsList = () => {
     };
     const handleCreateNew = async () => {
         try {
-            await api.post(`/Blog/create-blog`, newPost); 
-            fetchBlogs(); 
+            await api.post(`/Blog/create-blog`, newPost);
+            fetchBlogs();
             toast.success("Bài viết đã được tạo thành công!");
         } catch (error) {
             console.error("Lỗi khi tạo bài viết mới:", error);
             toast.error("Tạo bài viết thất bại.");
         } finally {
-            handleCloseCreateModal(); 
+            handleCloseCreateModal();
         }
     };
     const handleShowCreateModal = () => {
@@ -161,8 +177,8 @@ const NewsList = () => {
             content: '',
             postType: '',
             img: null,
-        }); 
-        setShowModalCreate(true); 
+        });
+        setShowModalCreate(true);
     };
     return (
         <Container>
@@ -308,7 +324,7 @@ const NewsList = () => {
 
             </div>
 
-            <Modal show={showModal} onHide={handleCloseModal} size="lg" centered>
+            <Modal show={showModal} onHide={handleCloseModal} size="xl" centered>
                 {selectedNews && (
                     <>
                         <Modal.Header closeButton>
@@ -316,19 +332,7 @@ const NewsList = () => {
                         </Modal.Header>
                         <Modal.Body>
                             <Form.Group className="mb-3">
-                                <Form.Label>Ảnh bài viết:</Form.Label>
-                                {selectedNews.img && (
-                                    <div className="mt-2">
-                                        <img
-                                            src={selectedNews.img}
-                                            alt="Blog Image"
-                                            style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
-                                        />
-                                    </div>
-                                )}
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Tiêu đề:</Form.Label>
+                                <Form.Label>Tiêu đề</Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="title"
@@ -337,23 +341,42 @@ const NewsList = () => {
                                     readOnly={!isEditing}
                                 />
                             </Form.Group>
+                            <Row>
+                                <Col md={3}>
+                                <Form.Group className="mb-3">
+                                        <Form.Label>Loại bài viết</Form.Label>
+                                        <Form.Select
+                                            name="blogCategoryId"
+                                            value={selectedNews.blogCategory.blogCategoryId}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                        >
+                                            {categories.map((category) => (
+                                                <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                                    {category.blogCategoryName}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                    
+                                </Col>
+                                <Col md={6}>
+                                <Form.Group className="mb-3">
+                                        <Form.Label>Hình ảnh</Form.Label>
+                                        {selectedNews.img && (
+                                            <div className="mt-2">
+                                                <img
+                                                    src={selectedNews.img}
+                                                    alt="Blog Image"
+                                                    style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
+                                                />
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
                             <Form.Group className="mb-3">
-                                <Form.Label>Loại bài viết:</Form.Label>
-                                <Form.Select
-                                    name="postType"
-                                    value={selectedNews.blogCategory.blogCategoryId}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                >
-                                    {categories.map((category) => (
-                                        <option key={category.blogCategoryId} value={category.blogCategoryId}>
-                                            {category.blogCategoryName}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Mô tả:</Form.Label>
+                                <Form.Label>Mô tả</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     rows={5}
@@ -364,11 +387,11 @@ const NewsList = () => {
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
-                                <Form.Label>Nội dung:</Form.Label>
+                                <Form.Label>Nội dung</Form.Label>
                                 {isEditing ? (
                                     <TextEditor
                                         value={selectedNews.content}
-                                        onChange={handleInputChange}
+                                        onChange={handleEditorChange}
                                         name="content"
                                     />
                                 ) : (
@@ -393,7 +416,7 @@ const NewsList = () => {
                     </>
                 )}
             </Modal>
-            <Modal show={showModalCreate} onHide={handleCloseCreateModal} size="lg" centered>
+            <Modal show={showModalCreate} onHide={handleCloseCreateModal} size="xl" centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Tạo mới bài viết</Modal.Title>
                 </Modal.Header>

@@ -12,16 +12,16 @@ const Sidebar = ({ role }) => {
         <Nav defaultActiveKey="/dashboard" className="flex-column">
           {role === "admin" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/admin/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nguoi-dung" className="d-flex align-items-center">
+              <Nav.Link href="/admin/danh-sach-nguoi-dung" className="d-flex align-items-center">
                 <Book className="me-2" /> Quản lý người dùng
               </Nav.Link>
-              <Nav.Link href="/danh-sach-yeu-cau-phe-duyet-tai-khoan" className="d-flex align-items-center">
+              <Nav.Link href="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" className="d-flex align-items-center">
                 <Book className="me-2" /> Danh sách yêu cầu phê duyệt tài khoản
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/admin/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
 

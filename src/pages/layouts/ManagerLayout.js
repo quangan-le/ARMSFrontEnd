@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Outlet } from "react-router-dom";
-import ManageHeader from "../header/ManageHeader";
+import ManagerHeader from "../header/ManagerHeader";
 import Sidebar from "../sidebar/Sidebar";
 
 const ManagerLayout = ({ role }) => {
@@ -14,14 +14,13 @@ const ManagerLayout = ({ role }) => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  // Hàm thay đổi campus
+
   const handleCampusChange = (campus) => {
     setSelectedCampus(campus);
   };
   return (
     <div>
-      {/* Header */}
-      <ManageHeader onCampusChange={handleCampusChange} toggleSidebar={toggleSidebar} />
+      <ManagerHeader onCampusChange={handleCampusChange} toggleSidebar={toggleSidebar} />
 
       <Container fluid>
         <Row>

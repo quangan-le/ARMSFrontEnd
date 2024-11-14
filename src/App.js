@@ -25,6 +25,10 @@ import Application from "./pages/records/Application.js";
 import ApplicationSearch from "./pages/records/ApplicationSearch.js";
 import ApplicationUpdate from "./pages/records/ApplicationUpdate.js";
 import IntermediateApplication from "./pages/records/IntermediateApplication.js";
+import MajorsList from "./pages/admin/MajorsList.js";
+import UserList from "./pages/admin/UserList.js";
+import AccountList from "./pages/admin/AccountList.js";
+
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
 import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
@@ -68,13 +72,13 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
         )} */}
-
-        {/* <Route element={<ManagerLayout role="admin" />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/danh-sach-nganh-hoc" element={<MajorsList />} />
-          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/danh-sach-nguoi-dung" element={<UserList />} />
-          <Route path="/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
+{/* 
+        <Route element={<ManagerLayout role="admin" />}>
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
+          <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
+          <Route path="/admin/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+          <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
         </Route> */}
         <Route element={<ManagerLayout role="schoolService" />}>
           <Route path="/school-service/dashboard" element={<Dashboard />} />
@@ -85,8 +89,8 @@ function App() {
           <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
           <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
         </Route>
-
-        {/* <Route element={<ManagerLayout role="admissionsOfficer" />}>
+{/* 
+        <Route element={<ManagerLayout role="admissionsOfficer" />}>
           <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
           <Route path="/admissions-officer/danh-sach-nganh-hoc" element={<MajorsListView />} />
           <Route path="/admissions-officer/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Breadcrumb, Button, Table, Spinner, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { useOutletContext } from 'react-router-dom';
+import { Breadcrumb, Button, Col, Container, Row, Spinner, Table } from 'react-bootstrap';
+import { Link, useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
 const Information = () => {
@@ -43,7 +42,7 @@ const Information = () => {
                 setLoading(true);
                 const currentYear = new Date().getFullYear();
                 const [admissionResponse, campusesResponse, priorityResponse, admissionInfoResponse, collegeResponse, vocationalResponse] = await Promise.all([
-                    api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
+                    api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}`),
                     api.get('/Campus/get-campuses'),
                     api.get('/Priority/get-priority'),
                     api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`),
@@ -160,9 +159,9 @@ const Information = () => {
                         {admissionTimes.map((admission, index) => (
                             <tr key={admission.admissionTimeID}>
                                 <td className="text-center">{index + 1}</td>
-                                <td>{admission.admissionTimeName || `Đợt ${index + 1}`}</td>
-                                <td>{new Date(admission.timeStart).toLocaleDateString()}</td>
-                                <td>{new Date(admission.timeEnd).toLocaleDateString()}</td>
+                                <td>{admission.admissionInformationName || `Đợt ${index + 1}`}</td>
+                                <td>{new Date(admission.startRegister).toLocaleDateString('en-GB')}</td>
+                                <td>{new Date(admission.endRegister).toLocaleDateString('en-GB')}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -19,7 +19,7 @@ const RequestsForWithdrawalList = () => {
     const campusId = selectedCampus.id;
 
     // Gọi API để lấy danh sách các request rút hồ sơ theo điều kiện tìm kiếm
-    const fetchRequestChangeMajors = async () => {
+    const fetchRequestsForWithdrawalList = async () => {
         try {
             if (campusId) {
                 const response = await api.get(`/SchoolService/RequestWithDrawal/get-request-withdrawal`, {
@@ -39,17 +39,13 @@ const RequestsForWithdrawalList = () => {
         }
     };
     useEffect(() => {
-        fetchRequestChangeMajors();
+        fetchRequestsForWithdrawalList();
     }, [currentPage, campusId, selectedStatus, searchTerm]);
 
     const RequestStatus = {
         Pending: 2,
         Approved: 0,
         Rejected: 1,
-    };
-
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
     };
 
     // Gửi yêu cầu
@@ -70,7 +66,7 @@ const RequestsForWithdrawalList = () => {
 
     const handleConfirm = async () => {
         if (!selectedRequest) return;
-    
+
         try {
             const response = await api.post(
                 `/SchoolService/RequestWithDrawal/accept-request-withdrawal`,
@@ -79,10 +75,11 @@ const RequestsForWithdrawalList = () => {
                     status: 0,
                 },
                 {
-                    params: { RequestID: selectedRequest.requestID }, 
+                    params: { RequestID: selectedRequest.requestID },
                 }
             );
             toast.success(response.data.message);
+            fetchRequestsForWithdrawalList();
         } catch (error) {
             console.error("Lỗi khi chấp nhận yêu cầu rút hồ sơ:", error);
             toast.error("Có lỗi xảy ra khi xử lý yêu cầu.");
@@ -90,10 +87,10 @@ const RequestsForWithdrawalList = () => {
             handleCloseModal();
         }
     };
-    
+
     const handleReject = async () => {
         if (!selectedRequest) return;
-    
+
         try {
             const response = await api.post(
                 `/SchoolService/RequestWithDrawal/accept-request-withdrawal`,
@@ -102,10 +99,11 @@ const RequestsForWithdrawalList = () => {
                     status: 1,
                 },
                 {
-                    params: { RequestID: selectedRequest.requestID }, 
+                    params: { RequestID: selectedRequest.requestID },
                 }
             );
             toast.success(response.data.message);
+            fetchRequestsForWithdrawalList();
         } catch (error) {
             console.error("Lỗi khi từ chối yêu cầu rút hồ sơ:", error);
             toast.error("Có lỗi xảy ra khi xử lý yêu cầu.");
@@ -117,7 +115,7 @@ const RequestsForWithdrawalList = () => {
     return (
         <div className="me-3">
             <ToastContainer position="top-right" autoClose={3000} />
-            <h2 className="text-center mb-4">Yêu cầu rút hồ sơ</h2>
+            <h2 className="text-center text-orange fw-bold mb-4">Yêu cầu rút hồ sơ</h2>
             <Row className="mb-3">
                 <Col xs={12} md={6}>
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
@@ -152,11 +150,9 @@ const RequestsForWithdrawalList = () => {
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Mã Sinh viên</th>
+                        <th>Mã sinh viên</th>
                         <th>Họ tên</th>
-                        <th>Nội dung yêu cầu</th>
                         <th>Đơn yêu cầu</th>
-                        <th>Phản hồi</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
@@ -167,25 +163,34 @@ const RequestsForWithdrawalList = () => {
                             <td>{index + 1}</td>
                             <td>{request.account.studentCode}</td>
                             <td>{request.account.fullname}</td>
-                            <td>{request.description}</td>
                             <td>{request.fileReasonRequestChangeMajor}</td>
-                            <td>{request.reply}</td>
                             <td style={{ color: request.status === 0 ? 'green' : request.status === 1 ? 'red' : request.status === 2 ? 'lightblue' : 'black' }}>
                                 {
-                                    request.status === 0 ? "Chấp Nhận" :
-                                        request.status === 1 ? "Reject" :
-                                            request.status === 2 ? "Đang Xử lý" : ""
+                                    request.status === 0 ? "Chấp nhận" :
+                                        request.status === 1 ? "Từ chối" :
+                                            request.status === 2 ? "Đang xử lý" : ""
                                 }
                             </td>
-                            <td >
-                                <Button
-                                    variant="orange"
-                                    className="text-white"
-                                    style={{ whiteSpace: 'nowrap' }}
-                                    onClick={() => handleShowModal(request)}
-                                >
-                                    Xử lý đơn
-                                </Button>
+                            <td>
+                                {request.status === 2 ? ( // Hiển thị nút "Xử lý đơn" khi trạng thái là "Đang xử lý"
+                                    <Button
+                                        variant="orange"
+                                        className="text-white"
+                                        style={{ whiteSpace: 'nowrap' }}
+                                        onClick={() => handleShowModal(request)}
+                                    >
+                                        Xử lý đơn
+                                    </Button>
+                                ) : ( // Hiển thị nút "Xem chi tiết" cho các trạng thái khác
+                                    <Button
+                                        variant="success"
+                                        className="text-white"
+                                        style={{ whiteSpace: 'nowrap' }}
+                                        onClick={() => handleShowModal(request)}
+                                    >
+                                        Xem chi tiết
+                                    </Button>
+                                )}
                             </td>
                         </tr>
                     ))}
@@ -219,7 +224,9 @@ const RequestsForWithdrawalList = () => {
             </div>
             <Modal show={showModal} onHide={handleCloseModal} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Xử lý yêu cầu rút hồ sơ</Modal.Title>
+                    <Modal.Title>
+                        {selectedRequest?.status === 2 ? "Xử lý yêu cầu rút hồ sơ" : "Chi tiết yêu cầu rút hồ sơ"}
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {selectedRequest && (
@@ -229,25 +236,33 @@ const RequestsForWithdrawalList = () => {
                             <p><strong>Nội dung yêu cầu:</strong> {selectedRequest.description}</p>
                             <p><strong>Đơn yêu cầu:</strong> {selectedRequest.fileReasonRequestChangeMajor}</p>
 
-                            <Form.Group className="mb-3">
+                             <Form.Group className="mb-3">
                                 <Form.Label>Nội dung phản hồi</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    rows={3}
-                                    value={feedback}
-                                    onChange={(e) => setFeedback(e.target.value)}
-                                />
+                                {selectedRequest.status === 2 ? (
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={feedback}
+                                        onChange={(e) => setFeedback(e.target.value)}
+                                    />
+                                ) : (
+                                    <p>{selectedRequest.reply}</p>
+                                )}
                             </Form.Group>
                         </>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleReject}>
-                        Từ chối
-                    </Button>
-                    <Button variant="primary" onClick={handleConfirm}>
-                        Xác nhận
-                    </Button>
+                    {selectedRequest?.status === 2 && (
+                        <>
+                            <Button variant="secondary" onClick={handleReject}>
+                                Từ chối
+                            </Button>
+                            <Button variant="primary" onClick={handleConfirm}>
+                                Xác nhận
+                            </Button>
+                        </>
+                    )}
                 </Modal.Footer>
             </Modal>
         </div>

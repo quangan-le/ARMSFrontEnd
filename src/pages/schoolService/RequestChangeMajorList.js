@@ -64,7 +64,6 @@ const RequestChangeMajorList = () => {
 
     const handleConfirm = async () => {
         if (!selectedRequest) return;
-        console.log(selectedRequest);
         try {
             const response = await api.put(
                 `/SchoolService/RequestChangeMajor/accept-request-change-major`,
@@ -143,7 +142,6 @@ const RequestChangeMajorList = () => {
                         <option value={RequestStatus.Pending}>Đang xử lý</option>
                     </Form.Select>
                 </Col>
-
             </Row>
             <Table striped bordered hover>
                 <thead>
@@ -155,7 +153,7 @@ const RequestChangeMajorList = () => {
                         <th>Tên ngành mới</th>
                         <th>Đơn yêu cầu</th>
                         <th>Trạng thái</th>
-                        <th>Xử lý yêu cầu</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>

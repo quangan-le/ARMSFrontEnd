@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Breadcrumb, Spinner } from 'react-bootstrap';
+import { Breadcrumb, Container, Spinner } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import api from '../../apiService';
 
 const ProgramDetail = () => {
-    const { majorID } = useParams();
+    const { majorID , admissionInformationID} = useParams();
     const [majorInfo, setMajorInfo] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -12,7 +12,7 @@ const ProgramDetail = () => {
         const fetchData = async () => {
             try {
                 const response = await api.get(
-                    `/Major/get-major-details?MajorId=${majorID}`
+                    `/Major/get-major-details?MajorId=${majorID}& &AdmissionInformationID=${admissionInformationID}`
                 );
                 setMajorInfo(response.data);
             } catch (error) {
@@ -45,39 +45,10 @@ const ProgramDetail = () => {
             <div className="table-container">
                 <h4 className='text-orange mt-4'>I. Tổng quan ngành {majorInfo.majorName}:</h4>
                 <p>{majorInfo.description || 'Không có mô tả'}</p>
-                <p>• Thời gian học tập: {majorInfo.timeStudy}</p>
-                <p>• Học phí: {majorInfo.tuition.toLocaleString()} VND</p>
-                <p>• Chỉ tiêu tuyển sinh: {majorInfo.target}</p>
-                <h4 className='text-orange mt-4'>II. Cấu trúc chương trình</h4>
-                <div>
-                    <table className="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Môn học</th>
-                                <th>Mã ngành</th>
-                                <th>Kỳ học</th>
-                                <th>Thời gian/Số học phần</th>
-                                <th>Số tín chỉ</th>
-                                <th>Ghi chú</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {majorInfo.subjects.map((subject, index) => (
-                                <tr key={subject.subjectCode}>
-                                    <td>{index + 1}</td>
-                                    <td>{subject.subjectName}</td>
-                                    <td>{subject.subjectCode}</td>
-                                    <td>{subject.semesterNumber}</td>
-                                    <td>{subject.studyTime}</td>
-                                    <td>{subject.numberOfCredits}</td>
-                                    <td>{subject.note || 'N/A'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <h4 className='text-orange mt-4'>III. Hình thức xét tuyển</h4>
+                <li><strong>Thời gian học tập:</strong> {majorInfo.timeStudy}</li>
+                <li><strong>Học phí:</strong> {majorInfo.tuition.toLocaleString()} VND</li>
+                <li><strong>Chỉ tiêu tuyển:</strong> {majorInfo.target} học sinh</li>
+                <h4 className='text-orange mt-4'>II. Hình thức xét tuyển</h4>
                 <ul>
                     {majorInfo.typeAdmissions.map((admission, index) => (
                         <li key={index}>
@@ -99,7 +70,7 @@ const ProgramDetail = () => {
                         </li>
                     ))}
                 </ul>
-                <h4 className='text-orange mt-4'>IV. Điểm xét tuyển</h4>
+                <h4 className='text-orange mt-4'>III. Điểm xét tuyển</h4>
                 <ul>
                     {majorInfo.admissionDetailForMajors.map((admission, index) => (
                         <li key={index}>
@@ -128,6 +99,36 @@ const ProgramDetail = () => {
                         </li>
                     ))}
                 </ul>
+                <h4 className='text-orange mt-4'>IV. Cấu trúc chương trình</h4>
+                <div>
+                    <table className="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Môn học</th>
+                                <th>Mã ngành</th>
+                                <th>Kỳ học</th>
+                                <th>Thời gian/Số học phần</th>
+                                <th>Số tín chỉ</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {majorInfo.subjects.map((subject, index) => (
+                                <tr key={subject.subjectCode}>
+                                    <td>{index + 1}</td>
+                                    <td>{subject.subjectName}</td>
+                                    <td>{subject.subjectCode}</td>
+                                    <td>{subject.semesterNumber}</td>
+                                    <td>{subject.studyTime}</td>
+                                    <td>{subject.numberOfCredits}</td>
+                                    <td>{subject.note || 'N/A'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
                 <p>
                     Thông tin tuyển sinh ngành {majorInfo.majorName} chi tiết tại{' '}
                     <a href="/tuyen-sinh" className="text-orange">

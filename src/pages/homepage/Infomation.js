@@ -109,7 +109,7 @@ const Information = () => {
                                 <td>{major.educationLevel}</td>
                                 <td>{major.timeStudy}</td>
                                 <td>{major.majorCode}</td>
-                                <td>{major.tuition} VND</td>
+                                <td>{major.tuition.toLocaleString()} VND</td>
                                 <td>
                                     {major.typeAdmissions.map((admission, idx) => (
                                         <div key={idx}>
@@ -135,8 +135,8 @@ const Information = () => {
             <h4 className='text-orange mt-4'>II. Lệ phí xét tuyển</h4>
             {admissionInfo ? (
                 <>
-                    <p className="mb-1">Lệ phí xét tuyển: <strong>{admissionInfo.feeRegister} VND</strong></p>
-                    <p>Lệ phí nhập học: <strong>{admissionInfo.feeAdmission} VND</strong></p>
+                    <p className="mb-1">Lệ phí xét tuyển: <strong>{admissionInfo.feeRegister.toLocaleString()} VND</strong></p>
+                    <p>Lệ phí nhập học: <strong>{admissionInfo.feeAdmission.toLocaleString()} VND</strong></p>
                 </>
             ) : (
                 <p>Không có dữ liệu lệ phí</p>
@@ -157,7 +157,7 @@ const Information = () => {
                     </thead>
                     <tbody>
                         {admissionTimes.map((admission, index) => (
-                            <tr key={admission.admissionTimeID}>
+                            <tr key={index+1}>
                                 <td className="text-center">{index + 1}</td>
                                 <td>{admission.admissionInformationName || `Đợt ${index + 1}`}</td>
                                 <td>{new Date(admission.startRegister).toLocaleDateString('en-GB')}</td>

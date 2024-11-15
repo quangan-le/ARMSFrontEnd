@@ -72,32 +72,28 @@ const ProgramDetail = () => {
                 </ul>
                 <h4 className='text-orange mt-4'>III. Điểm xét tuyển</h4>
                 <ul>
-                    {majorInfo.admissionDetailForMajors.map((admission, index) => (
-                        <li key={index}>
-                             {admission.statusScoreAcademic && (
-                                <div>
-                                    <strong>Điểm xét học bạ:</strong> {admission.totalScoreAcademic}
-                                </div>
+                             {majorInfo.totalScoreAcademic!=null && (
+                                <li>
+                                    <strong>Điểm xét học bạ:</strong> {majorInfo.totalScoreAcademic} điểm
+                                </li>
                             )}
-                            {admission.statusScore && (
-                                <div>
-                                    <strong>Điểm xét thi THPT:</strong> {admission.totalScore}
-                                </div>
+                            {majorInfo.totalScore!=null && (
+                                <li>
+                                    <strong>Điểm xét thi THPT:</strong> {majorInfo.totalScore} điểm
+                                </li>
                             )}
-                            {admission.subjectGroupDTOs && admission.subjectGroupDTOs.length > 0 && (
-                                <div>
+                            {majorInfo.subjectGroupDTOs && majorInfo.subjectGroupDTOs.length > 0 && (
+                                <li>
                                     <strong>Tổ hợp môn xét tuyển:</strong>
                                     <ul>
-                                        {admission.subjectGroupDTOs.map((group, idx) => (
+                                        {majorInfo.subjectGroupDTOs.map((group, idx) => (
                                             <li key={idx}>
                                                 {group.subjectGroup} - {group.subjectGroupName}
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
+                                </li>
                             )}
-                        </li>
-                    ))}
                 </ul>
                 <h4 className='text-orange mt-4'>IV. Cấu trúc chương trình</h4>
                 <div>

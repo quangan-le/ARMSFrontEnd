@@ -43,7 +43,7 @@ const MajorsListView = () => {
     const handleShowModal = async (major) => {
         try {
             
-            const response = await api.get(`/school-service/Major/get-major-details?MajorId=${major.majorID}`);
+            const response = await api.get(`/school-service/Major/get-major-details?MajorId=${major.majorID}&AdmissionInformationID=${major.admissionInformationID}`);
             const majorData = response.data;
             
             setSelectedMajors(majorData);
@@ -129,7 +129,7 @@ const MajorsListView = () => {
                                 </td>
                                 <td>{major.majorID}</td>
                                 <td>{major.majorCode}</td>
-                                <td>{major.tuition}</td>
+                                <td>{major.tuition.toLocaleString()} VND</td>
                                 <td>{major.target}</td>
                                 <td>{major.timeStudy}</td>
                                 <td>{major.isVocationalSchool==true?"Trung cấp": "Cao đẳng"}</td>

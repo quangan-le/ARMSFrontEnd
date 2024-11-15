@@ -1,15 +1,15 @@
 // src/pages/Homepage.js
 import React from "react";
-import { Container, Row, Col, Button, Card, Form, Carousel } from "react-bootstrap";
+import { Card, Col, Container, Row } from "react-bootstrap";
 import { Link, useOutletContext } from 'react-router-dom';
-import SliderBanner from "./SilderBanner";
-import { useState, useEffect } from '../hooks/Hooks.js';
-import api from "../../apiService.js";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
+import api from "../../apiService.js";
+import { useEffect, useState } from '../hooks/Hooks.js';
+import SliderBanner from "./SilderBanner";
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
@@ -35,7 +35,7 @@ const Homepage = () => {
             api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`),
             api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`),
             api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`),
-            api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
+            api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}`),
             api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`)
           ]);
 
@@ -75,7 +75,7 @@ const Homepage = () => {
           <ul>
             {admissionTimes.map((time, index) => (
               <li key={index}>
-                Đợt {index + 1}: Từ {new Date(time.timeStart).toLocaleDateString()} đến {new Date(time.timeEnd).toLocaleDateString()}
+               {time.admissionInformationName}: Từ {new Date(time.startRegister).toLocaleDateString('en-GB')} đến {new Date(time.endRegister).toLocaleDateString('en-GB')}
               </li>
             ))}
           </ul>

@@ -76,16 +76,16 @@ const Sidebar = ({ role }) => {
           )}
           {role === "admissionCouncil" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
-              <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
                 <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
               </Nav.Link>
-              <Nav.Link href="/thong-tin-tuyen-sinh" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/thong-tin-tuyen-sinh" className="d-flex align-items-center">
                 <FileEarmarkText className="me-2" /> Thông tin tuyển sinh
               </Nav.Link>
             </>

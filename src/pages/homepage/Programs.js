@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Breadcrumb, Table, Spinner } from 'react-bootstrap';
-import { useOutletContext, Link } from 'react-router-dom'; // Thêm Link
+import { Breadcrumb, Container, Spinner, Table } from 'react-bootstrap';
+import { Link, useOutletContext } from 'react-router-dom'; // Thêm Link
 import api from '../../apiService';
 
 const Programs = () => {
@@ -60,7 +60,7 @@ const Programs = () => {
                                     <tr key={program.majorID}>
                                         <td className="text-center">{index + 1}</td>
                                         <td>
-                                            <Link to={`/nganh-hoc/${program.majorID}`} className="text-decoration-none">
+                                            <Link to={`/nganh-hoc/${program.majorID}/${program.admissionInformationID}`} className="text-decoration-none">
                                                 {program.majorName}
                                             </Link>
                                         </td>

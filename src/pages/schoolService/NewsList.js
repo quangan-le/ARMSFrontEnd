@@ -492,8 +492,8 @@ const NewsList = () => {
                                 />
                             </Form.Group>
                             {newPost.img && (
-                                  <div
-                                  className='mx-auto'
+                                <div
+                                    className='mx-auto'
                                     style={{
                                         width: "290.4px",
                                         height: "200px",

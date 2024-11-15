@@ -75,9 +75,7 @@ const NewsList = () => {
         try {
 
             const response = await api.get(`/Blog/get-blog?BlogId=${news.blogId}`);
-            
             const blogData = response.data;
-
             setSelectedNews(blogData);
             setIsEditing(false);
             setShowModal(true); // Hiển thị modal
@@ -96,18 +94,25 @@ const NewsList = () => {
     };
 
     const handleInputChange = (e) => {
-        // // Cập nhật lại danh mục trong selectedNews theo ID mới
-        // const selectedCategory = categories.find(category => category.blogCategoryId === newCategoryId);
-        // setSelectedNews((prevState) => ({
-        //     ...prevState,
-        //     blogCategory: selectedCategory
-        // }));
-
         const { name, value } = e.target;
-        setSelectedNews((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+
+        setSelectedNews((prevState) => {
+            if (name === "blogCategoryId") {
+                // Cập nhật giá trị cho blogCategory
+                return {
+                    ...prevState,
+                    blogCategory: {
+                        ...prevState.blogCategory,
+                        blogCategoryId: value,
+                    },
+                };
+            } else {
+                return {
+                    ...prevState,
+                    [name]: value,
+                };
+            }
+        });
     };
 
     const handleEditorChange = (content) => {
@@ -119,7 +124,7 @@ const NewsList = () => {
 
     const handleSaveChanges = async () => {
         try {
-            const updatedNew= {
+            const updatedNew = {
                 blogId: selectedNews.blogId,
                 title: selectedNews.title,
                 img: selectedNews.img,
@@ -343,7 +348,7 @@ const NewsList = () => {
                             </Form.Group>
                             <Row>
                                 <Col md={3}>
-                                <Form.Group className="mb-3">
+                                    <Form.Group className="mb-3">
                                         <Form.Label>Loại bài viết</Form.Label>
                                         <Form.Select
                                             name="blogCategoryId"
@@ -358,10 +363,9 @@ const NewsList = () => {
                                             ))}
                                         </Form.Select>
                                     </Form.Group>
-                                    
                                 </Col>
                                 <Col md={6}>
-                                <Form.Group className="mb-3">
+                                    <Form.Group className="mb-3">
                                         <Form.Label>Hình ảnh</Form.Label>
                                         {selectedNews.img && (
                                             <div className="mt-2">

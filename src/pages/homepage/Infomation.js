@@ -42,7 +42,7 @@ const Information = () => {
                 setLoading(true);
                 const currentYear = new Date().getFullYear();
                 const [admissionResponse, campusesResponse, priorityResponse, admissionInfoResponse, collegeResponse, vocationalResponse] = await Promise.all([
-                    api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
+                    api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}`),
                     api.get('/Campus/get-campuses'),
                     api.get('/Priority/get-priority'),
                     api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`),
@@ -160,8 +160,8 @@ const Information = () => {
                             <tr key={index+1}>
                                 <td className="text-center">{index + 1}</td>
                                 <td>{admission.admissionInformationName || `Đợt ${index + 1}`}</td>
-                                <td>{new Date(admission.startRegister).toLocaleDateString()}</td>
-                                <td>{new Date(admission.endRegister).toLocaleDateString()}</td>
+                                <td>{new Date(admission.startRegister).toLocaleDateString('en-GB')}</td>
+                                <td>{new Date(admission.endRegister).toLocaleDateString('en-GB')}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -1,13 +1,15 @@
 // src/pages/Homepage.js
 import React from "react";
-import { Container, Row, Col, Button, Card, Form, Carousel } from "react-bootstrap";
+import { Card, Col, Container, Row } from "react-bootstrap";
 import { Link, useOutletContext } from 'react-router-dom';
-import SliderBanner from "./SilderBanner";
-import { useState, useEffect } from '../hooks/Hooks.js';
-import api from "../../apiService.js";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
+import api from "../../apiService.js";
+import { useEffect, useState } from '../hooks/Hooks.js';
+import SliderBanner from "./SilderBanner";
 
 const Homepage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
@@ -33,7 +35,7 @@ const Homepage = () => {
             api.get(`/Campus/get-sliders?campusId=${selectedCampus.id}`),
             api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`),
             api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`),
-            api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}&year=${currentYear}`),
+            api.get(`/AdmissionTime/get-admission-time?CampusId=${selectedCampus.id}`),
             api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`)
           ]);
 
@@ -73,7 +75,7 @@ const Homepage = () => {
           <ul>
             {admissionTimes.map((time, index) => (
               <li key={index}>
-                Đợt {index + 1}: Từ {new Date(time.timeStart).toLocaleDateString()} đến {new Date(time.timeEnd).toLocaleDateString()}
+               {time.admissionInformationName}: Từ {new Date(time.startRegister).toLocaleDateString('en-GB')} đến {new Date(time.endRegister).toLocaleDateString('en-GB')}
               </li>
             ))}
           </ul>
@@ -149,7 +151,7 @@ const Homepage = () => {
     const fixedTestimonials = [
       {
         alumiStudentId: 1,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://watermark.lovepik.com/photo/20211208/large/lovepik-classroom-learning-image-of-postgraduate-students-picture_501685870.jpg',
         fullName: 'Nguyễn Thị Thúy Diễm',
         desciption: 'Là một người trẻ, năng động thích môi trường năng động và được học những kiến thức thực tế. Mình nhận thấy đây là môi trường hoàn hảo để chắp cánh ước mơ trở thành nhà quản trị khách sạn của mình!',
         specializeMajorName: 'Sinh viên ngành Quản trị khách sạn',
@@ -157,7 +159,7 @@ const Homepage = () => {
       },
       {
         alumiStudentId: 2,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://file.huongnghiep24h.com/2024/01/12/hoc-2-bang-dai-hoc-cung-luc.jpeg',
         fullName: 'Trần Thị B',
         desciption: 'Một trải nghiệm học tập đáng nhớ!',
         specializeMajorName: 'Marketing',
@@ -165,7 +167,7 @@ const Homepage = () => {
       },
       {
         alumiStudentId: 3,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://watermark.lovepik.com/photo/20211202/large/lovepik-college-student-laptop-learning-to-cheer-picture_501391448.jpg',
         fullName: 'Phạm Văn C',
         desciption: 'Giảng viên rất tận tình và hỗ trợ.',
         specializeMajorName: 'Lập trình game',
@@ -173,7 +175,7 @@ const Homepage = () => {
       },
       {
         alumiStudentId: 4,
-        img: 'https://iap-poly.s3.ap-southeast-1.amazonaws.com/wallpaper/hero3.JPG?fbclid=IwAR15AUsvOgZGnip3gywPuPnaCXlsypsu4tgjlLmppM_ZQti_TGh8MWaynIU',
+        img: 'https://cdn-images.vtv.vn/zoom/640_400/66349b6076cb4dee98746cf1/2024/09/06/ptl00043--1--27023522607387627437922-77896873407837139219651.jpg',
         fullName: 'Lê Thị D',
         desciption: 'Cơ sở vật chất hiện đại và tiện nghi.',
         specializeMajorName: 'Ngôn ngữ anh',
@@ -247,14 +249,15 @@ const Homepage = () => {
   ]);
 
   // Đăng ký thông tin 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     fullName: '',
     email: '',
     phoneNumber: '',
     linkFB: '',
     majorID: '',
-    campusId: selectedCampus.id,
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -265,20 +268,29 @@ const Homepage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!formData.majorID) {
+      toast.error('Vui lòng chọn ngành học!');
+      return;
+    }
     try {
       const response = await api.post('/StudentConsultation', {
         ...formData,
         dateReceive: new Date().toISOString(),
+        campusId: selectedCampus.id
       });
 
       if (response.status === 200) {
-        alert('Đăng ký thành công!');
+        if (response.data.status) {
+          toast.success(response.data.message);
+          setFormData(initialFormData);
+        } else {
+          toast.error(response.data.message);
+        }
       } else {
-        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+        toast.error(response.data.message);
       }
     } catch (error) {
-      console.error('Lỗi khi đăng ký:', error);
-      alert('Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
   return (
@@ -290,6 +302,7 @@ const Homepage = () => {
       ) : (
         <SliderBanner banners={banners} />
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="text-center background-overlay">
         <div className="overlay"></div>
         <div className="background-content">
@@ -435,6 +448,7 @@ const Homepage = () => {
                   value={formData.majorID}
                   onChange={handleChange}
                 >
+                  <option value="">Chọn ngành học</option>
                   {collegeMajors.length > 0 && (
                     <optgroup label="Ngành học Cao đẳng">
                       {collegeMajors.map((major) => (

@@ -12,16 +12,16 @@ const Sidebar = ({ role }) => {
         <Nav defaultActiveKey="/dashboard" className="flex-column">
           {role === "admin" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/admin/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nguoi-dung" className="d-flex align-items-center">
+              <Nav.Link href="/admin/danh-sach-nguoi-dung" className="d-flex align-items-center">
                 <Book className="me-2" /> Quản lý người dùng
               </Nav.Link>
-              <Nav.Link href="/danh-sach-yeu-cau-phe-duyet-tai-khoan" className="d-flex align-items-center">
+              <Nav.Link href="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" className="d-flex align-items-center">
                 <Book className="me-2" /> Danh sách yêu cầu phê duyệt tài khoản
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/admin/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
 
@@ -47,36 +47,45 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/school-service/danh-sach-tin-tuc" className="d-flex align-items-center">
                 <Book className="me-2" /> Danh sách tin tức
               </Nav.Link>
+              <Nav.Link href="/school-service/danh-sach-dang-ky-tuyen-sinh" className="d-flex align-items-center">
+                <Book className="me-2" /> Yêu cầu đăng ký tuyển sinh
+              </Nav.Link>
               <Nav.Link href="/school-service/danh-sach-yeu-cau-chuyen-nganh" className="d-flex align-items-center">
                 <Book className="me-2" /> Yêu cầu chuyển ngành
               </Nav.Link>
               <Nav.Link href="/school-service/danh-sach-yeu-cau-rut-ho-so" className="d-flex align-items-center">
                 <Book className="me-2" /> Yêu cầu rút hồ sơ
               </Nav.Link>
+              <Nav.Link href="/school-service/danh-sach-thong-bao" className="d-flex align-items-center">
+                <Book className="me-2" /> Quản lý thông báo
+              </Nav.Link>
             </>
           )}
           {role === "admissionsOfficer" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-officer/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-officer/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
+              </Nav.Link>
+              <Nav.Link href="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" className="d-flex align-items-center">
+                <Book className="me-2" /> Danh sách đăng ký tư vấn tuyển sinh
               </Nav.Link>
             </>
           )}
           {role === "admissionCouncil" && (
             <>
-              <Nav.Link href="/dashboard" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/danh-sach-nganh-hoc" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
-              <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
                 <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
               </Nav.Link>
-              <Nav.Link href="/thong-tin-tuyen-sinh" className="d-flex align-items-center">
+              <Nav.Link href="/admissions-council/thong-tin-tuyen-sinh" className="d-flex align-items-center">
                 <FileEarmarkText className="me-2" /> Thông tin tuyển sinh
               </Nav.Link>
             </>

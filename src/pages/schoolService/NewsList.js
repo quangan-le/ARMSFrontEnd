@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import TextEditor from '../../firebase/TextEditor.js';
 
 const NewsList = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -11,7 +14,6 @@ const NewsList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [categories, setCategories] = useState([]);
-    const [searchTitle, setSearchTitle] = useState("");
     const { selectedCampus } = useOutletContext();
     const campusId = selectedCampus.id;
     useEffect(() => {
@@ -60,62 +62,139 @@ const NewsList = () => {
         setCurrentPage(1);
     };
     // Pagination and state
-    const [activePage, setActivePage] = useState(1); // Current page
     const itemsPerPage = 8;
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-    
+
     // Modal state
     const [showModal, setShowModal] = useState(false);
     const [selectedNews, setSelectedNews] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);  
-    
-    const handlePageChange = (pageNumber) => {
-        setActivePage(pageNumber);
-    };
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleShowModal = async (news) => {
         try {
-            
+
             const response = await api.get(`/Blog/get-blog?BlogId=${news.blogId}`);
             const blogData = response.data;
-            
             setSelectedNews(blogData);
+            setIsEditing(false);
             setShowModal(true); // Hiển thị modal
-            
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu bài viết:', error);
         }
     };
-    
+    const handleEditModal = (news) => {
+        handleShowModal(news);
+        setIsEditing(true);
+    };
 
     const handleCloseModal = () => {
         setShowModal(false);
         setSelectedNews(null);
     };
 
-    const handleInputChange = (newCategoryId) => {
-        // Cập nhật lại danh mục trong selectedNews theo ID mới
-        const selectedCategory = categories.find(category => category.blogCategoryId === newCategoryId);
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+
+        setSelectedNews((prevState) => {
+            if (name === "blogCategoryId") {
+                // Cập nhật giá trị cho blogCategory
+                return {
+                    ...prevState,
+                    blogCategory: {
+                        ...prevState.blogCategory,
+                        blogCategoryId: value,
+                    },
+                };
+            } else {
+                return {
+                    ...prevState,
+                    [name]: value,
+                };
+            }
+        });
+    };
+
+    const handleEditorChange = (content) => {
         setSelectedNews((prevState) => ({
             ...prevState,
-            blogCategory: selectedCategory
+            content,
         }));
     };
-    
 
-    const handleSaveChanges = () => {
-        console.log('Saving updated news:', selectedNews);
-        handleCloseModal();
+    const handleSaveChanges = async () => {
+        try {
+            const updatedNew = {
+                blogId: selectedNews.blogId,
+                title: selectedNews.title,
+                img: selectedNews.img,
+                description: selectedNews.description,
+                content: selectedNews.content,
+                blogCategoryId: selectedNews.blogCategory.blogCategoryId,
+            };
+            await api.put(`/school-service/Blog/update-blog`, updatedNew)
+            fetchBlogs();
+            toast.success("Bài viết đã được cập nhật thành công!");
+        } catch (error) {
+            console.error("Lỗi khi lưu thay đổi:", error);
+            toast.error("Lưu thay đổi thất bại.");
+        } finally {
+            handleCloseModal();
+        }
+    };
+
+    // Tạo mới blog
+    const [showModalCreate, setShowModalCreate] = useState(false);
+    const [newPost, setNewPost] = useState({
+        title: '',
+        description: '',
+        content: '',
+        postType: '',
+        img: null,
+    });
+
+    const handleCloseCreateModal = () => {
+        setShowModalCreate(false);
+    };
+    const handleCreateInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewPost((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+    const handleCreateNew = async () => {
+        try {
+            await api.post(`/Blog/create-blog`, newPost);
+            fetchBlogs();
+            toast.success("Bài viết đã được tạo thành công!");
+        } catch (error) {
+            console.error("Lỗi khi tạo bài viết mới:", error);
+            toast.error("Tạo bài viết thất bại.");
+        } finally {
+            handleCloseCreateModal();
+        }
+    };
+    const handleShowCreateModal = () => {
+        setNewPost({
+            title: '',
+            description: '',
+            content: '',
+            postType: '',
+            img: null,
+        });
+        setShowModalCreate(true);
     };
     return (
         <Container>
+            <ToastContainer position="top-right" autoClose={3000} />
             <h2 className="text-center text-orange fw-bold">Danh sách tin tức</h2>
             <p className="text-center mb-4 fw-bold text-orange">Quản lý danh sách tin tức thuộc campus</p>
 
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
+                        <Form.Label className="mb-0 me-2">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Nhập từ khóa tìm kiếm..."
@@ -127,31 +206,31 @@ const NewsList = () => {
                 </Col>
                 <Col xs={12} md={6} className="d-flex justify-content-end">
 
-                    <Form.Select 
-                    className="me-2" 
-                    style={{ width: '200px' }}
-                    value={selectedCategory}
-                    onChange={(e) => {
-                        setSelectedCategory(e.target.value);
-                        setCurrentPage(1);
-                    }}
+                    <Form.Select
+                        className="me-2"
+                        style={{ width: '200px' }}
+                        value={selectedCategory}
+                        onChange={(e) => {
+                            setSelectedCategory(e.target.value);
+                            setCurrentPage(1);
+                        }}
                     >
                         <option value="">Tất cả bài viết</option>
                         {categories.map((category) => (
-                                <option key={category.blogCategoryId} value={category.blogCategoryId}>
-                                    {category.blogCategoryName}
-                                </option>
-                            ))}
+                            <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                {category.blogCategoryName}
+                            </option>
+                        ))}
                     </Form.Select>
                     <Button
                         variant="orange"
                         className="text-white"
-                        style={{ whiteSpace: 'nowrap' }}
+                        onClick={handleShowCreateModal}
                     >
                         Tạo mới
                     </Button>
                 </Col>
-                
+
             </Row>
 
             <Table bordered>
@@ -171,20 +250,20 @@ const NewsList = () => {
                             <tr key={news.id}>
                                 <td className="text-center fw-bold">{index + 1}</td>
                                 <td>
-                                {news.img && (
+                                    {news.img && (
                                         <div className="mt-2">
-                                            <img 
+                                            <img
                                                 src={news.img}
-                                                alt= {news.title} 
-                                                style={{ width: '100px', height: 'auto', objectFit: 'cover' }} 
+                                                alt={news.title}
+                                                style={{ width: '100px', height: 'auto', objectFit: 'cover' }}
                                             />
                                         </div>
                                     )}
                                 </td>
                                 <td>
                                     <div className="d-flex align-items-center">
-                                    
-                                    <div className="ms-3">
+
+                                        <div className="ms-3">
                                             <span
                                                 className="text-orange fw-bold"
                                                 onClick={() => handleShowModal(news)}
@@ -198,14 +277,14 @@ const NewsList = () => {
                                 <td>{news.description}</td>
                                 <td>{new Date(news.dateCreate).toLocaleDateString('vi-VN')}</td>
                                 <td>
-                                <Button
-                                    variant="orange"
-                                    className="text-white"
-                                    style={{ whiteSpace: 'nowrap' }}
-                                    //onClick={() => handleEdit(news.id)}
-                                >
-                                    Chỉnh sửa
-                                </Button>
+                                    <Button
+                                        variant="orange"
+                                        className="text-white"
+                                        style={{ whiteSpace: 'nowrap' }}
+                                        onClick={() => handleEditModal(news)}
+                                    >
+                                        Chỉnh sửa
+                                    </Button>
                                 </td>
                             </tr>
                         ))
@@ -225,7 +304,7 @@ const NewsList = () => {
                 <span>
                     Hiển thị {startItem}-{endItem} trên tổng số {totalItems} tin tức
                 </span>
-                {totalPages > 1 && totalItems > 0 &&(
+                {totalPages > 1 && totalItems > 0 && (
                     <Pagination>
                         <Pagination.Prev
                             onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
@@ -247,30 +326,18 @@ const NewsList = () => {
                     </Pagination>
                 )}
 
-              
+
             </div>
 
-            <Modal show={showModal} onHide={handleCloseModal} size="lg" centered>
+            <Modal show={showModal} onHide={handleCloseModal} size="xl" centered>
                 {selectedNews && (
                     <>
                         <Modal.Header closeButton>
                             <Modal.Title>{isEditing ? 'Chỉnh sửa tin tức' : 'Chi tiết tin tức'}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Ảnh bài viết:</Form.Label>
-                            {selectedNews.img && (
-                                <div className="mt-2">
-                                    <img 
-                                        src={selectedNews.img}  // URL lấy từ cơ sở dữ liệu
-                                        alt="Blog Image" 
-                                        style={{ width: '200px', height: 'auto', objectFit: 'cover' }} 
-                                    />
-                                </div>
-                            )}
-                        </Form.Group>
                             <Form.Group className="mb-3">
-                                <Form.Label>Tiêu đề:</Form.Label>
+                                <Form.Label>Tiêu đề</Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="title"
@@ -279,23 +346,41 @@ const NewsList = () => {
                                     readOnly={!isEditing}
                                 />
                             </Form.Group>
+                            <Row>
+                                <Col md={3}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Loại bài viết</Form.Label>
+                                        <Form.Select
+                                            name="blogCategoryId"
+                                            value={selectedNews.blogCategory.blogCategoryId}
+                                            onChange={handleInputChange}
+                                            disabled={!isEditing}
+                                        >
+                                            {categories.map((category) => (
+                                                <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                                    {category.blogCategoryName}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Hình ảnh</Form.Label>
+                                        {selectedNews.img && (
+                                            <div className="mt-2">
+                                                <img
+                                                    src={selectedNews.img}
+                                                    alt="Blog Image"
+                                                    style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
+                                                />
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
                             <Form.Group className="mb-3">
-                                <Form.Label>Loại bài viết:</Form.Label>
-                                <Form.Select 
-                                    name="postType"
-                                    value={selectedNews.blogCategory.blogCategoryId}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                >
-                                        {categories.map((category) => (
-                                            <option key={category.blogCategoryId} value={category.blogCategoryId}>
-                                                {category.blogCategoryName}
-                                            </option>
-                                        ))}
-                                </Form.Select>
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Mô tả:</Form.Label>
+                                <Form.Label>Mô tả</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     rows={5}
@@ -306,15 +391,16 @@ const NewsList = () => {
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
-                                <Form.Label>Nội dung:</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    rows={5}
-                                    name="content"
-                                    value={selectedNews.content}
-                                    onChange={handleInputChange}
-                                    readOnly={!isEditing}
-                                />
+                                <Form.Label>Nội dung</Form.Label>
+                                {isEditing ? (
+                                    <TextEditor
+                                        value={selectedNews.content}
+                                        onChange={handleEditorChange}
+                                        name="content"
+                                    />
+                                ) : (
+                                    <div dangerouslySetInnerHTML={{ __html: selectedNews.content }} />
+                                )}
                             </Form.Group>
                         </Modal.Body>
                         <Modal.Footer>
@@ -333,6 +419,62 @@ const NewsList = () => {
                         </Modal.Footer>
                     </>
                 )}
+            </Modal>
+            <Modal show={showModalCreate} onHide={handleCloseCreateModal} size="xl" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Tạo mới bài viết</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Tiêu đề:</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="title"
+                            value={newPost.title}
+                            onChange={handleCreateInputChange}
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Loại bài viết:</Form.Label>
+                        <Form.Select
+                            name="postType"
+                            value={newPost.postType}
+                            onChange={handleCreateInputChange}
+                        >
+                            {categories.map((category) => (
+                                <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                    {category.blogCategoryName}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Mô tả:</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={5}
+                            name="description"
+                            value={newPost.description}
+                            onChange={handleCreateInputChange}
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Nội dung:</Form.Label>
+                        <TextEditor
+                            value={newPost.content}
+                            onChange={handleCreateInputChange}
+                            name="content"
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseCreateModal}>
+                        Hủy
+                    </Button>
+                    <Button variant="primary" onClick={handleCreateNew}>
+                        Lưu
+                    </Button>
+                </Modal.Footer>
             </Modal>
         </Container>
     );

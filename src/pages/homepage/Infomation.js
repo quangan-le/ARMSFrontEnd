@@ -119,14 +119,14 @@ const Information = () => {
                                     ))}
                                 </td>
                                 <td>
-                                    {major.admissionDetailForMajors[0]?.subjectGroupDTOs.map((subjectGroup, idx) => (
+                                    {major.subjectGroupDTOs.map((subjectGroup, idx) => (
                                         <div key={idx}>
                                             {subjectGroup.subjectGroup}
                                         </div>
                                     ))}
                                 </td>
-                                <td>{major.admissionDetailForMajors[0]?.totalScore} điểm</td>
-                                <td>{major.admissionDetailForMajors[0]?.totalScoreAcademic} điểm</td>
+                                <td>{major.totalScore!=null?major.totalScore+" điểm":"N/A"}</td>
+                                <td>{major.totalScoreAcademic!=null?major.totalScoreAcademic+" điểm":"N/A"}</td>
                             </tr>
                         ))}
                     </tbody>

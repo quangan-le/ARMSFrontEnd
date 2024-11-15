@@ -110,7 +110,6 @@ const RequestChangeMajorList = () => {
 
     return (
         <Container>
-            <ToastContainer position="top-right" autoClose={3000} />
             <h2 className="text-center text-orange fw-bold mb-4">Yêu cầu chuyển ngành</h2>
             <Row className="mb-3">
                 <Col xs={12} md={6}>

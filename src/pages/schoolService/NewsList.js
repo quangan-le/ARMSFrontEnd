@@ -5,6 +5,8 @@ import api from "../../apiService.js";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TextEditor from '../../firebase/TextEditor.js';
+import uploadImage from '../../firebase/uploadImage.js';
+import { ClipLoader } from "react-spinners";
 
 const NewsList = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -75,7 +77,7 @@ const NewsList = () => {
         try {
 
             const response = await api.get(`/Blog/get-blog?BlogId=${news.blogId}`);
-            
+
             const blogData = response.data;
 
             setSelectedNews(blogData);
@@ -96,13 +98,6 @@ const NewsList = () => {
     };
 
     const handleInputChange = (e) => {
-        // // Cập nhật lại danh mục trong selectedNews theo ID mới
-        // const selectedCategory = categories.find(category => category.blogCategoryId === newCategoryId);
-        // setSelectedNews((prevState) => ({
-        //     ...prevState,
-        //     blogCategory: selectedCategory
-        // }));
-
         const { name, value } = e.target;
         setSelectedNews((prevState) => ({
             ...prevState,
@@ -119,7 +114,7 @@ const NewsList = () => {
 
     const handleSaveChanges = async () => {
         try {
-            const updatedNew= {
+            const updatedNew = {
                 blogId: selectedNews.blogId,
                 title: selectedNews.title,
                 img: selectedNews.img,
@@ -142,11 +137,12 @@ const NewsList = () => {
     const [showModalCreate, setShowModalCreate] = useState(false);
     const [newPost, setNewPost] = useState({
         title: '',
+        img: null,
         description: '',
         content: '',
-        postType: '',
-        img: null,
+        blogCategoryId: '',
     });
+    const [uploading, setUploading] = useState(false); // Trạng thái tải lên
 
     const handleCloseCreateModal = () => {
         setShowModalCreate(false);
@@ -157,29 +153,56 @@ const NewsList = () => {
             ...prevState,
             [name]: value,
         }));
+        console.log(newPost);
     };
+
+    const handleContentChange = (content) => {
+        setNewPost((prev) => ({
+            ...prev,
+            content,
+        }));
+    };
+
     const handleCreateNew = async () => {
         try {
-            await api.post(`/Blog/create-blog`, newPost);
+            let imageUrl = null;
+            setUploading(true);
+            // Tải ảnh lên firebase và nhận URL
+            if (newPost.img) {
+                imageUrl = await uploadImage(newPost.img, 'Blog');
+                // setNewPost((prevState) => ({
+                //     ...prevState,
+                //     img: imageUrl,
+                // }));
+            }
+
+            const blogData = {
+                ...newPost,
+                img: imageUrl,
+            };
+            await api.post('/school-service/Blog/add-blog', blogData);
+            toast.success('Bài viết đã được tạo thành công!');
             fetchBlogs();
-            toast.success("Bài viết đã được tạo thành công!");
         } catch (error) {
-            console.error("Lỗi khi tạo bài viết mới:", error);
-            toast.error("Tạo bài viết thất bại.");
+            console.error('Lỗi khi tạo bài viết mới:', error);
+            toast.error('Tạo bài viết thất bại.');
         } finally {
+            setUploading(false);
             handleCloseCreateModal();
         }
     };
+
     const handleShowCreateModal = () => {
         setNewPost({
             title: '',
+            img: null,
             description: '',
             content: '',
-            postType: '',
-            img: null,
+            blogCategoryId: '',
         });
         setShowModalCreate(true);
     };
+
     return (
         <Container>
             <ToastContainer position="top-right" autoClose={3000} />
@@ -343,7 +366,7 @@ const NewsList = () => {
                             </Form.Group>
                             <Row>
                                 <Col md={3}>
-                                <Form.Group className="mb-3">
+                                    <Form.Group className="mb-3">
                                         <Form.Label>Loại bài viết</Form.Label>
                                         <Form.Select
                                             name="blogCategoryId"
@@ -358,10 +381,10 @@ const NewsList = () => {
                                             ))}
                                         </Form.Select>
                                     </Form.Group>
-                                    
+
                                 </Col>
                                 <Col md={6}>
-                                <Form.Group className="mb-3">
+                                    <Form.Group className="mb-3">
                                         <Form.Label>Hình ảnh</Form.Label>
                                         {selectedNews.img && (
                                             <div className="mt-2">
@@ -421,44 +444,85 @@ const NewsList = () => {
                     <Modal.Title>Tạo mới bài viết</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Tiêu đề:</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="title"
-                            value={newPost.title}
-                            onChange={handleCreateInputChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Loại bài viết:</Form.Label>
-                        <Form.Select
-                            name="postType"
-                            value={newPost.postType}
-                            onChange={handleCreateInputChange}
-                        >
-                            {categories.map((category) => (
-                                <option key={category.blogCategoryId} value={category.blogCategoryId}>
-                                    {category.blogCategoryName}
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Mô tả:</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={5}
-                            name="description"
-                            value={newPost.description}
-                            onChange={handleCreateInputChange}
-                        />
-                    </Form.Group>
+                    <Row>
+                        <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Tiêu đề:</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    name="title"
+                                    value={newPost.title}
+                                    onChange={handleCreateInputChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Loại bài viết:</Form.Label>
+                                <Form.Select
+                                    name="blogCategoryId"
+                                    value={newPost.blogCategoryId}
+                                    onChange={handleCreateInputChange}
+                                >
+                                    <option value="">Chọn loại bài viết</option>
+                                    {categories.map((category) => (
+                                        <option key={category.blogCategoryId} value={category.blogCategoryId}>
+                                            {category.blogCategoryName}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Mô tả:</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    name="description"
+                                    value={newPost.description}
+                                    onChange={handleCreateInputChange}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Chọn ảnh:</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setNewPost({ ...newPost, img: e.target.files[0] })}
+                                />
+                            </Form.Group>
+                            {newPost.img && (
+                                  <div
+                                  className='mx-auto'
+                                    style={{
+                                        width: "290.4px",
+                                        height: "200px",
+                                        overflow: "hidden",
+                                        borderRadius: "5px",
+                                        border: "1px solid #ccc",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <img
+                                        src={URL.createObjectURL(newPost.img)}
+                                        alt="Selected"
+                                        style={{
+                                            maxWidth: "100%",
+                                            maxHeight: "100%",
+                                            objectFit: "cover",
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </Col>
+                    </Row>
                     <Form.Group className="mb-3">
                         <Form.Label>Nội dung:</Form.Label>
                         <TextEditor
                             value={newPost.content}
-                            onChange={handleCreateInputChange}
+                            onChange={handleContentChange}
                             name="content"
                         />
                     </Form.Group>
@@ -467,8 +531,18 @@ const NewsList = () => {
                     <Button variant="secondary" onClick={handleCloseCreateModal}>
                         Hủy
                     </Button>
-                    <Button variant="primary" onClick={handleCreateNew}>
-                        Lưu
+                    <Button
+                        variant="orange"
+                        className="text-white"
+                        style={{ whiteSpace: 'nowrap' }}
+                        onClick={handleCreateNew}
+                        disabled={uploading}
+                    >
+                        {uploading ? (
+                            <ClipLoader size={20} color={"#fff"} loading={uploading} />
+                        ) : (
+                            'Lưu'
+                        )}
                     </Button>
                 </Modal.Footer>
             </Modal>

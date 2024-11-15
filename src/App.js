@@ -38,6 +38,7 @@ import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
 import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
 import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
+import SendNotification from "./pages/schoolService/SendNotification.js";
 
 
 function App() {
@@ -88,6 +89,8 @@ function App() {
           <Route path="/school-service/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
           <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
           <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
+          <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
+
         </Route>
 {/* 
         <Route element={<ManagerLayout role="admissionsOfficer" />}>

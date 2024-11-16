@@ -37,12 +37,17 @@ export function AuthProvider({ children }) {
 
     setLoading(false);
   }
-
+  // Hàm để xử lý login thủ công
+  const loginWithCustomAuth = (userData) => {
+    setCurrentUser(userData); 
+    setUserLoggedIn(true); 
+  };
   const value = {
     userLoggedIn,
     isGoogleUser,
     currentUser,
-    setCurrentUser
+    setCurrentUser,
+    loginWithCustomAuth
   };
 
   return (

@@ -7,9 +7,11 @@ import api from "../../apiService.js";
 import { Bell, PersonCircle, ArrowRepeat, CashCoin, BoxArrowRight } from "react-bootstrap-icons";
 import { useAuth } from '../../contexts/authContext'
 import { doSignOut } from '../../firebase/auth'
+import { useAuthStore } from "../../stores/useAuthStore.js";
 
 const Header = ({ onCampusChange }) => {
-  const { user, userLoggedIn } = useAuth();
+  const { currentUser, userLoggedIn } = useAuth();
+  const { removeUser } = useAuthStore()
   const navigate = useNavigate();
 
   // State để lưu campus được chọn với cả ID và Name
@@ -67,6 +69,7 @@ const Header = ({ onCampusChange }) => {
   // Thông báo
   const [notifications, setNotifications] = useState([]);
   const [showNotification, setShowNotification] = useState(false);
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
   useEffect(() => {
     const mockNotifications = [
       { id: 1, message: "Hồ sơ của bạn đã được duyệt" },
@@ -81,43 +84,16 @@ const Header = ({ onCampusChange }) => {
     setShowNotification(!showNotification);
   };
 
-  // State để kiểm tra trạng thái đăng nhập và lưu thông tin người dùng
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
-  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                // const response = await api.get('/User/profile', {
-                //     headers: { Authorization: `Bearer ${token}` }
-                // });
-                // setUserInfo({
-                //     name: response.data.name,
-                //     avatar: response.data.avatar || 'https://cdn.kona-blue.com/upload/kona-blue_com/post/images/2024/09/18/457/avatar-mac-dinh-12.jpg'
-                // });
-                setIsLoggedIn(true);
-            } catch (error) {
-                console.error("Lỗi xác thực:", error);
-                localStorage.removeItem('token');
-                setIsLoggedIn(false);
-            }
-        }
-    };
-    checkLoginStatus();
-}, []);
-
   // Đăng xuất
   const handleLogout = async () => {
     try {
-        localStorage.removeItem('token'); 
-        await doSignOut(); 
-        navigate('/dang-nhap');
+      removeUser()
+      await doSignOut();
+      navigate('/dang-nhap');
     } catch (error) {
-        console.error("Lỗi khi đăng xuất:", error);
+      console.error("Lỗi khi đăng xuất:", error);
     }
-};
+  };
 
   return (
     <Navbar expand="lg" className="student-header">
@@ -179,8 +155,8 @@ const Header = ({ onCampusChange }) => {
                 show={showAvatarMenu}
               >
                 <Dropdown.Toggle as="span" style={{ cursor: "pointer", background: "orange" }}>
-                  <img src={userInfo.avatar} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
-                  {userInfo.name}
+                  <img src={currentUser.photoURL} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
+                  {currentUser.displayName}
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end">
                   <Dropdown.Item as={Link} to="/thong-tin-ca-nhan"><PersonCircle className="me-2" style={{ color: 'orange' }} />Thông tin cá nhân</Dropdown.Item>

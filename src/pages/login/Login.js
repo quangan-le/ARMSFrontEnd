@@ -1,18 +1,23 @@
 import React, { useEffect } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import { Navigate, Link } from 'react-router-dom'
+import { Navigate, Link, useNavigate } from 'react-router-dom'
 import { useState } from '../hooks/Hooks.js';
 import { doSignInWithGoogle } from '../../firebase/auth'
 import { useAuth } from '../../contexts/authContext'
 import api from "../../apiService.js";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useAuthStore } from '../../stores/useAuthStore.js';
 
 const Login = () => {
     const { userLoggedIn } = useAuth()
+    const { loginWithCustomAuth } = useAuth();
+    const { addUser } = useAuthStore()
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isSigningIn, setIsSigningIn] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('')
+    const navigate = useNavigate();
 
     // Cơ sở
     const [campuses, setCampuses] = useState([]);
@@ -32,24 +37,22 @@ const Login = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         if (!selectedCampus) {
-            setErrorMessage("Vui lòng chọn cơ sở.");
+            toast.error("Vui lòng chọn cơ sở.");
             return;
         }
 
         setIsSigningIn(true);
-        setErrorMessage('');
-
         try {
             const response = await api.post(`/Authentication/login`, {
                 campusId: selectedCampus,
                 email,
                 password
             });
-            const token = response.data.Bear;
-            localStorage.setItem('token', token);
-            window.location.reload();
+
+            addUser(response.data)
+            navigate('/admin/dashboard')
         } catch (error) {
-            setErrorMessage('Đăng nhập không thành công. Vui lòng kiểm tra thông tin.');
+            toast.error("Đăng nhập không thành công. Vui lòng kiểm tra thông tin.");
         } finally {
             setIsSigningIn(false);
         }
@@ -58,20 +61,28 @@ const Login = () => {
     const onGoogleSignIn = (e) => {
         e.preventDefault()
         if (!selectedCampus) {
-            setErrorMessage("Vui lòng chọn cơ sở.");
+            toast.error("Vui lòng chọn cơ sở.");
             return;
         }
+        localStorage.setItem("campusId", selectedCampus);
 
         if (!isSigningIn) {
             setIsSigningIn(true)
-            doSignInWithGoogle().catch(err => {
-                setIsSigningIn(false)
-                setErrorMessage('Đăng nhập Google không thành công.');
-            })
+            doSignInWithGoogle(selectedCampus, loginWithCustomAuth)
+                .then(() => {
+                    navigate('/');
+                    setIsSigningIn(false);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setIsSigningIn(false);
+                    toast.error("Tài khoản của bạn không tồn tại trong campus hiện tại.");
+                });
         }
     }
     return (
         <Container className="my-5">
+            <ToastContainer position="top-right" autoClose={3000} />
             {userLoggedIn && (<Navigate to={'/'} replace={true} />)}
             <Row className="justify-content-center">
                 <Col md={5}>
@@ -80,6 +91,7 @@ const Login = () => {
                         <Form.Group className="mb-3" controlId="campus">
                             <Form.Label>Cơ sở</Form.Label>
                             <Form.Control as="select" value={selectedCampus} onChange={(e) => setSelectedCampus(e.target.value)}>
+                                <option value="">Chọn cơ sở</option>
                                 {campuses.map(campus => (
                                     <option key={campus.campusId} value={campus.campusId}>
                                         {campus.campusName}
@@ -104,9 +116,6 @@ const Login = () => {
                                 value={password} onChange={(e) => { setPassword(e.target.value) }}
                                 placeholder="Nhập mật khẩu" />
                         </Form.Group>
-                        {errorMessage && (
-                            <span className='text-red-600 font-bold'>{errorMessage}</span>
-                        )}
                         <div className="d-grid gap-2">
                             <Button style={{ backgroundColor: 'orange', borderColor: 'orange' }}
                                 type="submit"

@@ -10,8 +10,13 @@ import "slick-carousel/slick/slick.css";
 import api from "../../apiService.js";
 import { useEffect, useState } from '../hooks/Hooks.js';
 import SliderBanner from "./SilderBanner";
+import { useAuth } from '../../contexts/authContext/index.js'
 
 const Homepage = () => {
+  const { currentUser } = useAuth();
+  if (currentUser) {
+    console.log("Campus ID:", currentUser);
+}
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
 

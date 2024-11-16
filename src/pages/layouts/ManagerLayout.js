@@ -20,7 +20,11 @@ const ManagerLayout = ({ role }) => {
   };
   return (
     <div>
-      <ManagerHeader onCampusChange={handleCampusChange} toggleSidebar={toggleSidebar} />
+      <ManagerHeader
+        onCampusChange={handleCampusChange}
+        toggleSidebar={toggleSidebar}
+        role={role}
+      />
 
       <Container fluid>
         <Row>

@@ -10,7 +10,7 @@ const Sidebar = ({ role }) => {
         <h6 className="mb-3 text-orange">Trường nghề</h6>
 
         <Nav defaultActiveKey="/dashboard" className="flex-column">
-          {role === "admin" && (
+          {role === "Admin" && (
             <>
               <Nav.Link href="/admin/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ

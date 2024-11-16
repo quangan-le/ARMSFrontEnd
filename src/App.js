@@ -4,7 +4,8 @@ import {
   Routes,
 } from "react-router-dom";
 import "./App.css";
-import { AuthProvider } from "./contexts/authContext";
+import { AuthProvider, useAuth } from "./contexts/authContext/index.js";
+
 import AccountList from "./pages/admin/AccountList.js";
 import MajorDetail from "./pages/admin/MajorDetail.js";
 import MajorsList from "./pages/admin/MajorsList.js";
@@ -41,48 +42,61 @@ import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegist
 import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
 import SendNotification from "./pages/schoolService/SendNotification.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
+import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
+import { useAuthStore } from "./stores/useAuthStore.js";
 
 
 function App() {
-  //const user = { role: "admin" };
+  const { userLoggedIn, currentUser } = useAuth();
+  const { user: customLoginUser } = useAuthStore()
+
+  const checkRole = (role) => {
+    if (customLoginUser && !userLoggedIn) {
+      return customLoginUser.role === role;
+    }
+    return currentUser && currentUser.role === role;
+  };
+
+  if (customLoginUser && checkRole("Admin")) {
+    return <Routes>
+      <Route element={<ManagerLayout role="Admin" />}>
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
+        <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
+        <Route path="/admin/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+        <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
+      </Route>
+    </Routes>
+  }
   return (
-    <AuthProvider>
-      <Routes>
-        <Route element={<StudentLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dang-nhap" element={<Login />} />
-          <Route path="/lich-su-thanh-lap" element={<History />} />
-          <Route path="/phuong-cham-dao-tao" element={<Motto />} />
-          <Route path="/thanh-tich" element={<Achievement />} />
-          <Route path="/vi-sao-chon-chung-toi" element={<WhyChoose />} />
-          <Route path="/tin-tuc" element={<Blog />} />
-          <Route path="/tin-tuc/:blogId" element={<BlogDetail />} />
-          <Route path="/nganh-hoc" element={<Programs />} />
-          <Route path="/nganh-hoc/:majorID/:admissionInformationID" element={<ProgramDetail />} />
-          <Route path="/tuyen-sinh" element={<Information />} />
-          <Route path="/nop-ho-so" element={<Application />} />
-          <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
-          <Route path="/dang-ky" element={<Advisory />} />
-          <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
-          <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
+    <Routes>
+      <Route element={<StudentLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/dang-nhap" element={<Login />} />
+        <Route path="/lich-su-thanh-lap" element={<History />} />
+        <Route path="/phuong-cham-dao-tao" element={<Motto />} />
+        <Route path="/thanh-tich" element={<Achievement />} />
+        <Route path="/vi-sao-chon-chung-toi" element={<WhyChoose />} />
+        <Route path="/tin-tuc" element={<Blog />} />
+        <Route path="/tin-tuc/:blogId" element={<BlogDetail />} />
+        <Route path="/nganh-hoc" element={<Programs />} />
+        <Route path="/nganh-hoc/:majorID/:admissionInformationID" element={<ProgramDetail />} />
+        <Route path="/tuyen-sinh" element={<Information />} />
+        <Route path="/nop-ho-so" element={<Application />} />
+        <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
+        <Route path="/dang-ky" element={<Advisory />} />
+        <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
+        <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
+      </Route>
+      {userLoggedIn && checkRole("Student") && (
+        <Route element={<StudentLayout role="Student" />}>
           <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
           <Route path="/yeu-cau-rut-ho-so" element={<RequestForWithdraw />} />
           <Route path="/thong-tin-ca-nhan" element={<StudentProfile />} />
-
         </Route>
-        {/* {user && user.role && (
-          <Route element={<ManagerLayout role={user.role} />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-          </Route>
-        )} */}
+      )}
 
-        {/* <Route element={<ManagerLayout role="admin" />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
-          <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
-          <Route path="/admin/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
-        </Route>
+      {userLoggedIn && checkRole("schoolService") && (
         <Route element={<ManagerLayout role="schoolService" />}>
           <Route path="/school-service/dashboard" element={<Dashboard />} />
           <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
@@ -93,32 +107,37 @@ function App() {
           <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
           <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
 
-        </Route> */}
-
-        {/* <Route element={<ManagerLayout role="admissionsOfficer" />}>
+        </Route>
+      )}
+      {userLoggedIn && checkRole("admissionsOfficer") && (
+        <Route element={<ManagerLayout role="admissionsOfficer" />}>
           <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
           <Route path="/admissions-officer/danh-sach-nganh-hoc" element={<MajorsListView />} />
           <Route path="/admissions-officer/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={< StudentConsultationList/>} />
-        </Route> */}
-
-        {/* <Route element={<ManagerLayout role="admissionCouncil" />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
-          <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/thong-tin-tuyen-sinh" element={<ThresholdScoreList />} />
-        </Route> */}
-        <Route element={<ManagerLayout role="admissionCouncil" />}>
-          <Route path="/admissions-council/dashboard" element={<Dashboard />} />
-          <Route path="/admissions-council/ke-hoach-tuyen-sinh" element={<PlanAdmission />} />
-          <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh" element={<PlanAdmissionDetail />} />
-
+          <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={< StudentConsultationList />} />
         </Route>
+      )}
+      {userLoggedIn && checkRole("admissionsOfficer") && (
+        <Route element={<ManagerLayout role="admissionsOfficer" />}>
+          <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
+          <Route path="/admissions-officer/danh-sach-nganh-hoc" element={<MajorsListView />} />
+          <Route path="/admissions-officer/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+          <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={< StudentConsultationList />} />
+        </Route>
+      )}
 
-        {/* Redirect nếu không có quyền */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </AuthProvider>
+      <Route element={<ManagerLayout role="admissionCouncil" />}>
+        <Route path="/admissions-council/dashboard" element={<Dashboard />} />
+        <Route path="/admissions-council/danh-sach-nganh-hoc" element={<MajorsListView />} />
+        <Route path="/admissions-council/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+        <Route path="/admissions-council/ke-hoach-tuyen-sinh" element={<PlanAdmission />} />
+        <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh" element={<PlanAdmissionDetail />} />
+      </Route>
+
+      {/* Redirect nếu không có quyền */}
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="*" element={<Navigate to="/unauthorized" />} />
+    </Routes>
   );
 }
 

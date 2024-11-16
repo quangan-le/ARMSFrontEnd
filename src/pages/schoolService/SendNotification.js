@@ -5,77 +5,62 @@ import api from "../../apiService.js";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TextEditor from '../../firebase/TextEditor.js';
+import { useAuthStore } from "../../stores/useAuthStore.js";
+import { format } from 'date-fns';
 
 const SendNotification = () => {
-    // const { selectedCampus } = useOutletContext();
-    // const campusId = selectedCampus.id;
-    const campusId = 'hanoi';
-    const [search, setSearchTerm] = useState('');
-    const [majors, setMajors] = useState([]);
-    const [selectedCollege, setSelectedCollege] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalItems, setTotalItems] = useState(0);
-    const majorsPerPage = 10;
+    const { user } = useAuthStore();
+    const [notifications, setNotifications] = useState([]); // Lưu danh sách thông báo
+    const [showModal, setShowModal] = useState(false);
+    const [selectedNotification, setSelectedNotification] = useState(null);
 
-
-    const fetchMajors = async () => {
+    // Gọi API lấy danh sách thông báo
+    const fetchNotifications = async () => {
         try {
-            if (campusId) {
-                const response = await api.get(`/school-service/Major/get-majors`, {
-                    params: {
-                        CampusId: campusId,
-                        Search: search,
-                        CurrentPage: currentPage,
-                        College: selectedCollege || null,
-                    },
-                });
-                setMajors(response.data.item);
-                setTotalPages(response.data.pageCount);
-                setTotalItems(response.data.totalItems);
-            }
+            const response = await api.get(`/SchoolService/SendEmail/get-request-notification`);
+            setNotifications(response.data);
         } catch (error) {
             console.error("Có lỗi xảy ra khi lấy danh sách thông báo:", error);
         }
     };
-    const [showModal, setShowModal] = useState(false);
-    const [selectedMajors, setSelectedMajors] = useState(null);
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setSelectedMajors(null);
-    };
-    const handleShowModal = async (major) => {
+
+    const formattedTime = (time) => {
         try {
-
-            const response = await api.get(`/school-service/Major/get-major-details?MajorId=${major.majorID}`);
-            const majorData = response.data;
-
-            setSelectedMajors(majorData);
-            setShowModal(true);
-
-        } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu thông báo:', error);
+            return format(new Date(time), 'HH:mm dd/MM/yyyy');
+        } catch {
+            return 'Không xác định';
         }
     };
-    // Gọi API lấy danh sách major khi search hoặc currentPage thay đổi
-    useEffect(() => {
-        fetchMajors();
-    }, [search, currentPage, campusId, selectedCollege]);
 
-    const itemsPerPage = 8;
-    const startItem = (currentPage - 1) * itemsPerPage + 1;
-    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    // Hiển thị chi tiết thông báo trong modal
+    const handleViewNotification = async (notification) => {
+        try {
+            setSelectedNotification(notification); // Lưu thông báo được chọn
+            setShowModal(true); // Mở modal
+        } catch (error) {
+            console.error("Lỗi khi hiển thị thông báo:", error);
+        }
+    };
+
+    // Đóng modal
+    const handleCloseModal = () => {
+        setShowModal(false); // Đóng modal
+        setSelectedNotification(null); // Reset thông báo được chọn
+    };
+    useEffect(() => {
+        fetchNotifications();
+    }, []);
 
     // Tạo mới
     const [show, setShow] = useState(false);
     const [notification, setNotification] = useState({
-        campusId: campusId,
+        campusId: user.campusId,
         subject: '',
         content: '',
     });
 
     const handleClose = () => {
-        setNotification({ campusId: campusId, content: '' });
+        setNotification({ campusId: user.campusId, content: '' });
         setShow(false);
     };
     const handleShow = () => setShow(true);
@@ -99,6 +84,7 @@ const SendNotification = () => {
         try {
             const response = await api.post("/SchoolService/SendEmail/send-notification-to-student", notification);
             toast.success(response.data);
+            fetchNotifications();
             handleClose();
         } catch (error) {
             console.error("Lỗi khi gửi thông báo:", error);
@@ -125,54 +111,69 @@ const SendNotification = () => {
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Nội dung</th>
-                        <th>Hành động</th>
+                        <th>Tiêu đề</th>
+                        <th>Thời gian gửi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {majors && majors.length > 0 ? (
-                        majors.map((major, index) => (
-                            <tr key={major.majorID}>
+                    {notifications && notifications.length > 0 ? (
+                        notifications.map((notification, index) => (
+                            <tr key={notification.requestId}>
                                 <td className="text-center fw-bold">{index + 1}</td>
-                                <td>{major.majorID}</td>
-                                <td>{major.majorID}</td>
+                                <td>
+                                    <Button
+                                        variant="link"
+                                        className="text-decoration-none"
+                                        onClick={() => handleViewNotification(notification)}
+                                    >
+                                        {notification.subject}
+                                    </Button>
+                                </td>
+                                <td>{formattedTime(notification.timeSend)}</td>
                             </tr>
                         ))
                     ) : (
                         <tr>
                             <td colSpan="3" className="text-center">
-                                Không có dữ liệu email
+                                Không có dữ liệu thông báo
                             </td>
                         </tr>
                     )}
                 </tbody>
             </Table>
-            <div className="d-flex justify-content-between">
-                <span>
-                    Hiển thị {startItem}-{endItem} trên tổng số {totalItems} tin tức
-                </span>
-                {totalPages > 1 && totalItems > 0 && (
-                    <Pagination>
-                        <Pagination.Prev
-                            onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
-                            disabled={currentPage === 1}
-                        />
-                        {[...Array(totalPages)].map((_, index) => (
-                            <Pagination.Item
-                                key={index}
-                                active={index + 1 === currentPage}
-                                onClick={() => setCurrentPage(index + 1)}
+            {/* Modal xem thông báo */}
+            <Modal show={showModal} onHide={handleCloseModal} centered size="lg">
+                <ToastContainer position="top-right" autoClose={3000} />
+                <Modal.Header closeButton>
+                    <Modal.Title>Chi tiết thông báo</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedNotification ? (
+                        <>
+                            <h5>Tiêu đề:</h5>
+                            <p>{selectedNotification.subject}</p>
+                            <h5>Nội dung:</h5>
+                            <div
+                                style={{
+                                    whiteSpace: "pre-wrap",
+                                    background: "#f8f9fa",
+                                    padding: "15px",
+                                    borderRadius: "5px",
+                                }}
                             >
-                                {index + 1}
-                            </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                            onClick={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                        />
-                    </Pagination>
-                )}
-            </div>
+                                {selectedNotification.content}
+                            </div>
+                        </>
+                    ) : (
+                        <p>Không có dữ liệu để hiển thị.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Đóng
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <Modal show={show} onHide={handleClose} centered size="xl">
                 <ToastContainer position="top-right" autoClose={3000} />
                 <Modal.Header closeButton>

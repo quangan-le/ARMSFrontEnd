@@ -24,19 +24,9 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/admin/danh-sach-nganh-hoc" className="d-flex align-items-center">
                 <Book className="me-2" /> Ngành đào tạo
               </Nav.Link>
-
-              {/* <Nav className="flex-column ms-3">
-                <Nav.Link href="/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
-                  <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh
-                </Nav.Link>
-                <Nav.Link href="/chi-tieu-tuyen-sinh" className="d-flex align-items-center">
-                  <FileEarmarkText className="me-2" /> Chỉ tiêu tuyển sinh
-                </Nav.Link>
-              </Nav> */}
-
             </>
           )}
-          {role === "schoolService" && (
+          {role === "SchoolService" && (
             <>
               <Nav.Link href="/school-service/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
@@ -61,7 +51,7 @@ const Sidebar = ({ role }) => {
               </Nav.Link>
             </>
           )}
-          {role === "admissionsOfficer" && (
+          {role === "AdmissionOfficer" && (
             <>
               <Nav.Link href="/admissions-officer/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
@@ -74,7 +64,7 @@ const Sidebar = ({ role }) => {
               </Nav.Link>
             </>
           )}
-          {role === "admissionCouncil" && (
+          {role === "AdmissionCouncil" && (
             <>
               <Nav.Link href="/admissions-council/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ

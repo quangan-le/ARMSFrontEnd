@@ -48,9 +48,25 @@ const Login = () => {
                 email,
                 password
             });
+            addUser(response.data);
 
-            addUser(response.data)
-            navigate('/admin/dashboard')
+            switch (response.data.role) {
+                case "Admin":
+                    navigate('/admin/dashboard');
+                    break;
+                case "AdmissionOfficer":
+                    navigate('/admissions-officer/dashboard');
+                    break;
+                case "SchoolService":
+                    navigate('/school-service/dashboard');
+                    break;
+                case "AdmissionCouncil":
+                    navigate('/admissions-council/dashboard');
+                    break;
+                default:
+                    toast.error("Role không hợp lệ.");
+                    break;
+            }
         } catch (error) {
             toast.error("Đăng nhập không thành công. Vui lòng kiểm tra thông tin.");
         } finally {

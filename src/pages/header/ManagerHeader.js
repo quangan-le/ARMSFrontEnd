@@ -7,7 +7,7 @@ import { doSignOut } from '../../firebase/auth';
 import { useAuthStore } from "../../stores/useAuthStore.js";
 
 const ManagerHeader = ({ onCampusChange, toggleSidebar }) => {
-  const { removeUser, user } = useAuthStore()
+  const { removeUser, user } = useAuthStore();
 
   const [selectedRole, setSelectedRole] = useState("");
 
@@ -113,10 +113,10 @@ const ManagerHeader = ({ onCampusChange, toggleSidebar }) => {
         <List size={24} className="text-orange" style={{ cursor: 'pointer', marginLeft: '120px' }} onClick={toggleSidebar} />
         <Nav className="me-auto">
           <Nav.Item className="mx-3" style={{ fontWeight: 'bold', color: 'orange' }}>
-            Vai trò: {selectedRole}
+            {user.role}
           </Nav.Item>
           <Nav.Item className="mx-3" style={{ fontWeight: 'bold', color: 'orange' }}>
-            Cơ sở: {selectedCampus.name || "Chưa chọn cơ sở"}
+            Cơ sở: {user.campusId}
           </Nav.Item>
         </Nav>
         <Nav>

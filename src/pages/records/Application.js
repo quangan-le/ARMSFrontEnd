@@ -375,6 +375,7 @@ const Application = () => {
             try {
                 const response = await api.get(`/Major/get-majors-college?campus=${campusId}`);
                 setMajors(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching majors:', error);
             }
@@ -440,7 +441,7 @@ const Application = () => {
             typeOfTranscriptMajor1: typeOfTranscript
         }));
         if (typeId === 3 || typeId === 5) {
-            setSubjectGroups1(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
+            setSubjectGroups1(selectedMajor?.subjectGroupDTOs || []);
             setShowSubjectSelection1(true);
         } else {
             setShowSubjectSelection1(false);
@@ -467,7 +468,7 @@ const Application = () => {
         }));
 
         if (typeId === 3 || typeId === 5) {
-            setSubjectGroups2(selectedMajor?.admissionDetailForMajors[0]?.subjectGroupDTOs || []);
+            setSubjectGroups2(selectedMajor?.subjectGroupDTOs || []);
             setShowSubjectSelection2(true);
         } else {
             setShowSubjectSelection2(false);
@@ -752,6 +753,8 @@ const Application = () => {
     const [showOtherAddress, setShowOtherAddress] = useState(false);
     const [frontCCCD, setFrontCCCD] = useState(null);
     const [backCCCD, setBackCCCD] = useState(null);
+    const [diplomaMajor1, setDiplomaMajor1] = useState(null);
+    const [diplomaMajor2, setDiplomaMajor2] = useState(null);
 
     // Ảnh mặt trước
     const handleFrontCCCDChange = (e) => {
@@ -773,10 +776,19 @@ const Application = () => {
     const handleGraduationCertificateChange = (e, isMajor1) => {
         const file = e.target.files[0];
         if (file) {
+            // Tạo URL object cho ảnh
+            const objectURL = URL.createObjectURL(file);
+
             setTempImages(prev => ({
                 ...prev,
                 [isMajor1 ? 'imgDiplomaMajor1' : 'imgDiplomaMajor2']: file
             }));
+
+            if (isMajor1) {
+                setDiplomaMajor1(objectURL);  // setDiplomaMajor1 là state lưu URL cho ảnh ngành 1
+            } else {
+                setDiplomaMajor2(objectURL);  // setDiplomaMajor2 là state lưu URL cho ảnh ngành 2
+            }
         }
     };
     // Ảnh học bạ
@@ -1467,9 +1479,9 @@ const Application = () => {
                                         accept="image/*"
                                         onChange={(e) => handleGraduationCertificateChange(e, true)}
                                     />
-                                    {formData.imgDiplomaMajor1 && (
+                                    {diplomaMajor1 && (
                                         <div className="image-preview-container mt-2">
-                                            <img src={formData.imgDiplomaMajor1} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
+                                            <img src={diplomaMajor1} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
                                         </div>
                                     )}
                                 </Form.Group>
@@ -1485,9 +1497,9 @@ const Application = () => {
                                         accept="image/*"
                                         onChange={(e) => handleGraduationCertificateChange(e, false)}
                                     />
-                                    {formData.imgDiplomaMajor2 && (
+                                    {diplomaMajor2 && (
                                         <div className="image-preview-container mt-2">
-                                            <img src={formData.imgDiplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
+                                            <img src={diplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
                                         </div>
                                     )}
                                 </Form.Group>

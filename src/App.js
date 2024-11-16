@@ -30,7 +30,6 @@ import ApplicationUpdate from "./pages/records/ApplicationUpdate.js";
 import IntermediateApplication from "./pages/records/IntermediateApplication.js";
 
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
-import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
 import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
@@ -41,6 +40,7 @@ import StudentProfile from "./pages/student/StudentProfile.js";
 import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
 import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
 import SendNotification from "./pages/schoolService/SendNotification.js";
+import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
 
 
 function App() {
@@ -76,7 +76,7 @@ function App() {
           </Route>
         )} */}
 
-        <Route element={<ManagerLayout role="admin" />}>
+        {/* <Route element={<ManagerLayout role="admin" />}>
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
           <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
@@ -93,9 +93,9 @@ function App() {
           <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
           <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
 
-        </Route>
-{/* 
-        <Route element={<ManagerLayout role="admissionsOfficer" />}>
+        </Route> */}
+
+        {/* <Route element={<ManagerLayout role="admissionsOfficer" />}>
           <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
           <Route path="/admissions-officer/danh-sach-nganh-hoc" element={<MajorsListView />} />
           <Route path="/admissions-officer/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
@@ -106,13 +106,13 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/danh-sach-nganh-hoc" element={<MajorsListView />} />
           <Route path="/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/ke-hoach-tuyen-sinh" element={<EnrollmentPlanList />} />
-          <Route path="/chinh-sua-ke-hoach-tuyen-sinh" element={<EnrollmentPlanEdit />} />
           <Route path="/thong-tin-tuyen-sinh" element={<ThresholdScoreList />} />
         </Route> */}
         <Route element={<ManagerLayout role="admissionCouncil" />}>
           <Route path="/admissions-council/dashboard" element={<Dashboard />} />
           <Route path="/admissions-council/ke-hoach-tuyen-sinh" element={<PlanAdmission />} />
+          <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh" element={<PlanAdmissionDetail />} />
+
         </Route>
 
         {/* Redirect nếu không có quyền */}

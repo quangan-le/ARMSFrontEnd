@@ -31,18 +31,25 @@ const Login = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        if (!selectedCampus) {
+            setErrorMessage("Vui lòng chọn cơ sở.");
+            return;
+        }
+
         setIsSigningIn(true);
         setErrorMessage('');
 
         try {
             const response = await api.post(`/Authentication/login`, {
+                campusId: selectedCampus,
                 email,
                 password
             });
             const token = response.data.Bear;
             localStorage.setItem('token', token);
+            window.location.reload();
         } catch (error) {
-            setErrorMessage('Đăng nhập không thành công');
+            setErrorMessage('Đăng nhập không thành công. Vui lòng kiểm tra thông tin.');
         } finally {
             setIsSigningIn(false);
         }
@@ -50,11 +57,16 @@ const Login = () => {
 
     const onGoogleSignIn = (e) => {
         e.preventDefault()
+        if (!selectedCampus) {
+            setErrorMessage("Vui lòng chọn cơ sở.");
+            return;
+        }
+
         if (!isSigningIn) {
             setIsSigningIn(true)
             doSignInWithGoogle().catch(err => {
                 setIsSigningIn(false)
-                setErrorMessage(err.message);
+                setErrorMessage('Đăng nhập Google không thành công.');
             })
         }
     }

@@ -159,7 +159,6 @@ const StudentConsultationList = () => {
                         <th>Số điện thoại</th>
                         <th>Email</th>
                         <th>Ngành học</th>
-                        <th>Loại xét tuyển</th>
                         <th>Xử lý yêu cầu</th>
                     </tr>
                 </thead>
@@ -178,9 +177,6 @@ const StudentConsultationList = () => {
                                 <td>{consultation.phoneNumber}</td>
                                 <td>{consultation.email}</td>
                                 <td>{consultation.majorName}</td>
-                                <td style={{ color: consultation.type ? 'green' : 'black' }}>
-                                    {consultation.type ? "Trung cấp" : "Cao đẳng"}
-                                </td>
                                 <td>
                                     <Button
                                         variant="orange"

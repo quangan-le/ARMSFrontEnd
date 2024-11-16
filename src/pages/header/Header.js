@@ -85,16 +85,39 @@ const Header = ({ onCampusChange }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
   const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                // const response = await api.get('/User/profile', {
+                //     headers: { Authorization: `Bearer ${token}` }
+                // });
+                // setUserInfo({
+                //     name: response.data.name,
+                //     avatar: response.data.avatar || 'https://cdn.kona-blue.com/upload/kona-blue_com/post/images/2024/09/18/457/avatar-mac-dinh-12.jpg'
+                // });
+                setIsLoggedIn(true);
+            } catch (error) {
+                console.error("Lỗi xác thực:", error);
+                localStorage.removeItem('token');
+                setIsLoggedIn(false);
+            }
+        }
+    };
+    checkLoginStatus();
+}, []);
 
   // Đăng xuất
   const handleLogout = async () => {
     try {
-      await doSignOut();
-      navigate('/dang-nhap');
+        localStorage.removeItem('token'); 
+        await doSignOut(); 
+        navigate('/dang-nhap');
     } catch (error) {
-      console.error("Có lỗi xảy ra khi đăng xuất:", error);
+        console.error("Lỗi khi đăng xuất:", error);
     }
-  };
+};
 
   return (
     <Navbar expand="lg" className="student-header">
@@ -130,43 +153,6 @@ const Header = ({ onCampusChange }) => {
             </NavDropdown>
             <Nav.Link as={Link} to="/tra-cuu-ho-so">Tra cứu hồ sơ</Nav.Link>
           </Nav>
-          {/* <Nav>
-            <Dropdown className="notification-dropdown me-4" show={showNotification}
-              onToggle={handleNotificationToggle}
-              onMouseEnter={() => setShowNotification(true)}
-              onMouseLeave={() => setShowNotification(false)}>
-              <Dropdown.Toggle as="span" className="notification-icon" style={{ background: "orange" }}>
-                <Bell size={24} />
-                <Badge pill bg="danger" className="notification-badge">
-                  {notifications.length}
-                </Badge>
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                {notifications.map((notification) => (
-                  <Dropdown.Item key={notification.id}>
-                    {notification.message}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-            <Dropdown 
-                onMouseEnter={() => setShowAvatarMenu(true)} 
-                onMouseLeave={() => setShowAvatarMenu(false)}
-                show={showAvatarMenu}
-              >
-              <Dropdown.Toggle as="span" style={{ cursor: "pointer", background: "orange" }}> */}
-          {/* <img src={userInfo.avatar} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} /> */}
-          {/* <img src={'https://img.freepik.com/premium-vector/avatar-icon002_750950-52.jpg'} alt="avatar" className="user-avatar rounded-circle me-2" style={{ width: "30px", height: "30px" }} />
-                Quang An
-              </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
-                <Dropdown.Item as={Link} to="/thong-tin-ca-nhan"><PersonCircle className="me-2" style={{ color: 'orange' }} />Thông tin cá nhân</Dropdown.Item>
-                <Dropdown.Item as={Link} to="/yeu-cau-chuyen-nganh"><ArrowRepeat className="me-2" style={{ color: 'orange' }} />Yêu cầu chuyển ngành</Dropdown.Item>
-                <Dropdown.Item as={Link} to="/yeu-cau-rut-ho-so"><CashCoin className="me-2" style={{ color: 'orange' }} />Yêu cầu rút hồ sơ và hoàn học phí</Dropdown.Item>
-                <Dropdown.Item as={Link} to="/dang-xuat"><BoxArrowRight className="me-2" style={{ color: 'orange' }} />Đăng xuất</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Nav> */}
           {userLoggedIn ? (
             <Nav>
               <Dropdown className="notification-dropdown me-4" show={showNotification}

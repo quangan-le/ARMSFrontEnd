@@ -11,11 +11,16 @@ export const doSignInWithGoogle = async () => {
 
   const user = result.user;
   const idToken = await user.getIdToken();
-  await api.post("/Authentication/google-login", null, {
-    headers: {
-      "Authorization": `Bearer ${idToken}`,
-    },
+  const response = await api.post("/Authentication/login-by-email", {
+    email: result.user.email,
+    campusId: selectedCampus
+  }, {
+    headers: { Authorization: `Bearer ${idToken}` }
   });
+  const token = response.data.Bear;
+  localStorage.setItem('token', token);
+  window.location.reload();
+
 };
 
 export const doSignOut = () => {

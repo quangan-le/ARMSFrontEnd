@@ -3,7 +3,7 @@ import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "rea
 import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
-const MajorsListView = () => {
+const MajorsListViewAO = () => {
     const [search, setSearchTerm] = useState('');
     const [majors, setMajors] = useState([]);
     const [selectedCollege, setSelectedCollege] = useState("");
@@ -18,7 +18,7 @@ const MajorsListView = () => {
     const fetchMajors = async () => {
         try {
             if (campusId) {
-                const response = await api.get(`/school-service/Major/get-majors`, {
+                const response = await api.get(`/admin-officer/Major/get-majors`, {
                     params: {
                         CampusId: campusId,
                         Search: search,
@@ -43,7 +43,7 @@ const MajorsListView = () => {
     const handleShowModal = async (major) => {
         try {
             
-            const response = await api.get(`/school-service/Major/get-major-details?MajorId=${major.majorID}&AdmissionInformationID=${major.admissionInformationID}`);
+            const response = await api.get(`/admin-officer/Major/get-major-details?MajorId=${major.majorID}&AdmissionInformationID=${major.admissionInformationID}`);
             const majorData = response.data;
             
             setSelectedMajors(majorData);
@@ -106,6 +106,7 @@ const MajorsListView = () => {
                         <th>Chỉ tiêu</th>
                         <th>Thời gian học</th>
                         <th>Hệ đào tạo</th>
+                        <th>Trạng thái tuyển sinh</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,6 +134,10 @@ const MajorsListView = () => {
                                 <td>{major.target}</td>
                                 <td>{major.timeStudy}</td>
                                 <td>{major.isVocationalSchool==true?"Trung cấp": "Cao đẳng"}</td>
+                                <td className={major.status ? 'text-success' : 'text-danger'}>
+                                {major.status ? 'Tuyển sinh' : 'Không tuyển sinh'}
+                                </td>
+
                             </tr>
                         ))
                     ) : (
@@ -180,12 +185,27 @@ const MajorsListView = () => {
                         </Modal.Header>
                         <Modal.Body>
                             <Form.Group className="mb-3">
-                                <Form.Label>Tên ngành học:</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="title"
-                                    value={selectedMajors.majorName}
-                                />
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Label>Tên ngành học:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="title"
+                                            value={selectedMajors.majorName}
+                                        />
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Label>Trạng thái tuyển sinh:</Form.Label>
+                                        <Form.Select 
+                                                    name="postType"
+                                                    value={selectedMajors.status}
+                                                    disabled
+                                                >
+                                                    <option value="false">Không tuyển sinh</option>
+                                                    <option value="true">Tuyển sinh</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Row>
@@ -208,7 +228,6 @@ const MajorsListView = () => {
                                 </Row>
                             </Form.Group>
 
-                            
                             <Form.Group className="mb-3">
                                 <Form.Label>Mô tả:</Form.Label>
                                 <Form.Control
@@ -385,4 +404,4 @@ const MajorsListView = () => {
     );
 };
 
-export default MajorsListView;
+export default MajorsListViewAO;

@@ -14,7 +14,7 @@ const Login = () => {
     const { loginWithCustomAuth } = useAuth();
     const { addUser } = useAuthStore()
 
-    const [email, setEmail] = useState('')
+    const [username, setUserName] = useState('')
     const [password, setPassword] = useState('')
     const [isSigningIn, setIsSigningIn] = useState(false)
     const navigate = useNavigate();
@@ -45,7 +45,7 @@ const Login = () => {
         try {
             const response = await api.post(`/Authentication/login`, {
                 campusId: selectedCampus,
-                email,
+                username,
                 password
             });
             addUser(response.data);
@@ -115,13 +115,13 @@ const Login = () => {
                                 ))}
                             </Form.Control>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="email">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control type="email"
-                                autoComplete='email'
+                        <Form.Group className="mb-3" controlId="username">
+                            <Form.Label>Tên đăng nhập</Form.Label>
+                            <Form.Control type="text"
+                                autoComplete='username'
                                 required
-                                value={email} onChange={(e) => { setEmail(e.target.value) }}
-                                placeholder="Nhập địa chỉ email" />
+                                value={username} onChange={(e) => { setUserName(e.target.value) }}
+                                placeholder="Nhập tên đăng nhập" />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="password">

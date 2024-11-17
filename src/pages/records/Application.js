@@ -49,7 +49,7 @@ const Application = () => {
             ...storedFormData,
             payFeeAdmission
         };
-        console.log(updatedFormData);
+        //console.log(updatedFormData);
         // Gọi API
         const submitApplication = async () => {
             try {

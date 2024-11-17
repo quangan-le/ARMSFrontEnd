@@ -619,13 +619,14 @@ footer {
 .step {
   padding: 10px 15px;
   border-radius: 20px;
-  background-color: #e9ecef;
   color: #6c757d;
   text-align: center;
   max-width: 200px;
   min-width: 150px;
   white-space: nowrap;
   flex: 1;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 .step.active {
   background-color: orange;
@@ -633,6 +634,14 @@ footer {
 }
 .step.current {
   font-weight: bold;
+  border: 2px solid white;
+}
+
+.step.disabled {
+  background-color: #cccccc;
+  color: #8a8a8a;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 @media (max-width: 768px) {

@@ -1,14 +1,25 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Table, Form, Button, Pagination, Modal } from "react-bootstrap";
-
+import React, { useEffect, useState } from 'react';
+import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
+import { useOutletContext } from 'react-router-dom';
+import api from "../../apiService.js";
 const UserList = () => {
-    const [searchTerm, setSearchTerm] = useState("");
+    //const [searchTerm, setSearchTerm] = useState("");
     const [selectedMajor, setSelectedMajor] = useState("");
     const [selectedRole, setSelectedRole] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
     const [totalMajors, setTotalMajors] = useState(120);
     const majorsPerPage = 10;
     const [show, setShow] = useState(false);
+
+    const [search, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [accounts, setAccounts] = useState([]);
+    const { selectedCampus } = useOutletContext();
+    const campusId = selectedCampus.id;
+    const itemsPerPage = 8;
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
     const [newUser, setNewUser] = useState({
         name: "",
@@ -19,6 +30,29 @@ const UserList = () => {
         dob: "",
         status: "Active"
     });
+// Gọi API để lấy danh sách các accounts theo điều kiện tìm kiếm
+const fetchAccounts = async () => {
+    try {
+        if (campusId) {
+            const response = await api.get(`/Account/get-accounts`, {
+                params: {
+                    CampusId: campusId,
+                     Search: search,
+                     CurrentPage: currentPage,
+                    role: selectedRole
+                },
+            });
+            setAccounts(response.data.item);
+            setTotalPages(response.data.pageCount);
+            setTotalItems(response.data.totalItems);
+        }
+    } catch (error) {
+        console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
+    }
+};
+useEffect(() => {
+    fetchAccounts();
+}, [search, currentPage,campusId, selectedRole]);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -49,8 +83,8 @@ const UserList = () => {
 
     return (
         <Container>
-            <h2 className="text-center">Danh sách người dùng</h2>
-            <p className="text-center mb-4 fw-bold">Quản lý danh sách người dùng thuộc campus</p>
+            <h2 className="text-center text-orange">Danh sách người dùng</h2>
+            <p className="text-center  text-orange mb-4 fw-bold">Quản lý danh sách người dùng thuộc campus</p>
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
@@ -58,7 +92,7 @@ const UserList = () => {
                         <Form.Control
                             type="text"
                             placeholder="Nhập tên người dùng"
-                            value={searchTerm}
+                            value={search}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </Form.Group>
@@ -66,13 +100,19 @@ const UserList = () => {
                 <Col xs={12} md={6} className="d-flex justify-content-end">
                     <Form.Select
                         value={selectedRole}
-                        onChange={(e) => setSelectedRole(e.target.value)}
+                        onChange={({ target: { value } }) => {
+                            setSelectedRole(value);
+                            setCurrentPage(1);
+                        }}
                         className="me-2"
                         style={{ width: '200px' }}
                     >
                         <option value="">Vai trò</option>
-                        <option value="major1">Học sinh</option>
-                        <option value="major2">Sinh viên</option>
+                        <option value="Student">Học sinh</option>
+                        <option value="AdmissionOfficer">Cán bộ tuyển sinh</option>
+                        <option value="SchoolService">Dịch vụ sinh viên</option>
+                        <option value="AdmissionCouncil">Hội đồng tuyển sinh</option>
+                        <option value="Admin">Quản trị campus</option>
                     </Form.Select>
                     <Form.Select
                         value={selectedMajor}
@@ -95,7 +135,6 @@ const UserList = () => {
                         <th>Họ tên</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
-                        <th>Cơ sở</th>
                         <th>Vai trò</th>
                         <th>Chuyên ngành</th>
                         <th>Trạng thái</th>
@@ -103,34 +142,62 @@ const UserList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentMajors.map((major) => (
-                        <tr key={major.id}>
-                            <td>{major.id}</td>
-                            <td>{major.code}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>
-                                <Button variant="warning" className="me-2">Chỉnh sửa</Button>
+                    {accounts.map((account, index) => (
+                        <tr key={index}>
+                            <td className="text-center fw-bold">{index+1}</td>
+                            <td>{account.fullname}</td>
+                            <td>{account.email}</td>
+                            <td>{account.phone}</td>
+                            <td>{account.roleName=="Student"?"Học sinh":
+                            (account.roleName=="SchoolService"?"Dịch Vụ Sinh Viên":
+                            (account.roleName=="AdmissionCouncil"?"Hội đồng tuyển sinh":
+                            (account.roleName=="Admin"?"Quản trị campus":
+                            (account.roleName=="AdmissionOfficer"?"Cán bộ tuyển sinh":"N/A")
+                            )
+                            ))}</td>
+                            <td>{account.majorName}</td>
+                            <td style={{ color: account.isAccountActive ? 'green' : 'red' }}>
+                            {account.isAccountActive ? "Đang hoạt động" : "Ngưng hoạt động"}
                             </td>
+
+                            <td>
+                            {account.roleName !== "Admin" && (
+                                <Button variant="warning" className="me-2">
+                                Chỉnh sửa
+                                </Button>
+                            )}
+                            </td>
+
                         </tr>
                     ))}
+                    
                 </tbody>
             </Table>
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between">
                 <span>
-                    Hiển thị từ {indexOfFirstMajor + 1} đến {Math.min(indexOfLastMajor, totalMajors)} trên tổng số {totalMajors} người dùng
+                    Hiển thị {startItem}-{endItem} trên tổng số {totalItems} người dùng
                 </span>
-                <Pagination>
-                    {Array.from({ length: Math.ceil(totalMajors / majorsPerPage) }, (_, index) => (
-                        <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
-                            {index + 1}
-                        </Pagination.Item>
-                    ))}
-                </Pagination>
+                {totalPages > 1 && totalItems > 0 && (
+                    <Pagination>
+                        <Pagination.Prev
+                            onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
+                            disabled={currentPage === 1}
+                        />
+                        {[...Array(totalPages)].map((_, index) => (
+                            <Pagination.Item
+                                key={index}
+                                active={index + 1 === currentPage}
+                                onClick={() => setCurrentPage(index + 1)}
+                            >
+                                {index + 1}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Next
+                            onClick={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                        />
+                    </Pagination>
+                )}
             </div>
 
             <Modal show={show} onHide={handleClose} size="lg">

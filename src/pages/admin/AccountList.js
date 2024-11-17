@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Table, Form, Button, Pagination } from "react-bootstrap";
-
+import React, { useEffect, useState } from 'react';
+import { Button, Col, Container, Form, Pagination, Row, Table } from "react-bootstrap";
+import { useOutletContext } from 'react-router-dom';
+import api from "../../apiService.js";
 const AccountList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedMajor, setSelectedMajor] = useState("");
@@ -8,6 +9,33 @@ const AccountList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalMajors, setTotalMajors] = useState(120);
     const majorsPerPage = 10;
+
+    const [accounts, setAccounts] = useState([]);
+    const { selectedCampus } = useOutletContext();
+    const campusId = selectedCampus.id;
+// Gọi API để lấy danh sách các accounts theo điều kiện tìm kiếm
+const fetchAccounts = async () => {
+    try {
+        if (campusId) {
+            const response = await api.get(`/Account/get-accounts`, {
+                params: {
+                    CampusId: campusId,
+                    // Search: search,
+                    // CurrentPage: currentPage,
+                    // College: selectedCollege || null,
+                },
+            });
+            setAccounts(response.data);
+            //setTotalPages(response.data.pageCount);
+            //setTotalItems(response.data.totalItems);
+        }
+    } catch (error) {
+        console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
+    }
+};
+useEffect(() => {
+    fetchAccounts();
+}, [campusId]);
 
     const majors = Array.from({ length: totalMajors }, (_, index) => ({
         id: index + 1,
@@ -78,15 +106,16 @@ const AccountList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentMajors.map((major) => (
-                        <tr key={major.id}>
-                            <td>{major.id}</td>
-                            <td>{major.code}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
-                            <td>{major.name}</td>
+                    {accounts.map((account, index) => (
+                        <tr key={index}>
+                            <td>{index+1}</td>
+                            <td>{account.fullname}</td>
+                            <td>{account.email}</td>
+                            <td>{account.phone}</td>
+                            <td>{account.gender}</td>
+                            <td>{account.dob}</td>
+                            <td>{account.isAccountActive}</td>
+                            <td>{account.roleName}</td>
                             <td>Đợi phê duyệt</td>
                             <td>
                                 <Button variant="warning" className="me-2">Phê duyệt</Button>

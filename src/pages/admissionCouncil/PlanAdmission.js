@@ -3,7 +3,7 @@ import { Button, Col, Container, Table } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
-const MajorsListView = () => {
+const PlanAdmission = () => {
     const [search, setSearchTerm] = useState('');
     const [admissionInformations, setAdmissionInformations] = useState([]);
     const [selectedCollege, setSelectedCollege] = useState("");
@@ -141,4 +141,4 @@ const MajorsListView = () => {
     );
 };
 
-export default MajorsListView;
+export default PlanAdmission;

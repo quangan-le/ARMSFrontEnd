@@ -69,8 +69,8 @@ const Sidebar = ({ role }) => {
               <Nav.Link href="/admissions-council/dashboard" className="d-flex align-items-center">
                 <House className="me-2" /> Trang chủ
               </Nav.Link>
-              <Nav.Link href="/admissions-council/danh-sach-nganh-hoc" className="d-flex align-items-center">
-                <Book className="me-2" /> Ngành đào tạo
+              <Nav.Link href="/admissions-council/danh-sach-nganh-tuyen-sinh" className="d-flex align-items-center">
+                <Book className="me-2" /> Ngành tuyển sinh
               </Nav.Link>
               <Nav.Link href="/admissions-council/ke-hoach-tuyen-sinh" className="d-flex align-items-center">
                 <FileEarmarkText className="me-2" /> Kế hoạch tuyển sinh

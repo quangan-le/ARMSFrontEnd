@@ -44,6 +44,7 @@ import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultati
 import SendNotification from "./pages/schoolService/SendNotification.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
 import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
+import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 
 
 function App() {
@@ -98,8 +99,7 @@ function App() {
     return <Routes>
          <Route element={<ManagerLayout role="AdmissionCouncil" />}>
         <Route path="/admissions-council/dashboard" element={<Dashboard />} />
-        <Route path="/admissions-council/danh-sach-nganh-hoc" element={<MajorsListView />} />
-        <Route path="/admissions-council/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+        <Route path="/admissions-council/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAC />} />
         <Route path="/admissions-council/ke-hoach-tuyen-sinh" element={<PlanAdmission />} />
         <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh" element={<PlanAdmissionDetail />} />
       </Route>

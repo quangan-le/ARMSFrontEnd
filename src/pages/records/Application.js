@@ -23,8 +23,9 @@ const Application = () => {
     useEffect(() => {
         // Lấy dữ liệu formData từ sessionStorage
         const storedFormData = JSON.parse(sessionStorage.getItem('formData'));
-        if (!storedFormData) return;
+        console.log(storedFormData);
 
+        if (!storedFormData) return;
         // Lấy dữ liệu trả về từ VNPAY trong query params
         const queryParams = new URLSearchParams(location.search);
         const payFeeAdmission = {
@@ -65,7 +66,7 @@ const Application = () => {
                 navigate('/tra-cuu-ho-so');
             } catch (error) {
                 console.error('Lỗi khi gửi đơn:', error);
-                toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+                //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
             }
         };
 
@@ -846,11 +847,11 @@ const Application = () => {
         };
         try {
             // Gửi yêu cầu thanh toán đến VNPAY
-            // const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            const paymentResponse = await axios.post(
-                'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-register-admission',
-                selectedCampusPost
-            );
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // const paymentResponse = await axios.post(
+            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-register-admission',
+            //     selectedCampusPost
+            // );
             const { paymentUrl } = paymentResponse.data;
 
             // Chuyển hướng người dùng đến trang thanh toán của VNPAY

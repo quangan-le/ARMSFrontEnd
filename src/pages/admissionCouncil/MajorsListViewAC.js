@@ -3,6 +3,7 @@ import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "rea
 import { useOutletContext } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import api from "../../apiService.js";
+import subjectGroups from './SubjectGroups.js';
 
 const MajorsListViewAC = () => {
     const [search, setSearchTerm] = useState('');
@@ -65,21 +66,55 @@ const MajorsListViewAC = () => {
         setSelectedMajors(null);
         setIsEditMode(false);
     };
+    // State lưu id môn học đã chọn
+    const [selectedSubjects, setSelectedSubjects] = useState([]);
+
     const handleShowModal = async (major) => {
         try {
 
             const response = await api.get(`/admin-officer/Major/get-major-details?MajorId=${major.majorID}&AdmissionInformationID=${major.admissionInformationID}`);
             const majorData = response.data;
-
             setSelectedMajors(majorData);
 
+            // Chuyển subjectCodes thành subjectIds từ subjectGroups và lưu vào selectedSubjects
+            const selectedIds = majorData.subjectGroupDTOs.map(subjectGroupDTO => {
+                const matchingGroup = subjectGroups.find(group => group.code === subjectGroupDTO.subjectGroup);
+                return matchingGroup ? matchingGroup.id : null; // Nếu tìm thấy, lấy id, nếu không thì null
+            }).filter(id => id !== null); // Lọc các id hợp lệ (không phải null)
+
+            setSelectedSubjects(selectedIds);
+
             setShowModal(true);
-
-
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu bài viết:', error);
         }
     };
+
+    // Xử lý khối xét tuyển
+    // Hàm để xử lý khi người dùng thay đổi trạng thái checkbox
+    const handleCheckboxChangeSubjects = (id) => {
+        setSelectedSubjects((prevSelected) => {
+            if (prevSelected.includes(id)) {
+                // Nếu môn học đã chọn rồi, bỏ chọn
+                return prevSelected.filter((subjectId) => subjectId !== id);
+            } else {
+                // Nếu môn học chưa chọn, thêm vào
+                return [...prevSelected, id];
+            }
+        });
+        console.log(selectedSubjects);
+    };
+
+    // Nhóm các môn học theo ký tự đầu tiên của "code"
+    const groupedSubjects = subjectGroups.reduce((groups, subject) => {
+        const key = subject.code[0]; // Lấy ký tự đầu tiên của mã môn học
+        if (!groups[key]) {
+            groups[key] = [];
+        }
+        groups[key].push(subject);
+        return groups;
+    }, {});
+
     const handleSaveChanges = async () => {
         try {
             const majorDTO = {
@@ -88,7 +123,7 @@ const MajorsListViewAC = () => {
                 target: selectedMajors.target,  // Mục tiêu tuyển sinh
                 status: selectedMajors.status,  // Trạng thái tuyển sinh
                 typeAdmissions: selectedMajors.typeAdmissions,  // Thông tin tuyển sinh
-                subjectGroupsJson: selectedMajors.subjectGroupsJson
+                subjectGroupsJson: JSON.stringify(selectedSubjects)
             };
             const response = await api.put(`/admission-council/Major/update-major`, majorDTO);
             if (response.data.status) {
@@ -269,7 +304,7 @@ const MajorsListViewAC = () => {
 
 
             </div>
-            <Modal show={showModal} onHide={handleCloseModal} size="lg" centered>
+            <Modal show={showModal} onHide={handleCloseModal} size="xl" centered>
                 {selectedMajors && (
                     <>
                         <Modal.Header closeButton>
@@ -343,6 +378,7 @@ const MajorsListViewAC = () => {
                                         ))}
                                     </Row>
                                 </Form.Group>
+
                                 {selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3) && (
                                     <Form.Group className="mb-3">
                                         <Row>
@@ -384,6 +420,26 @@ const MajorsListViewAC = () => {
                                         </Row>
                                     </Form.Group>
                                 )}
+                                <h6>Danh sách khối xét tuyển</h6>
+                                {Object.keys(groupedSubjects).map((key) => (
+                                    <div key={key}>
+                                        <h6 className='mt-3'>Khối {key}</h6>
+                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: "10px" }}>
+                                            {groupedSubjects[key].map((subject) => (
+                                                <div key={subject.id}>
+                                                    <input
+                                                        type="checkbox"
+                                                        className='me-1'
+                                                        id={subject.id}
+                                                        checked={selectedSubjects.includes(subject.id)}
+                                                        onChange={() => handleCheckboxChangeSubjects(subject.id)}
+                                                    />
+                                                    <label htmlFor={subject.id}>{subject.code}</label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </Modal.Body>
                         ) : (
                             <Modal.Body>
@@ -598,7 +654,11 @@ const MajorsListViewAC = () => {
 
                         <Modal.Footer>
                             {isEditMode ? (
-                                <Button variant="primary" onClick={handleSaveChanges}>Lưu thay đổi</Button>
+                                <Button variant="orange"
+                                    className="text-white"
+                                    style={{ whiteSpace: 'nowrap' }}
+                                    onClick={handleSaveChanges}> Lưu thay đổi
+                                </Button>
                             ) : (
                                 <Button variant="secondary" onClick={() => setIsEditMode(true)}>Chỉnh sửa</Button>
                             )}

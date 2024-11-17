@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Container, Form, Button, Row, Col, Card, Breadcrumb } from 'react-bootstrap';
+import { Modal, Container, Form, Button, Row, Col, Card, Breadcrumb, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -62,21 +62,22 @@ const ApplicationSearch = () => {
     // Kiểm tra OTP và lấy dữ liệu hồ sơ
     const handleVerifyOtp = async () => {
         try {
-            const response = await api.post(`/RegisterAdmission/verify-OTP`, null, {
-                params: {
-                    email: email,
-                    otp: otp
-                }
-            });
-            toast.success('Xác thực thành công!');
+            // const response = await api.post(`/RegisterAdmission/verify-OTP`, null, {
+            //     params: {
+            //         email: email,
+            //         otp: otp
+            //     }
+            // });
+            // toast.success('Xác thực thành công!');
             const dataResponse = await api.post(
                 '/RegisterAdmission/search-register-admission',
-                { citizenIentificationNumber: cccd },
-                {
-                    headers: {
-                        Authorization: `Bearer ${response.data.token}`
-                    }
-                }
+                { citizenIentificationNumber: cccd }
+                // ,
+                // {
+                //     headers: {
+                //         Authorization: `Bearer ${response.data.token}`
+                //     }
+                // }
             );
             setApplicationData(dataResponse.data);
             handleClose();
@@ -86,6 +87,34 @@ const ApplicationSearch = () => {
         }
     };
 
+    //Logic hiển thị tag
+    const [currentStep, setCurrentStep] = useState(1); // Trạng thái theo dõi bước hiện tại
+
+    // Hàm xác định tiến trình hiện tại
+    const getCurrentStep = (typeofStatusProfile) => {
+        if (typeofStatusProfile > 3) return 4; // Hồ sơ nhập học
+        if (typeofStatusProfile === 3) return 3; // Nhập học
+        if (typeofStatusProfile > 0) return 2; // Kết quả xét tuyển
+        return 1; // Hồ sơ xét tuyển
+    };
+    // Kiểm tra điều kiện hiển thị các tag
+    // Kết quả xét tuyển
+    const showAdmissionResult =
+        applicationData &&
+        (applicationData.typeofStatusMajor1 !== 2 || applicationData.typeofStatusMajor2 !== 2);
+    // Nhập học
+    const showEnrollment =
+        applicationData &&
+        (applicationData.typeofStatusMajor1 === 1 || applicationData.typeofStatusMajor2 === 1) &&
+        applicationData.typeofStatusProfile === 3;
+    // Hồ sơ nhập học
+    const showFinalProfile = applicationData && applicationData.typeofStatusProfile > 3;
+
+    // CSS classes cho các bước tiến trình
+    const stepClasses = (step) =>
+        `step ${step <= currentStep ? "active" : ""} ${step === currentStep ? "current" : ""}`;
+
+    // Tiến trình 1
     useEffect(() => {
         const fetchAddress = async () => {
             // Kiểm tra xem applicationData có dữ liệu chưa
@@ -138,6 +167,40 @@ const ApplicationSearch = () => {
         }
     }, [applicationData]); // Chạy lại khi applicationData thay đổi
 
+    // Nhập học
+    const [selectedEnrollmentForm, setSelectedEnrollmentForm] = useState(null); // File đơn nhập học
+    const [selectedBirthCertificate, setSelectedBirthCertificate] = useState(null); // File giấy khai sinh
+    const [birthCertificatePreview, setBirthCertificatePreview] = useState(null); // URL xem trước giấy khai sinh
+
+    const handleUpload = (e, type) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (type === "birthCertificate") {
+                setSelectedBirthCertificate(file); // Lưu file giấy khai sinh
+                setBirthCertificatePreview(URL.createObjectURL(file)); // URL xem trước
+            } else if (type === "enrollmentForm") {
+                setSelectedEnrollmentForm(file); // Lưu file đơn nhập học
+            }
+        }
+    };
+
+    const handleEnrollmentSubmit = async () => {
+        if (!selectedEnrollmentForm || !selectedBirthCertificate) {
+            toast.error("Vui lòng tải lên đầy đủ Đơn nhập học và Giấy khai sinh.");
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append("enrollmentForm", selectedEnrollmentForm);
+            formData.append("birthCertificate", selectedBirthCertificate);
+
+            await api.post("/enrollment", formData);
+            toast.success("Nhập học thành công!");
+        } catch (error) {
+            console.error("Lỗi khi thực hiện nhập học:", error);
+            toast.error("Lỗi khi thực hiện nhập học.");
+        }
+    };
     return (
         <Container className="my-3">
             <ToastContainer position="top-right" autoClose={3000} />
@@ -208,6 +271,110 @@ const ApplicationSearch = () => {
             </Modal>
             {applicationData && (
                 <div>
+                    <div className="progress-container my-4">
+                        <div className="progress-steps d-flex justify-content-between align-items-center">
+                            <div
+                                className={stepClasses(1)}
+                                onClick={() => setCurrentStep(1)}
+                            >
+                                Hồ sơ xét tuyển
+                            </div>
+                            <span>→</span>
+                            <div
+                                className={stepClasses(2)}
+                                onClick={() => setCurrentStep(2)}
+                            >
+                                Kết quả xét tuyển
+                            </div>
+                            <span>→</span>
+                            <div
+                                className={stepClasses(3)}
+                                onClick={() => setCurrentStep(3)}
+                            >
+                                Nhập học
+                            </div>
+                            <span>→</span>
+                            <div
+                                className={stepClasses(4)}
+                                onClick={() => setCurrentStep(4)}
+                            >
+                                Hồ sơ nhập học
+                            </div>
+                        </div>
+                    </div>
+                    {/* Hiển thị các tag trạng thái */}
+                    <Card className="mt-4 px-md-5 px-3">
+                        <div className="tags">
+                            {showAdmissionResult && (
+                                <Badge bg="info" className="me-2">
+                                    Kết quả xét tuyển
+                                </Badge>
+                            )}
+                            {showEnrollment && (
+                                <Badge bg="success" className="me-2">
+                                    Nhập học
+                                </Badge>
+                            )}
+                            {showFinalProfile && (
+                                <Badge bg="primary" className="me-2">
+                                    Hồ sơ nhập học
+                                </Badge>
+                            )}
+                        </div>
+
+                        {/* Hiển thị view Nhập học */}
+                        {currentStep === 3 && ( 
+                            <div className="enrollment-section mt-4">
+                                <h5>Nhập học</h5>
+                                <Form>
+                                    <Form.Group controlId="uploadEnrollmentForm" className="mb-3">
+                                        <Form.Label>Đơn nhập học</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            accept=".pdf,.doc,.docx"
+                                            onChange={(e) => handleUpload(e, "enrollmentForm")}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group controlId="uploadBirthCertificate" className="mb-3">
+                                        <Form.Label>Giấy khai sinh</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleUpload(e, "birthCertificate")}
+                                        />
+                                    </Form.Group>
+
+                                    {birthCertificatePreview && (
+                                        <div className="birth-certificate-preview mt-3">
+                                            <h6>Ảnh giấy khai sinh:</h6>
+                                            <img
+                                                src={birthCertificatePreview}
+                                                alt="Birth Certificate"
+                                                className="img-fluid"
+                                                style={{ maxWidth: "300px", maxHeight: "300px", border: "1px solid #ccc" }}
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="mt-4">
+                                        <a
+                                            href="path-to-enrollment-form.pdf"
+                                            download
+                                            className="btn btn-primary"
+                                        >
+                                            Tải xuống đơn nhập học
+                                        </a>
+                                    </div>
+
+                                    {/* Nút nhập học */}
+                                    <Button variant="success" className="mt-4" onClick={handleEnrollmentSubmit}>
+                                        Nhập học
+                                    </Button>
+                                </Form>
+                            </div>
+                        )}
+                    </Card>
                     <Card className="mt-4 px-md-5 px-3">
                         <Card.Body>
                             <h4 className='text-orange mt-3'>Thông tin thí sinh</h4>
@@ -454,7 +621,7 @@ const ApplicationSearch = () => {
                                                             : applicationData.typeofStatusProfile === 3
                                                                 ? "Xác nhận hồ sơ nhập học thành công"
                                                                 : applicationData.typeofStatusProfile === 4
-                                                                    ? "Chờ thanh toán nhập học"
+                                                                    ? "Chờ thanh toán phí nhập học"
                                                                     : applicationData.typeofStatusProfile === 5
                                                                         ? "Đang xử lý nhập học"
                                                                         : applicationData.typeofStatusProfile === 6
@@ -489,7 +656,7 @@ const ApplicationSearch = () => {
                                                         ? "Đạt"
                                                         : applicationData.typeofStatusMajor2 === 2
                                                             ? "Đang xử lý"
-                                                            : ""}
+                                                            : "N/A"}
                                         </span>
                                     </div>
                                 </Col>

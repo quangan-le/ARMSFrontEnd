@@ -598,21 +598,61 @@ footer {
   background-color: orange;
   color: white;
   border-radius: 20px;
-  padding: 15px 200px;
+  padding: 15px 100px;
   text-align: center;
+  font-weight: bold;
+  position: relative;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  flex-wrap: wrap; 
+  gap: 10px; 
+}
+.progress-steps > span {
+  font-size: 2rem; 
+  font-weight: bold;
+}
+.step {
+  padding: 10px 15px;
+  border-radius: 20px;
+  background-color: #e9ecef;
+  color: #6c757d;
+  text-align: center;
+  max-width: 200px;
+  min-width: 150px;
+  white-space: nowrap;
+  flex: 1;
+}
+.step.active {
+  background-color: orange;
+  color: white;
+}
+.step.current {
   font-weight: bold;
 }
 
-.progress-steps span {
-  padding: 0 10px;
-}
+@media (max-width: 768px) {
+  .progress-container {
+    padding: 15px 15px; 
+  }
 
-.progress-container .progress-steps {
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  color: white;
+  .progress-steps {
+    font-size: 0.9rem; 
+    gap: 5px;
+  }
+
+  .progress-steps > span {
+    font-size: 1.5rem; 
+  }
+
+  .step {
+    flex: 1 1 auto; 
+    max-width: 150px;
+  }
 }
 
 .info-item {
@@ -681,6 +721,17 @@ footer {
 .form-check-input:disabled ~ .form-check-label,
 .form-check-input[disabled] ~ .form-check-label {
   opacity: 1;
+}
+
+.enrollment-section img {
+  display: block;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+.enrollment-section .btn {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 /* ApplicationUpdate.js */

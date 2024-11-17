@@ -45,6 +45,7 @@ import SendNotification from "./pages/schoolService/SendNotification.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
 import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
 import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
+import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
 
 
 function App() {
@@ -89,9 +90,8 @@ function App() {
     return <Routes>
         <Route element={<ManagerLayout role="AdmissionOfficer" />}>
           <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
-          <Route path="/admissions-officer/danh-sach-nganh-hoc" element={<MajorsListView />} />
-          <Route path="/admissions-officer/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={< StudentConsultationList />} />
+          <Route path="/admissions-officer/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAO />} />
+          <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={<StudentConsultationList />} />
         </Route>
     </Routes>
   }
@@ -126,8 +126,8 @@ function App() {
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
       </Route>
-      {userLoggedIn && checkRole("Student") && (
-        <Route element={<StudentLayout role="Student" />}>
+      {userLoggedIn && (
+        <Route element={<StudentLayout/>}>
           <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
           <Route path="/yeu-cau-rut-ho-so" element={<RequestForWithdraw />} />
           <Route path="/thong-tin-ca-nhan" element={<StudentProfile />} />
@@ -135,8 +135,8 @@ function App() {
       )}
 
       {/* Redirect nếu không có quyền */}
-      <Route path="/unauthorized" element={<UnauthorizedPage />} />
-      <Route path="*" element={<Navigate to="/unauthorized" />} />
+      {/* <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="*" element={<Navigate to="/unauthorized" />} /> */}
     </Routes>
   );
 }

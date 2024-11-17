@@ -113,7 +113,9 @@ const Blog = () => {
                                 />
                                 <Card.Body>
                                     <Card.Title className="blog-card-title">
-                                        {blog.title}
+                                        <Link to={`/tin-tuc/${blog.blogId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            <h6 className="mb-1" style={{ cursor: 'pointer' }}>{blog.title}</h6>
+                                        </Link>
                                     </Card.Title>
                                     <Card.Subtitle className="mb-2 text-muted">
                                         {new Date(blog.dateCreate).toLocaleDateString('vi-VN')}

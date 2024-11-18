@@ -72,7 +72,6 @@ const Blog = () => {
             <div className="filter-section m-3">
                 <Row className="align-items-center">
                     <Col md={9} className="mt-3 d-flex align-items-center">
-                        <Form.Label className="fw-bold mb-0 me-2 label-fixed">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Nhập từ khóa tìm kiếm..."

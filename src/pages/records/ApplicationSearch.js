@@ -779,6 +779,39 @@ const ApplicationSearch = () => {
                                 </Form>
                             </div>
                         )}
+                        {currentStep === 4 && (
+                            <div className="enrollment-section mt-4">
+                                <h4 className="text-orange mb-3">Hồ sơ nhập học</h4>
+                                {applicationData.admissionFormUrl ? (
+                                    <div className="mb-3">
+                                        <p><strong>Đơn nhập học:</strong></p>
+                                        <a href={applicationData.admissionFormUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                                            Xem Đơn nhập học
+                                        </a>
+                                    </div>
+                                ) : (
+                                    <p>Không tìm thấy Đơn nhập học.</p>
+                                )}
+
+                                {applicationData.birthCertificateUrl ? (
+                                    <div className="mb-3">
+                                        <p><strong>Giấy khai sinh:</strong></p>
+                                        <img
+                                            src={applicationData.birthCertificateUrl}
+                                            alt="Giấy khai sinh"
+                                            className="img-fluid"
+                                            style={{
+                                                maxWidth: "300px",
+                                                maxHeight: "300px",
+                                                border: "1px solid #ccc"
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <p>Không tìm thấy Giấy khai sinh.</p>
+                                )}
+                            </div>
+                        )}
                     </Card>
                 </div>
             )}

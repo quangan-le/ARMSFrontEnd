@@ -77,6 +77,40 @@ const Application = () => {
     }, [location, navigate]);
 
     const { selectedCampus } = useOutletContext();
+    const [isWithinAdmissionTime, setIsWithinAdmissionTime] = useState(false);
+    const [admissionTimes, setAdmissionTimes] = useState([]); // Lưu toàn bộ dữ liệu thời gian tuyển sinh
+
+    // Kiểm tra có trong thời gian tuyển sinh không
+    const checkAdmissionTime = async () => {
+        try {
+            const response = await api.get('/AdmissionTime/get-admission-time',
+                { params: { CampusId: selectedCampus.id } }
+            );
+            const times = response.data;
+            setAdmissionTimes(times); // Lưu toàn bộ thời gian tuyển sinh
+            const currentTime = new Date();
+
+            // Kiểm tra nếu thời gian hiện tại trong bất kỳ khoảng nào
+            const withinTime = times.some((admission) => {
+                const start = new Date(admission.startRegister);
+                console.log(start);
+                const end = new Date(admission.endRegister);
+                return currentTime >= start && currentTime <= end;
+            });
+
+            setIsWithinAdmissionTime(withinTime);
+        } catch (error) {
+            console.error('Lỗi khi kiểm tra thời gian tuyển sinh:', error);
+            toast.error('Không thể kiểm tra thời gian tuyển sinh, vui lòng thử lại sau!');
+        }
+    };
+
+    useEffect(() => {
+        if (selectedCampus?.id) {
+            checkAdmissionTime();
+        }
+    }, [selectedCampus?.id]);
+
     // Xử lý lấy danh sách tỉnh huyện
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -168,7 +202,6 @@ const Application = () => {
 
     // Cơ sở
     const [campuses, setCampuses] = useState([]);
-    const [selectedCampusForm, setSelectedCampusForm] = useState('');
     useEffect(() => {
         const fetchCampuses = async () => {
             try {
@@ -269,32 +302,8 @@ const Application = () => {
         typeOfTranscriptMajor2: null,
         priorityDetailPriorityID: 0,
         campusName: "",
-        // typeofStatusMajor1: 0,
-        // typeofStatusMajor2: 0,
-        // typeofStatusProfile: 0,
         academicTranscriptsMajor1: [],
         academicTranscriptsMajor2: [],
-        // priorityDetail: {
-        //     priorityID: 0,
-        //     priorityName: "",
-        //     priorityDescription: "",
-        //     typeOfPriority: 0
-        // },
-        // payFeeAdmission: {
-        //     txnRef: "",
-        //     amount: 0,
-        //     bankCode: "",
-        //     bankTranNo: "",
-        //     cardType: "",
-        //     orderInfo: "",
-        //     payDate: "",
-        //     responseCode: "",
-        //     tmnCode: "",
-        //     transactionNo: "",
-        //     transactionStatus: "",
-        //     secureHash: "",
-        //     isFeeRegister: true
-        // }
     });
 
     // Lu trữ ảnh tạm thời
@@ -349,41 +358,76 @@ const Application = () => {
     };
 
     // Khi người dùng chọn cơ sở, cập nhật ngành học
-    const handleCampusChange = async (e) => {
-        const campusId = e.target.value;
-        const campusName = campuses.find(campus => campus.campusId === campusId)?.campusName || '';
+    // const handleCampusChange = async (e) => {
+    //     const campusId = e.target.value;
+    //     const campusName = campuses.find(campus => campus.campusId === campusId)?.campusName || '';
 
-        setSelectedCampusForm(campusId);
-        setFormData(prevData => ({
-            ...prevData,
-            campusId: campusId,
-            campusName: campusName
-        }));
-        setSelectedMajor1('');
-        setSelectedMajor2('');
-        setTypeAdmissions1([]);
-        setTypeAdmissions2([]);
-        setSelectedAdmissionType1(null);
-        setSelectedAdmissionType2(null);
-        setShowSubjectSelection1(false);
-        setShowSubjectSelection2(false);
-        setSubjectGroups1([]);
-        setSubjectGroups2([]);
-        setAcademicTranscriptsMajor1([]);
-        setAcademicTranscriptsMajor2([]);
+    //     setSelectedCampusForm(campusId);
+    //     setFormData(prevData => ({
+    //         ...prevData,
+    //         campusId: campusId,
+    //         campusName: campusName
+    //     }));
+    //     setSelectedMajor1('');
+    //     setSelectedMajor2('');
+    //     setTypeAdmissions1([]);
+    //     setTypeAdmissions2([]);
+    //     setSelectedAdmissionType1(null);
+    //     setSelectedAdmissionType2(null);
+    //     setShowSubjectSelection1(false);
+    //     setShowSubjectSelection2(false);
+    //     setSubjectGroups1([]);
+    //     setSubjectGroups2([]);
+    //     setAcademicTranscriptsMajor1([]);
+    //     setAcademicTranscriptsMajor2([]);
 
-        if (campusId) {
-            try {
-                const response = await api.get(`/Major/get-majors-college?campus=${campusId}`);
-                setMajors(response.data);
-                console.log(response.data);
-            } catch (error) {
-                console.error('Error fetching majors:', error);
-            }
-        } else {
-            setMajors([]);
+    //     if (campusId) {
+    //         try {
+    //             const response = await api.get(`/Major/get-majors-college?campus=${campusId}`);
+    //             setMajors(response.data);
+    //             console.log(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching majors:', error);
+    //         }
+    //     } else {
+    //         setMajors([]);
+    //     }
+    // };
+
+    // Cập nhật formData và ngành học khi selectedCampus thay đổi
+    useEffect(() => {
+        if (selectedCampus?.id) {
+            setFormData((prevData) => ({
+                ...prevData,
+                campusId: selectedCampus.id,
+                campusName: selectedCampus.name,
+            }));
+            setSelectedMajor1('');
+            setSelectedMajor2('');
+            setTypeAdmissions1([]);
+            setTypeAdmissions2([]);
+            setSelectedAdmissionType1(null);
+            setSelectedAdmissionType2(null);
+            setShowSubjectSelection1(false);
+            setShowSubjectSelection2(false);
+            setSubjectGroups1([]);
+            setSubjectGroups2([]);
+            setAcademicTranscriptsMajor1([]);
+            setAcademicTranscriptsMajor2([]);
+
+            const fetchMajors = async () => {
+                try {
+                    const response = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
+                    setMajors(response.data);
+                } catch (error) {
+                    console.error('Lỗi khi lấy giá trị ngành học', error);
+                }
+            };
+
+            fetchMajors();
         }
-    };
+    }, [selectedCampus]);
+
     // Khi người dùng chọn ngành cho nguyện vọng 1
     const handleMajorChange1 = (e) => {
         const selectedMajorId = e.target.value;
@@ -815,6 +859,21 @@ const Application = () => {
     // Gửi dữ liệu và upload ảnh
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const currentTime = new Date();
+        // Kiểm tra nếu thời gian hiện tại không nằm trong bất kỳ khoảng nào
+        const isWithinTime = admissionTimes.some((admission) => {
+            const start = new Date(admission.startRegister);
+            const end = new Date(admission.endRegister);
+            return currentTime >= start && currentTime <= end;
+        });
+
+        if (!isWithinTime) {
+            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000); // Chờ 3 giây để người dùng thấy thông báo
+            return;
+        }
 
         // Khởi tạo updatedFormData với dữ liệu ban đầu
         const updatedFormData = {
@@ -883,725 +942,735 @@ const Application = () => {
                     </div>
                 </Row>
             </div>
-            <Container className="mt-5 mb-3 px-4">
-                <Form onSubmit={handleSubmit}>
-                    <h4 className='text-orange'>Thông tin thí sinh</h4>
-                    <Row>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="fullname">
-                                <Form.Label>Họ và tên</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập họ và tên"
-                                    value={formData.fullname}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="dob">
-                                <Form.Label>Ngày sinh</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={formData.dob}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="gender">
-                                <Form.Label>Giới tính</Form.Label>
-                                <Form.Control as="select" value={formData.gender} onChange={handleChange}>
-                                    <option value="">Chọn giới tính</option>
-                                    <option value="true">Nam</option>
-                                    <option value="false">Nữ</option>
-                                    <option value="other">Khác</option>
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="nation">
-                                <Form.Label>Dân tộc</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập dân tộc"
-                                    value={formData.nation}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
+            {isWithinAdmissionTime ? (
+                <Container className="mt-5 mb-3 px-4">
+                    <Form onSubmit={handleSubmit}>
+                        <h4 className='text-orange'>Thông tin thí sinh</h4>
+                        <Row>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="fullname">
+                                    <Form.Label>Họ và tên</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập họ và tên"
+                                        value={formData.fullname}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="dob">
+                                    <Form.Label>Ngày sinh</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={formData.dob}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="gender">
+                                    <Form.Label>Giới tính</Form.Label>
+                                    <Form.Control as="select" value={formData.gender} onChange={handleChange}>
+                                        <option value="">Chọn giới tính</option>
+                                        <option value="true">Nam</option>
+                                        <option value="false">Nữ</option>
+                                        <option value="other">Khác</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="nation">
+                                    <Form.Label>Dân tộc</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập dân tộc"
+                                        value={formData.nation}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mt-3">
-                        <Col md={4} className="mt-2">
-                            <Form.Group controlId="citizenIentificationNumber">
-                                <Form.Label>Số CMND/CCCD</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập số CMND/CCCD"
-                                    value={formData.citizenIentificationNumber}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={4} className="mt-2">
-                            <Form.Group controlId="ciDate">
-                                <Form.Label>Ngày cấp</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={formData.ciDate}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={4} className="mt-2">
-                            <Form.Group controlId="ciAddress">
-                                <Form.Label>Nơi cấp</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập nơi cấp"
-                                    value={formData.ciAddress}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <Row className="mt-3">
+                            <Col md={4} className="mt-2">
+                                <Form.Group controlId="citizenIentificationNumber">
+                                    <Form.Label>Số CMND/CCCD</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập số CMND/CCCD"
+                                        value={formData.citizenIentificationNumber}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4} className="mt-2">
+                                <Form.Group controlId="ciDate">
+                                    <Form.Label>Ngày cấp</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={formData.ciDate}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4} className="mt-2">
+                                <Form.Group controlId="ciAddress">
+                                    <Form.Label>Nơi cấp</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập nơi cấp"
+                                        value={formData.ciAddress}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mt-3">
-                        <Form.Label>Nơi thường trú</Form.Label>
-                        <Col md={3} xs={12} className="mb-3">
-                            <Form.Group controlId="province">
-                                <Form.Control
-                                    as="select"
-                                    value={formData.province}
-                                    onChange={handleProvinceChange}
-                                >
-                                    <option value="">Tỉnh/thành phố</option>
-                                    {provinces.map((province) => (
-                                        <option key={province.code} value={province.code}>
-                                            {province.name}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={3} xs={12} className="mb-3">
-                            <Form.Group controlId="district">
-                                <Form.Control
-                                    as="select"
-                                    value={formData.district}
-                                    onChange={handleDistrictChange}
-                                    disabled={!selectedProvince}
-                                >
-                                    <option value="">Quận/Huyện</option>
-                                    {districts.map((district) => (
-                                        <option key={district.code} value={district.code}>
-                                            {district.name}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={3} xs={12} className="mb-3">
-                            <Form.Group controlId="ward">
-                                <Form.Control
-                                    as="select"
-                                    value={formData.ward}
-                                    onChange={handleWardChange}
-                                    disabled={!selectedDistrict}
-                                >
-                                    <option value="">Xã/Phường/Thị trấn</option>
-                                    {wards.map((ward) => (
-                                        <option key={ward.code} value={ward.code}>
-                                            {ward.name}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={3} xs={12} className="mb-3">
-                            <Form.Group controlId="specificAddress">
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập số nhà, đường, ngõ..."
-                                    value={formData.specificAddress}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="phoneStudent">
-                                <Form.Label>Số điện thoại thí sinh</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập số điện thoại"
-                                    value={formData.phoneStudent}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="emailStudent">
-                                <Form.Label>Email thí sinh</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Nhập email"
-                                    value={formData.emailStudent}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="fullnameParents">
-                                <Form.Label>Họ và tên phụ huynh</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập họ và tên phụ huynh"
-                                    value={formData.fullnameParents}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="phoneParents">
-                                <Form.Label>Số điện thoại phụ huynh</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Nhập số điện thoại phụ huynh"
-                                    value={formData.phoneParents}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="schoolName">
-                                <Form.Label>Trường học</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Trường THPT FPT"
-                                    value={formData.schoolName}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={3} className="mt-2">
-                            <Form.Group controlId="yearOfGraduation">
-                                <Form.Label>Năm tốt nghiệp</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="2024"
-                                    value={formData.yearOfGraduation}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
-                    <div>
-                        <Row className='mb-2'>
-                            <Col md={3}>
-                                <Form.Group controlId="campusId">
-                                    <Form.Label>Cơ sở</Form.Label>
-                                    <Form.Control as="select" value={selectedCampusForm} onChange={handleCampusChange}>
-                                        <option value="">Chọn cơ sở</option>
-                                        {campuses.map(campus => (
-                                            <option key={campus.campusId} value={campus.campusId}>
-                                                {campus.campusName}
+                        <Row className="mt-3">
+                            <Form.Label>Nơi thường trú</Form.Label>
+                            <Col md={3} xs={12} className="mb-3">
+                                <Form.Group controlId="province">
+                                    <Form.Control
+                                        as="select"
+                                        value={formData.province}
+                                        onChange={handleProvinceChange}
+                                    >
+                                        <option value="">Tỉnh/thành phố</option>
+                                        {provinces.map((province) => (
+                                            <option key={province.code} value={province.code}>
+                                                {province.name}
                                             </option>
                                         ))}
                                     </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={3} xs={12} className="mb-3">
+                                <Form.Group controlId="district">
+                                    <Form.Control
+                                        as="select"
+                                        value={formData.district}
+                                        onChange={handleDistrictChange}
+                                        disabled={!selectedProvince}
+                                    >
+                                        <option value="">Quận/Huyện</option>
+                                        {districts.map((district) => (
+                                            <option key={district.code} value={district.code}>
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={3} xs={12} className="mb-3">
+                                <Form.Group controlId="ward">
+                                    <Form.Control
+                                        as="select"
+                                        value={formData.ward}
+                                        onChange={handleWardChange}
+                                        disabled={!selectedDistrict}
+                                    >
+                                        <option value="">Xã/Phường/Thị trấn</option>
+                                        {wards.map((ward) => (
+                                            <option key={ward.code} value={ward.code}>
+                                                {ward.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={3} xs={12} className="mb-3">
+                                <Form.Group controlId="specificAddress">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập số nhà, đường, ngõ..."
+                                        value={formData.specificAddress}
+                                        onChange={handleChange}
+                                    />
                                 </Form.Group>
                             </Col>
                         </Row>
                         <Row>
-                            <h6 className='mt-2'>Nguyện vọng 1</h6>
-                            <Col md={3}>
-                                <Form.Group controlId="major1" className='mb-2'>
-                                    <Form.Label>Ngành học Nguyện vọng 1</Form.Label>
-                                    <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
-                                        <option value="">Chọn ngành</option>
-                                        {majors.map(major => (
-                                            <option key={major.majorID} value={major.majorID}>
-                                                {major.majorName}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-
-                            {typeAdmissions1.length > 0 && (
-                                <Col md={3}>
-                                    <Form.Group controlId="typeOfDiplomaMajor1" className='mb-2'>
-                                        <Form.Label>Loại xét tuyển Nguyện vọng 1</Form.Label>
-                                        <Form.Control as="select"
-                                            value={selectedAdmissionType1 !== null && selectedAdmissionType1 !== undefined ? selectedAdmissionType1 : ''}
-                                            onChange={handleAdmissionTypeChange1}
-                                        >
-                                            <option value="">Chọn loại xét tuyển</option>
-                                            {typeAdmissions1.map((admission, index) => (
-                                                <option key={index} value={admission.typeDiploma}>
-                                                    {TypeOfDiploma[admission.typeDiploma]}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-                            {showSubjectSelection1 && (
-                                <Row>
-                                    <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
-                                    <Col md={3}>
-                                        <Form.Group controlId="subjectSelection1" className='mb-2'>
-                                            <Form.Control as="select"
-                                                value={selectedGroupData1.subjectGroup !== null && selectedGroupData1.subjectGroup !== undefined ? selectedGroupData1.subjectGroup : ''}
-                                                onChange={handleSubjectGroupChange1}
-                                            >
-                                                <option value="">Chọn khối</option>
-                                                {subjectGroups1.map(subject => (
-                                                    <option key={subject.subjectGroup} value={subject.subjectGroup}>
-                                                        {subject.subjectGroupName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={9}>
-                                        <Form.Group controlId="subjectScores1" className="mb-2">
-                                            <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                {displayedFields1.map((field, index) => {
-                                                    let transcript;
-                                                    if (selectedAdmissionType1 === 5) {
-                                                        // Xét điểm THPT
-                                                        const [subject, index] = field.name.split("_");
-
-                                                        transcript = academicTranscriptsMajor1.find(
-                                                            item => item.typeOfAcademicTranscript === Number(index)
-                                                        );
-                                                    } else {
-                                                        // Xét học bạ
-                                                        const selectedSubjects = selectedGroupData1.subjectGroupName.split("–").map(sub => sub.trim());
-                                                        const subjectIndex = selectedSubjects.indexOf(field.subject);
-                                                        const fieldIndex = fieldMapping[typeOfTranscriptMajor1]?.indexOf(field.name.split("_")[1]);
-
-                                                        // Tính toán typeOfAcademicTranscript
-                                                        const typeOfAcademicTranscript =
-                                                            subjectIndex !== -1 && fieldIndex !== -1 ? indexMap[subjectIndex][fieldIndex] : null;
-
-                                                        transcript = academicTranscriptsMajor1.find(
-                                                            item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
-                                                        );
-                                                    }
-
-                                                    return (
-                                                        <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
-                                                            <Form.Control
-                                                                className="mb-2"
-                                                                type="number"
-                                                                placeholder={`${field.subject} (${field.field})`}
-                                                                name={field.name}
-                                                                value={transcript ? transcript.subjectPoint : ""}
-                                                                onChange={handleScoreChange1}
-                                                            />
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-                            )}
-                        </Row>
-                        <Row className='mt-4'>
-                            <h6 className='mt-2'>Nguyện vọng 2</h6>
-                            <Col md={3}>
-                                <Form.Group controlId="majorSelection2" className='mb-2'>
-                                    <Form.Label>Ngành học Nguyện vọng 2</Form.Label>
-                                    <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
-                                        <option value="">Chọn ngành</option>
-                                        {majors.map(major => (
-                                            <option key={major.majorID} value={major.majorID}>
-                                                {major.majorName}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-
-                            {typeAdmissions2.length > 0 && (
-                                <Col md={3}>
-                                    <Form.Group controlId="admissionTypeSelection2" className='mb-2'>
-                                        <Form.Label>Loại xét tuyển Nguyện vọng 2</Form.Label>
-                                        <Form.Control as="select"
-                                            value={selectedAdmissionType2 !== null && selectedAdmissionType2 !== undefined ? selectedAdmissionType2 : ''}
-                                            onChange={handleAdmissionTypeChange2}
-                                        >
-                                            <option value="">Chọn loại xét tuyển</option>
-                                            {typeAdmissions2.map((admission, index) => (
-                                                <option key={index} value={admission.typeDiploma}>
-                                                    {TypeOfDiploma[admission.typeDiploma]}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                            )}
-                            {showSubjectSelection2 && (
-                                <Row>
-                                    <Form.Label>Khối xét tuyển Nguyện vọng 2</Form.Label>
-                                    <Col md={3}>
-                                        <Form.Group controlId="subjectSelection2" className='mb-2'>
-                                            <Form.Control as="select"
-                                                value={selectedGroupData2.subjectGroup !== null && selectedGroupData2.subjectGroup !== undefined ? selectedGroupData2.subjectGroup : ''}
-                                                onChange={handleSubjectGroupChange2}
-                                            >
-                                                <option value="">Chọn khối</option>
-                                                {subjectGroups2.map(subject => (
-                                                    <option key={subject.subjectGroup} value={subject.subjectGroup}>
-                                                        {subject.subjectGroupName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={9}>
-                                        <Form.Group controlId="subjectScores2" className="mb-2">
-                                            <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                {displayedFields2.map((field, index) => {
-                                                    let transcript2;
-                                                    if (selectedAdmissionType2 === 5) {
-                                                        // Xét điểm THPT cho nguyện vọng 2
-                                                        const [subject, index] = field.name.split("_");
-
-                                                        transcript2 = academicTranscriptsMajor2.find(
-                                                            item => item.typeOfAcademicTranscript === Number(index)
-                                                        );
-                                                    } else {
-                                                        // Xét học bạ cho nguyện vọng 2
-                                                        const selectedSubjects2 = selectedGroupData2.subjectGroupName.split("–").map(sub => sub.trim());
-                                                        const subjectIndex2 = selectedSubjects2.indexOf(field.subject);
-                                                        const fieldIndex2 = fieldMapping[typeOfTranscriptMajor2]?.indexOf(field.name.split("_")[1]);
-
-                                                        // Tính toán typeOfAcademicTranscript cho nguyện vọng 2
-                                                        const typeOfAcademicTranscript2 =
-                                                            subjectIndex2 !== -1 && fieldIndex2 !== -1 ? indexMap[subjectIndex2][fieldIndex2] : null;
-
-                                                        transcript2 = academicTranscriptsMajor2.find(
-                                                            item => item.typeOfAcademicTranscript === typeOfAcademicTranscript2
-                                                        );
-                                                    }
-
-                                                    return (
-                                                        <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
-                                                            <Form.Control
-                                                                className="mb-2"
-                                                                type="number"
-                                                                placeholder={`${field.subject} (${field.field})`}
-                                                                name={field.name}
-                                                                value={transcript2 ? transcript2.subjectPoint : ""}
-                                                                onChange={handleScoreChange2}
-                                                            />
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-                            )}
-                        </Row>
-                        <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
-                        <Row className="mt-3">
-                            <Col md={6}>
-                                <Row>
-                                    <Form.Label>Chọn đối tượng ưu tiên</Form.Label>
-                                </Row>
-                                <Row>
-                                    <Col md={6}>
-                                        <Form.Group controlId="prioritySelection">
-                                            <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
-                                                <option value="">Chọn đối tượng</option>
-                                                {priorityData.map((priority) => (
-                                                    <option key={priority.priorityID} value={priority.priorityID}>
-                                                        {priority.priorityName} ({priority.typeOfPriority})
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Button variant="light" className="read-more-btn" onClick={() => setShowPriorityModal(true)}>
-                                            Mô tả chi tiết
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group controlId="priorityDocument">
-                                    <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                    <Form.Control type="file" onChange={handleFileChangePriority} />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                    </div>
-
-                    <Modal show={showPriorityModal} onHide={() => setShowPriorityModal(false)} size="lg">
-                        <Modal.Header closeButton>
-                            <Modal.Title>Mô tả chi tiết các đối tượng ưu tiên</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            {priorityData.map((priority) => (
-                                <div key={priority.priorityID} className="mb-3">
-                                    <h5>{priority.priorityName} - {priority.typeOfPriority}</h5>
-                                    <p>{priority.priorityDescription}</p>
-                                    <p>Điểm cộng: {priority.bonusPoint}</p>
-                                    <hr />
-                                </div>
-                            ))}
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowPriorityModal(false)}>
-                                Đóng
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
-
-                    <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
-                    <Row>
-                        <Col md={6} className='mt-2'>
-                            <Form.Group controlId="recipient">
-                                <Form.Label>Người nhận</Form.Label>
-                                <Form.Check
-                                    type="radio"
-                                    label="Thí sinh"
-                                    name="recipient"
-                                    id="recipientResults"
-                                    value="true"
-                                    onChange={handleChange}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Phụ huynh/Người bảo trợ"
-                                    name="recipient"
-                                    id="recipientResults"
-                                    value="false"
-                                    className="pt-3"
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6} className='mt-2'>
-                            <Form.Group controlId="addressRecipientResults">
-                                <Form.Label>Địa chỉ nhận</Form.Label>
-                                <Form.Check
-                                    type="radio"
-                                    label="Địa chỉ thường trú"
-                                    name="address"
-                                    id="permanentAddress"
-                                    onChange={() => {
-                                        setFormData(prevData => ({
-                                            ...prevData,
-                                            permanentAddress: true,
-                                            addressRecipientResults: "" // Xóa địa chỉ khác nếu chọn địa chỉ thường trú
-                                        }));
-                                        setShowOtherAddress(false);
-                                    }}
-                                />
-                                <div className='d-flex align-items-end'>
-                                    <Form.Check
-                                        type="radio"
-                                        label="Khác"
-                                        name="address"
-                                        id="otherAddress"
-                                        onChange={() => {
-                                            setFormData(prevData => ({ ...prevData, permanentAddress: false }));
-                                            setShowOtherAddress(true);
-                                        }}
-                                        className="pt-3"
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="phoneStudent">
+                                    <Form.Label>Số điện thoại thí sinh</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập số điện thoại"
+                                        value={formData.phoneStudent}
+                                        onChange={handleChange}
                                     />
-                                    {showOtherAddress && (
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="emailStudent">
+                                    <Form.Label>Email thí sinh</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        placeholder="Nhập email"
+                                        value={formData.emailStudent}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="fullnameParents">
+                                    <Form.Label>Họ và tên phụ huynh</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập họ và tên phụ huynh"
+                                        value={formData.fullnameParents}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="phoneParents">
+                                    <Form.Label>Số điện thoại phụ huynh</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập số điện thoại phụ huynh"
+                                        value={formData.phoneParents}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="schoolName">
+                                    <Form.Label>Trường học</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Trường THPT FPT"
+                                        value={formData.schoolName}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={3} className="mt-2">
+                                <Form.Group controlId="yearOfGraduation">
+                                    <Form.Label>Năm tốt nghiệp</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="2024"
+                                        value={formData.yearOfGraduation}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
+                        <div>
+                            <Row className='mb-2'>
+                                <Col md={3}>
+                                    <Form.Group controlId="campusId">
+                                        <Form.Label>Cơ sở</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="Nhập địa chỉ khác"
-                                            className="ms-2"
-                                            value={formData.addressRecipientResults !== undefined ? formData.addressRecipientResults : ''}
-                                            onChange={handleChange}
+                                            value={selectedCampus?.name || ''}
+                                            readOnly
+                                            className="bg-light"
                                         />
-                                    )}
-                                </div>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <h4 className='text-orange mt-3'>Tải lên giấy tờ xác thực hồ sơ đăng ký học</h4>
-                    <Row>
-                        <Col md={3} className='mt-2'>
-                            <Form.Group>
-                                <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
-                                <Form.Control
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFrontCCCDChange}
-                                />
-                                {frontCCCD && (
-                                    <div className="image-preview-container mt-2">
-                                        <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
-                                    </div>
-                                )}
-                            </Form.Group>
-                        </Col>
-                        <Col md={3} className='mt-2'>
-                            <Form.Group>
-                                <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
-                                <Form.Control
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleBackCCCDChange}
-                                />
-                                {backCCCD && (
-                                    <div className="image-preview-container mt-2">
-                                        <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
-                                    </div>
-                                )}
-                            </Form.Group>
-                        </Col>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <h6 className='mt-2'>Nguyện vọng 1</h6>
+                                <Col md={3}>
+                                    <Form.Group controlId="major1" className='mb-2'>
+                                        <Form.Label>Ngành học Nguyện vọng 1</Form.Label>
+                                        <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
+                                            <option value="">Chọn ngành</option>
+                                            {majors.map(major => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
 
-                        {showGraduationImage1 && (
+                                {typeAdmissions1.length > 0 && (
+                                    <Col md={3}>
+                                        <Form.Group controlId="typeOfDiplomaMajor1" className='mb-2'>
+                                            <Form.Label>Loại xét tuyển Nguyện vọng 1</Form.Label>
+                                            <Form.Control as="select"
+                                                value={selectedAdmissionType1 !== null && selectedAdmissionType1 !== undefined ? selectedAdmissionType1 : ''}
+                                                onChange={handleAdmissionTypeChange1}
+                                            >
+                                                <option value="">Chọn loại xét tuyển</option>
+                                                {typeAdmissions1.map((admission, index) => (
+                                                    <option key={index} value={admission.typeDiploma}>
+                                                        {TypeOfDiploma[admission.typeDiploma]}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                )}
+
+                                {showSubjectSelection1 && (
+                                    <Row>
+                                        <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
+                                        <Col md={3}>
+                                            <Form.Group controlId="subjectSelection1" className='mb-2'>
+                                                <Form.Control as="select"
+                                                    value={selectedGroupData1.subjectGroup !== null && selectedGroupData1.subjectGroup !== undefined ? selectedGroupData1.subjectGroup : ''}
+                                                    onChange={handleSubjectGroupChange1}
+                                                >
+                                                    <option value="">Chọn khối</option>
+                                                    {subjectGroups1.map(subject => (
+                                                        <option key={subject.subjectGroup} value={subject.subjectGroup}>
+                                                            {subject.subjectGroupName}
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={9}>
+                                            <Form.Group controlId="subjectScores1" className="mb-2">
+                                                <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                    {displayedFields1.map((field, index) => {
+                                                        let transcript;
+                                                        if (selectedAdmissionType1 === 5) {
+                                                            // Xét điểm THPT
+                                                            const [subject, index] = field.name.split("_");
+
+                                                            transcript = academicTranscriptsMajor1.find(
+                                                                item => item.typeOfAcademicTranscript === Number(index)
+                                                            );
+                                                        } else {
+                                                            // Xét học bạ
+                                                            const selectedSubjects = selectedGroupData1.subjectGroupName.split("–").map(sub => sub.trim());
+                                                            const subjectIndex = selectedSubjects.indexOf(field.subject);
+                                                            const fieldIndex = fieldMapping[typeOfTranscriptMajor1]?.indexOf(field.name.split("_")[1]);
+
+                                                            // Tính toán typeOfAcademicTranscript
+                                                            const typeOfAcademicTranscript =
+                                                                subjectIndex !== -1 && fieldIndex !== -1 ? indexMap[subjectIndex][fieldIndex] : null;
+
+                                                            transcript = academicTranscriptsMajor1.find(
+                                                                item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                                                            );
+                                                        }
+
+                                                        return (
+                                                            <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                                <Form.Control
+                                                                    className="mb-2"
+                                                                    type="number"
+                                                                    placeholder={`${field.subject} (${field.field})`}
+                                                                    name={field.name}
+                                                                    value={transcript ? transcript.subjectPoint : ""}
+                                                                    onChange={handleScoreChange1}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                )}
+                            </Row>
+                            <Row className='mt-4'>
+                                <h6 className='mt-2'>Nguyện vọng 2</h6>
+                                <Col md={3}>
+                                    <Form.Group controlId="majorSelection2" className='mb-2'>
+                                        <Form.Label>Ngành học Nguyện vọng 2</Form.Label>
+                                        <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
+                                            <option value="">Chọn ngành</option>
+                                            {majors.map(major => (
+                                                <option key={major.majorID} value={major.majorID}>
+                                                    {major.majorName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+
+                                {typeAdmissions2.length > 0 && (
+                                    <Col md={3}>
+                                        <Form.Group controlId="admissionTypeSelection2" className='mb-2'>
+                                            <Form.Label>Loại xét tuyển Nguyện vọng 2</Form.Label>
+                                            <Form.Control as="select"
+                                                value={selectedAdmissionType2 !== null && selectedAdmissionType2 !== undefined ? selectedAdmissionType2 : ''}
+                                                onChange={handleAdmissionTypeChange2}
+                                            >
+                                                <option value="">Chọn loại xét tuyển</option>
+                                                {typeAdmissions2.map((admission, index) => (
+                                                    <option key={index} value={admission.typeDiploma}>
+                                                        {TypeOfDiploma[admission.typeDiploma]}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                )}
+                                {showSubjectSelection2 && (
+                                    <Row>
+                                        <Form.Label>Khối xét tuyển Nguyện vọng 2</Form.Label>
+                                        <Col md={3}>
+                                            <Form.Group controlId="subjectSelection2" className='mb-2'>
+                                                <Form.Control as="select"
+                                                    value={selectedGroupData2.subjectGroup !== null && selectedGroupData2.subjectGroup !== undefined ? selectedGroupData2.subjectGroup : ''}
+                                                    onChange={handleSubjectGroupChange2}
+                                                >
+                                                    <option value="">Chọn khối</option>
+                                                    {subjectGroups2.map(subject => (
+                                                        <option key={subject.subjectGroup} value={subject.subjectGroup}>
+                                                            {subject.subjectGroupName}
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={9}>
+                                            <Form.Group controlId="subjectScores2" className="mb-2">
+                                                <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                    {displayedFields2.map((field, index) => {
+                                                        let transcript2;
+                                                        if (selectedAdmissionType2 === 5) {
+                                                            // Xét điểm THPT cho nguyện vọng 2
+                                                            const [subject, index] = field.name.split("_");
+
+                                                            transcript2 = academicTranscriptsMajor2.find(
+                                                                item => item.typeOfAcademicTranscript === Number(index)
+                                                            );
+                                                        } else {
+                                                            // Xét học bạ cho nguyện vọng 2
+                                                            const selectedSubjects2 = selectedGroupData2.subjectGroupName.split("–").map(sub => sub.trim());
+                                                            const subjectIndex2 = selectedSubjects2.indexOf(field.subject);
+                                                            const fieldIndex2 = fieldMapping[typeOfTranscriptMajor2]?.indexOf(field.name.split("_")[1]);
+
+                                                            // Tính toán typeOfAcademicTranscript cho nguyện vọng 2
+                                                            const typeOfAcademicTranscript2 =
+                                                                subjectIndex2 !== -1 && fieldIndex2 !== -1 ? indexMap[subjectIndex2][fieldIndex2] : null;
+
+                                                            transcript2 = academicTranscriptsMajor2.find(
+                                                                item => item.typeOfAcademicTranscript === typeOfAcademicTranscript2
+                                                            );
+                                                        }
+
+                                                        return (
+                                                            <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                                <Form.Control
+                                                                    className="mb-2"
+                                                                    type="number"
+                                                                    placeholder={`${field.subject} (${field.field})`}
+                                                                    name={field.name}
+                                                                    value={transcript2 ? transcript2.subjectPoint : ""}
+                                                                    onChange={handleScoreChange2}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                )}
+                            </Row>
+                            <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
+                            <Row className="mt-3">
+                                <Col md={6}>
+                                    <Row>
+                                        <Form.Label>Chọn đối tượng ưu tiên</Form.Label>
+                                    </Row>
+                                    <Row>
+                                        <Col md={6}>
+                                            <Form.Group controlId="prioritySelection">
+                                                <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
+                                                    <option value="">Chọn đối tượng</option>
+                                                    {priorityData.map((priority) => (
+                                                        <option key={priority.priorityID} value={priority.priorityID}>
+                                                            {priority.priorityName} ({priority.typeOfPriority})
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Button variant="light" className="read-more-btn" onClick={() => setShowPriorityModal(true)}>
+                                                Mô tả chi tiết
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="priorityDocument">
+                                        <Form.Label>Giấy tờ ưu tiên</Form.Label>
+                                        <Form.Control type="file" onChange={handleFileChangePriority} />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </div>
+
+                        <Modal show={showPriorityModal} onHide={() => setShowPriorityModal(false)} size="lg">
+                            <Modal.Header closeButton>
+                                <Modal.Title>Mô tả chi tiết các đối tượng ưu tiên</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                {priorityData.map((priority) => (
+                                    <div key={priority.priorityID} className="mb-3">
+                                        <h5>{priority.priorityName} - {priority.typeOfPriority}</h5>
+                                        <p>{priority.priorityDescription}</p>
+                                        <p>Điểm cộng: {priority.bonusPoint}</p>
+                                        <hr />
+                                    </div>
+                                ))}
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={() => setShowPriorityModal(false)}>
+                                    Đóng
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
+                        <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
+                        <Row>
+                            <Col md={6} className='mt-2'>
+                                <Form.Group controlId="recipient">
+                                    <Form.Label>Người nhận</Form.Label>
+                                    <Form.Check
+                                        type="radio"
+                                        label="Thí sinh"
+                                        name="recipient"
+                                        id="recipientResults"
+                                        value="true"
+                                        onChange={handleChange}
+                                    />
+                                    <Form.Check
+                                        type="radio"
+                                        label="Phụ huynh/Người bảo trợ"
+                                        name="recipient"
+                                        id="recipientResults"
+                                        value="false"
+                                        className="pt-3"
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6} className='mt-2'>
+                                <Form.Group controlId="addressRecipientResults">
+                                    <Form.Label>Địa chỉ nhận</Form.Label>
+                                    <Form.Check
+                                        type="radio"
+                                        label="Địa chỉ thường trú"
+                                        name="address"
+                                        id="permanentAddress"
+                                        onChange={() => {
+                                            setFormData(prevData => ({
+                                                ...prevData,
+                                                permanentAddress: true,
+                                                addressRecipientResults: "" // Xóa địa chỉ khác nếu chọn địa chỉ thường trú
+                                            }));
+                                            setShowOtherAddress(false);
+                                        }}
+                                    />
+                                    <div className='d-flex align-items-end'>
+                                        <Form.Check
+                                            type="radio"
+                                            label="Khác"
+                                            name="address"
+                                            id="otherAddress"
+                                            onChange={() => {
+                                                setFormData(prevData => ({ ...prevData, permanentAddress: false }));
+                                                setShowOtherAddress(true);
+                                            }}
+                                            className="pt-3"
+                                        />
+                                        {showOtherAddress && (
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Nhập địa chỉ khác"
+                                                className="ms-2"
+                                                value={formData.addressRecipientResults !== undefined ? formData.addressRecipientResults : ''}
+                                                onChange={handleChange}
+                                            />
+                                        )}
+                                    </div>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <h4 className='text-orange mt-3'>Tải lên giấy tờ xác thực hồ sơ đăng ký học</h4>
+                        <Row>
                             <Col md={3} className='mt-2'>
                                 <Form.Group>
-                                    <Form.Label>Bằng tốt nghiệp xét NV1</Form.Label>
+                                    <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
                                     <Form.Control
                                         type="file"
                                         accept="image/*"
-                                        onChange={(e) => handleGraduationCertificateChange(e, true)}
+                                        onChange={handleFrontCCCDChange}
                                     />
-                                    {diplomaMajor1 && (
+                                    {frontCCCD && (
                                         <div className="image-preview-container mt-2">
-                                            <img src={diplomaMajor1} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
+                                            <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
                                         </div>
                                     )}
                                 </Form.Group>
                             </Col>
-                        )}
-
-                        {showGraduationImage2 && (
                             <Col md={3} className='mt-2'>
                                 <Form.Group>
-                                    <Form.Label>Bằng tốt nghiệp xét NV2</Form.Label>
+                                    <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
                                     <Form.Control
                                         type="file"
                                         accept="image/*"
-                                        onChange={(e) => handleGraduationCertificateChange(e, false)}
+                                        onChange={handleBackCCCDChange}
                                     />
-                                    {diplomaMajor2 && (
+                                    {backCCCD && (
                                         <div className="image-preview-container mt-2">
-                                            <img src={diplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
+                                            <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
                                         </div>
                                     )}
                                 </Form.Group>
                             </Col>
-                        )}
-                    </Row>
-                    <Row>
-                        <Col md={12}>
-                            <Form.Group>
-                                <Row className="mt-2">
-                                    {showSemester1Year10 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ học kỳ 1 lớp 10</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showSemester2Year10 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ học kỳ 2 lớp 10</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showFinalYear10 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ cuối năm lớp 10</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showSemester1Year11 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ học kỳ 1 lớp 11</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showSemester2Year11 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ học kỳ 2 lớp 11</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showFinalYear11 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ cuối năm lớp 11</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showSemester1Year12 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ học kỳ 1 lớp 12</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
-                                            />
-                                        </Col>
-                                    )}
-                                    {showFinalYear12 && (
-                                        <Col md={3} className="mt-2">
-                                            <Form.Label>Ảnh học bạ cuối năm lớp 12</Form.Label>
-                                            <Form.Control
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
-                                            />
-                                        </Col>
-                                    )}
-                                </Row>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <div className="d-flex justify-content-center">
-                        <Button variant="light" type="submit" className="read-more-btn mt-3">
-                            Gửi hồ sơ đăng ký
-                        </Button>
-                    </div>
-                </Form>
-            </Container>
+
+                            {showGraduationImage1 && (
+                                <Col md={3} className='mt-2'>
+                                    <Form.Group>
+                                        <Form.Label>Bằng tốt nghiệp xét NV1</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleGraduationCertificateChange(e, true)}
+                                        />
+                                        {diplomaMajor1 && (
+                                            <div className="image-preview-container mt-2">
+                                                <img src={diplomaMajor1} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Col>
+                            )}
+
+                            {showGraduationImage2 && (
+                                <Col md={3} className='mt-2'>
+                                    <Form.Group>
+                                        <Form.Label>Bằng tốt nghiệp xét NV2</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleGraduationCertificateChange(e, false)}
+                                        />
+                                        {diplomaMajor2 && (
+                                            <div className="image-preview-container mt-2">
+                                                <img src={diplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Col>
+                            )}
+                        </Row>
+                        <Row>
+                            <Col md={12}>
+                                <Form.Group>
+                                    <Row className="mt-2">
+                                        {showSemester1Year10 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ học kỳ 1 lớp 10</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showSemester2Year10 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ học kỳ 2 lớp 10</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showFinalYear10 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ cuối năm lớp 10</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showSemester1Year11 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ học kỳ 1 lớp 11</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showSemester2Year11 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ học kỳ 2 lớp 11</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showFinalYear11 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ cuối năm lớp 11</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showSemester1Year12 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ học kỳ 1 lớp 12</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
+                                                />
+                                            </Col>
+                                        )}
+                                        {showFinalYear12 && (
+                                            <Col md={3} className="mt-2">
+                                                <Form.Label>Ảnh học bạ cuối năm lớp 12</Form.Label>
+                                                <Form.Control
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
+                                                />
+                                            </Col>
+                                        )}
+                                    </Row>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <div className="d-flex justify-content-center">
+                            <Button variant="light" type="submit" className="read-more-btn mt-3">
+                                Gửi hồ sơ đăng ký
+                            </Button>
+                        </div>
+                    </Form>
+                </Container>
+            ) : (
+                <Container className="my-5 py-5 px-4 text-center">
+                    <h3 className="text-danger mt-5 pt-5">Đã hết thời gian tuyển sinh</h3>
+                    <p className='mb-5 pb-5'>
+                        Vui lòng tham khảo thông tin đợt tuyển sinh mới tại trang{' '}
+                        <a href="/tuyen-sinh" className="text-primary">
+                            tuyển sinh
+                        </a>.
+                    </p>
+                </Container>
+            )}
         </div >
     );
 };

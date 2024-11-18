@@ -124,7 +124,6 @@ const StudentConsultationList = () => {
             <Row className="mb-3">
                 <Col xs={12} md={6}>
                     <Form.Group className="me-2 d-flex align-items-center">
-                        <Form.Label className="mb-0 me-2">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Nhập nội dung tìm kiếm"

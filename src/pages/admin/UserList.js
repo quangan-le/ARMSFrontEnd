@@ -88,7 +88,6 @@ useEffect(() => {
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
-                        <Form.Label className="mb-0 me-2">Tìm kiếm:</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Nhập tên người dùng"

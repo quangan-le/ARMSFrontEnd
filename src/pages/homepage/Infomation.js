@@ -78,7 +78,9 @@ const Information = () => {
     return (
         <Container className="my-3">
             <Breadcrumb>
-                <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className='text-orange'>Thông tin tuyển sinh</Breadcrumb.Item>
             </Breadcrumb>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Thông tin tuyển sinh</h1>
@@ -125,8 +127,8 @@ const Information = () => {
                                         </div>
                                     ))}
                                 </td>
-                                <td>{major.totalScore!=null?major.totalScore+" điểm":"N/A"}</td>
-                                <td>{major.totalScoreAcademic!=null?major.totalScoreAcademic+" điểm":"N/A"}</td>
+                                <td>{major.totalScore != null ? major.totalScore + " điểm" : "N/A"}</td>
+                                <td>{major.totalScoreAcademic != null ? major.totalScoreAcademic + " điểm" : "N/A"}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -157,7 +159,7 @@ const Information = () => {
                     </thead>
                     <tbody>
                         {admissionTimes.map((admission, index) => (
-                            <tr key={index+1}>
+                            <tr key={index + 1}>
                                 <td className="text-center">{index + 1}</td>
                                 <td>{admission.admissionInformationName || `Đợt ${index + 1}`}</td>
                                 <td>{new Date(admission.startRegister).toLocaleDateString('en-GB')}</td>

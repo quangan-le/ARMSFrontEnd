@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Breadcrumb, Spinner } from 'react-bootstrap';
 import api from '../../apiService';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 
 const History = () => {
     const { selectedCampus } = useOutletContext();
@@ -34,7 +34,9 @@ const History = () => {
             </div>
             <Container className="mt-4">
                 <Breadcrumb>
-                    <Breadcrumb.Item href="/" className="text-orange">Trang chủ</Breadcrumb.Item>
+                    <Breadcrumb.Item>
+                        <Link to="/">Trang chủ</Link>
+                    </Breadcrumb.Item>
                     <Breadcrumb.Item active className="text-orange">Lịch sử thành lập</Breadcrumb.Item>
                 </Breadcrumb>
             </Container>

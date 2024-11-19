@@ -609,11 +609,11 @@ footer {
   align-items: center;
   justify-content: space-between;
   font-size: 1.1rem;
-  flex-wrap: wrap; 
-  gap: 10px; 
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .progress-steps > span {
-  font-size: 2rem; 
+  font-size: 2rem;
   font-weight: bold;
 }
 .step {
@@ -646,20 +646,20 @@ footer {
 
 @media (max-width: 768px) {
   .progress-container {
-    padding: 15px 15px; 
+    padding: 15px 15px;
   }
 
   .progress-steps {
-    font-size: 0.9rem; 
+    font-size: 0.9rem;
     gap: 5px;
   }
 
   .progress-steps > span {
-    font-size: 1.5rem; 
+    font-size: 1.5rem;
   }
 
   .step {
-    flex: 1 1 auto; 
+    flex: 1 1 auto;
     max-width: 150px;
   }
 }
@@ -708,7 +708,7 @@ footer {
 .image-container {
   position: relative;
   width: 100%;
-  padding-top: 70%; 
+  padding-top: 70%;
   overflow: hidden;
 }
 
@@ -718,7 +718,7 @@ footer {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; 
+  object-fit: cover;
   border-radius: 8px;
 }
 
@@ -762,13 +762,25 @@ footer {
 
 .nav-link {
   color: black !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease !important;
+}
+
+.nav-link:hover {
+  color: #f90 !important;
+}
+
+.active-link {
+  font-weight: bold !important;
+  color: #f90 !important; 
+  border-bottom: 2px solid #f90 !important;
 }
 
 /* Dashboard.js */
 .sidebar {
   background-color: #f8f9fa;
   height: 93vh;
-  padding: 20px;
+  padding: 9px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

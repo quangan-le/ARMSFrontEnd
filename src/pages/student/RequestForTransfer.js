@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Breadcrumb, Table, Button, Modal, Form, Row, Col } from 'react-bootstrap';
 import api from "../../apiService.js";
 import { useOutletContext } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const RequestForTransfer = () => {
     const { selectedCampus } = useOutletContext();
@@ -87,7 +88,9 @@ const RequestForTransfer = () => {
         <Container className='my-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Yêu cầu chuyển ngành</h1>
             <Breadcrumb>
-                <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Yêu cầu chuyển ngành</Breadcrumb.Item>
             </Breadcrumb>
             <div className="text-end mb-3">

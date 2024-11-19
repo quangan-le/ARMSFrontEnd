@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button, Modal } from 'react-bootstrap';
 import { useState, useEffect } from '../hooks/Hooks.js';
-import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import api from '../../apiService';
 import uploadImage from '../../firebase/uploadImage.js';
@@ -938,7 +938,7 @@ const Application = () => {
                 <Row className="mt-5 background-content text-center justify-content-center align-items-center text-white bg-orange p-3 mx-auto w-75 rounded">
                     <div className="register-section d-flex justify-content-center align-items-center flex-column flex-md-row">
                         <h4 className="text-black mb-2 mb-md-0">Đăng ký tư vấn ngay tại đây</h4>
-                        <a href="/dang-ky" className="text-white ms-md-3 fs-4">ĐĂNG KÝ TƯ VẤN!</a>
+                        <Link to="/#dang-ky" className="text-white d-inline ms-3 fs-4">ĐĂNG KÝ TƯ VẤN!</Link>
                     </div>
                 </Row>
             </div>
@@ -1665,9 +1665,9 @@ const Application = () => {
                     <h3 className="text-danger mt-5 pt-5">Đã hết thời gian tuyển sinh</h3>
                     <p className='mb-5 pb-5'>
                         Vui lòng tham khảo thông tin đợt tuyển sinh mới tại trang{' '}
-                        <a href="/tuyen-sinh" className="text-primary">
+                        <Link to="/tuyen-sinh" className="text-primary">
                             tuyển sinh
-                        </a>.
+                        </Link>.
                     </p>
                 </Container>
             )}

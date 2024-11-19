@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Card, Breadcrumb, Modal } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ApplicationUpdate = () => {
     const [formData, setFormData] = useState({
@@ -63,8 +63,10 @@ const ApplicationUpdate = () => {
     return (
         <Container className="my-3">
             <Breadcrumb>
-                <Breadcrumb.Item href="/" className="text-orange">Trang chủ</Breadcrumb.Item>
-                <Breadcrumb.Item href="/records" className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
+                <Breadcrumb.Item><Link to="/">Trang chủ</Link></Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/records">Tra cứu hồ sơ</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Cập nhật hồ sơ</Breadcrumb.Item>
             </Breadcrumb>
             <Form className="my-4 mx-5">
@@ -397,7 +399,7 @@ const ApplicationUpdate = () => {
                     <Button variant="outline-secondary" onClick={() => setShowConfirm(false)}>
                         Hủy
                     </Button>
-                    <Button variant="light"className='bg-orange text-white' onClick={handleConfirmUpdate}>
+                    <Button variant="light" className='bg-orange text-white' onClick={handleConfirmUpdate}>
                         Xác nhận
                     </Button>
                 </Modal.Footer>

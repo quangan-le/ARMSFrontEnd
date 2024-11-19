@@ -15,7 +15,6 @@ import Blog from "./pages/blog/Blog.js";
 import BlogDetail from "./pages/blog/BlogDetail.js";
 import Dashboard from "./pages/dashboard/DashBoard.js";
 import Achievement from "./pages/homepage/Achievement.js";
-import Advisory from "./pages/homepage/Advisory.js";
 import History from "./pages/homepage/History";
 import HomePage from "./pages/homepage/Homepage";
 import Information from "./pages/homepage/Infomation.js";
@@ -122,7 +121,6 @@ function App() {
         <Route path="/tuyen-sinh" element={<Information />} />
         <Route path="/nop-ho-so" element={<Application />} />
         <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
-        <Route path="/dang-ky" element={<Advisory />} />
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
       </Route>

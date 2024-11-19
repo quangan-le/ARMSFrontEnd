@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useState, useEffect } from '../hooks/Hooks.js';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import api from '../../apiService';
 
@@ -146,7 +145,7 @@ const IntermediateApplication = () => {
                 <Row className="mt-5 background-content text-center justify-content-center align-items-center text-white bg-orange p-3 mx-auto w-75 rounded">
                     <div className="d-flex justify-content-center align-items-center">
                         <h4 className="text-black d-inline mb-0">Đăng ký tư vấn ngay tại đây</h4>
-                        <a href="/dang-ky" className="text-white d-inline ms-3 fs-4">ĐĂNG KÝ TƯ VẤN!</a>
+                        <Link to="/#dang-ky" className="text-white d-inline ms-3 fs-4">ĐĂNG KÝ TƯ VẤN!</Link>
                     </div>
                 </Row>
             </div>

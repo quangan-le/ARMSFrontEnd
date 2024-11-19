@@ -1,14 +1,13 @@
 // src/pages/Homepage.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext, useLocation } from 'react-router-dom';
 import Slider from "react-slick";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import api from "../../apiService.js";
-import { useEffect, useState } from '../hooks/Hooks.js';
 import SliderBanner from "./SilderBanner";
 import { useAuth } from '../../contexts/authContext/index.js'
 
@@ -16,7 +15,18 @@ const Homepage = () => {
   const { currentUser } = useAuth();
   if (currentUser) {
     console.log("Campus ID:", currentUser);
-}
+  }
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
+
   const [selectedCategory, setSelectedCategory] = useState('Đối tượng và hình thức');
   const { selectedCampus } = useOutletContext();
 
@@ -80,7 +90,7 @@ const Homepage = () => {
           <ul>
             {admissionTimes.map((time, index) => (
               <li key={index}>
-               {time.admissionInformationName}: Từ {new Date(time.startRegister).toLocaleDateString('en-GB')} đến {new Date(time.endRegister).toLocaleDateString('en-GB')}
+                {time.admissionInformationName}: Từ {new Date(time.startRegister).toLocaleDateString('en-GB')} đến {new Date(time.endRegister).toLocaleDateString('en-GB')}
               </li>
             ))}
           </ul>
@@ -338,7 +348,6 @@ const Homepage = () => {
           </Col>
         </Row>
       </div>
-
       <Container className="py-5 majorSection">
         <div className="mt-3">
           <h2 className="text-center text-orange">Ngành đào tạo</h2>
@@ -349,7 +358,7 @@ const Homepage = () => {
                 {collegeMajors.map((major) => (
                   <Col xs={6} md={4} key={major.majorID}>
                     <div className="major-item">
-                      <Link to={`/nganh-hoc/${major.majorID}`} className="text-muted">
+                      <Link to={`/nganh-hoc/${major.majorID}/${major.admissionInformationID}`} className="text-muted">
                         {major.majorName}
                       </Link>
                     </div>
@@ -362,7 +371,7 @@ const Homepage = () => {
               <div className="mx-5">
                 {vocationalMajors.map((major) => (
                   <div key={major.majorID} className="major-item full-width">
-                    <Link to={`/nganh-hoc/${major.majorID}`} className="text-muted">
+                    <Link to={`/nganh-hoc/${major.majorID}/${major.admissionInformationID}`} className="text-muted">
                       {major.majorName}
                     </Link>
                   </div>
@@ -399,7 +408,7 @@ const Homepage = () => {
           </Row>
         </div>
       </Container>
-      <div className="registration-section">
+      <div id="dang-ky" className="registration-section">
         <div className="registration-overlay"></div>
         <div className="registration-content d-flex justify-content-between align-items-center p-5">
           <div className="text-section text-orange">

@@ -47,8 +47,12 @@ const BlogDetail = () => {
     return (
         <Container className="news-detail my-4">
             <Breadcrumb>
-                <Breadcrumb.Item href="/" >Trang chủ</Breadcrumb.Item>
-                <Breadcrumb.Item href="/tin-tuc">Danh sách tin tức</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/tin-tuc">Danh sách tin tức</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">{blogData?.title || 'Đang tải...'}</Breadcrumb.Item>
             </Breadcrumb>
 
@@ -79,8 +83,8 @@ const BlogDetail = () => {
                             <ListGroup.Item key={blog.blogId} className="d-flex align-items-center">
                                 <Link to={`/tin-tuc/${blog.blogId}`}>
                                     <img
-                                    src={blog.img || 'https://phothongcaodang.fpt.edu.vn/wp-content/uploads/800x870.jpg'}
-                                    alt={blog.title}
+                                        src={blog.img || 'https://phothongcaodang.fpt.edu.vn/wp-content/uploads/800x870.jpg'}
+                                        alt={blog.title}
                                         className="me-3"
                                         style={{ width: '80px', height: '80px', cursor: 'pointer' }}
                                     />

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Container, Spinner } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import api from '../../apiService';
 
 const ProgramDetail = () => {
-    const { majorID , admissionInformationID} = useParams();
+    const { majorID, admissionInformationID } = useParams();
     const [majorInfo, setMajorInfo] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -37,8 +37,12 @@ const ProgramDetail = () => {
             <h1 className="page-title mb-0" style={{ color: 'orange', textAlign: 'center' }}>Chi tiết ngành học</h1>
             <h4 className="mb-0" style={{ color: 'orange', textAlign: 'center' }}>Ngành {majorInfo.majorName}</h4>
             <Breadcrumb>
-                <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
-                <Breadcrumb.Item href="/nganh-hoc">Ngành học</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/nganh-hoc">Ngành học</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">{majorInfo.majorName}</Breadcrumb.Item>
             </Breadcrumb>
 
@@ -72,28 +76,28 @@ const ProgramDetail = () => {
                 </ul>
                 <h4 className='text-orange mt-4'>III. Điểm xét tuyển</h4>
                 <ul>
-                             {majorInfo.totalScoreAcademic!=null && (
-                                <li>
-                                    <strong>Điểm xét học bạ:</strong> {majorInfo.totalScoreAcademic} điểm
-                                </li>
-                            )}
-                            {majorInfo.totalScore!=null && (
-                                <li>
-                                    <strong>Điểm xét thi THPT:</strong> {majorInfo.totalScore} điểm
-                                </li>
-                            )}
-                            {majorInfo.subjectGroupDTOs && majorInfo.subjectGroupDTOs.length > 0 && (
-                                <li>
-                                    <strong>Tổ hợp môn xét tuyển:</strong>
-                                    <ul>
-                                        {majorInfo.subjectGroupDTOs.map((group, idx) => (
-                                            <li key={idx}>
-                                                {group.subjectGroup} - {group.subjectGroupName}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </li>
-                            )}
+                    {majorInfo.totalScoreAcademic != null && (
+                        <li>
+                            <strong>Điểm xét học bạ:</strong> {majorInfo.totalScoreAcademic} điểm
+                        </li>
+                    )}
+                    {majorInfo.totalScore != null && (
+                        <li>
+                            <strong>Điểm xét thi THPT:</strong> {majorInfo.totalScore} điểm
+                        </li>
+                    )}
+                    {majorInfo.subjectGroupDTOs && majorInfo.subjectGroupDTOs.length > 0 && (
+                        <li>
+                            <strong>Tổ hợp môn xét tuyển:</strong>
+                            <ul>
+                                {majorInfo.subjectGroupDTOs.map((group, idx) => (
+                                    <li key={idx}>
+                                        {group.subjectGroup} - {group.subjectGroupName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
+                    )}
                 </ul>
                 <h4 className='text-orange mt-4'>IV. Cấu trúc chương trình</h4>
                 <div>
@@ -127,9 +131,7 @@ const ProgramDetail = () => {
 
                 <p>
                     Thông tin tuyển sinh ngành {majorInfo.majorName} chi tiết tại{' '}
-                    <a href="/tuyen-sinh" className="text-orange">
-                        Tuyển sinh
-                    </a>
+                    <Link to="/tuyen-sinh" className="text-orange">Tuyển sinh</Link>
                 </p>
             </div>
         </Container>

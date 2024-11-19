@@ -65,7 +65,9 @@ const Blog = () => {
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Tin tức</h1>
             <Breadcrumb>
-                <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Tin tức</Breadcrumb.Item>
             </Breadcrumb>
 

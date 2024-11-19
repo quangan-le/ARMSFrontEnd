@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Breadcrumb, Table, Button, Modal, Form, Row, Col } from 'react-bootstrap';
+import { Link } from "react-router-dom";
 
 const RequestForWithdraw = () => {
     const [showModal, setShowModal] = useState(false);
@@ -10,7 +11,9 @@ const RequestForWithdraw = () => {
         <Container className='mt-5'>
             <h1 className="page-title text-center" style={{ color: 'orange' }}>Yêu cầu rút hồ sơ nhập học</h1>
             <Breadcrumb>
-                <Breadcrumb.Item href="/">Trang chủ</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Yêu cầu rút hồ sơ</Breadcrumb.Item>
             </Breadcrumb>
             <div className="text-end mb-3">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Container, Form, Button, Row, Col, Card, Breadcrumb, Badge } from 'react-bootstrap';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../apiService';
@@ -310,7 +310,9 @@ const ApplicationSearch = () => {
         <Container className="my-3">
             <ToastContainer position="top-right" autoClose={3000} />
             <Breadcrumb>
-                <Breadcrumb.Item href="/" className="text-orange">Trang chủ</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
             </Breadcrumb>
             <Form className="my-4 mx-3">

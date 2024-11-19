@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Breadcrumb, Spinner } from 'react-bootstrap';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import api from '../../apiService';
 
 const Motto = () => {
-    const { selectedCampus } = useOutletContext(); 
+    const { selectedCampus } = useOutletContext();
     const [mottoData, setMottoData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,7 +34,9 @@ const Motto = () => {
             </div>
             <Container className="mt-4">
                 <Breadcrumb>
-                    <Breadcrumb.Item href="/" className="text-orange">Trang chủ</Breadcrumb.Item>
+                    <Breadcrumb.Item>
+                        <Link to="/">Trang chủ</Link>
+                    </Breadcrumb.Item>
                     <Breadcrumb.Item active className="text-orange">Phương châm đào tạo</Breadcrumb.Item>
                 </Breadcrumb>
             </Container>

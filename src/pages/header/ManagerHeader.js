@@ -105,7 +105,7 @@ const ManagerHeader = ({ onCampusChange, toggleSidebar }) => {
 
   return (
     <Navbar collapseOnSelect expand="lg" className="manager-header bg-body-tertiary px-4 py-2 header-fixed">
-      <Navbar.Brand href="/dashboard" className="mx-5 fw-bold fs-3" style={{ color: 'orange' }}>
+      <Navbar.Brand className="mx-5 fw-bold fs-3" style={{ color: 'orange' }}>
         ARMS
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />

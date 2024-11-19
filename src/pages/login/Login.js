@@ -155,12 +155,24 @@ const Login = () => {
                             </Button>
                         </div>
                     </Form>
+                    <div className="text-center my-3">
+                        <div className="d-flex align-items-center">
+                            <div className="flex-grow-1 border-top"></div>
+                            <span className="mx-3 text-muted">hoặc</span>
+                            <div className="flex-grow-1 border-top"></div>
+                        </div>
+                    </div>
                     <div className="d-grid gap-2 mt-3">
                         <Button
                             disabled={isSigningIn}
                             onClick={(e) => { onGoogleSignIn(e) }}
                             variant="outline-primary" className="btn-block">
                             {isSigningIn ? 'Đang xử lý...' : 'Đăng nhập bằng tài khoản Google'}
+                        </Button>
+                    </div>
+                    <div className="d-grid gap-2 mt-3">
+                        <Button variant="outline-secondary" onClick={() => navigate('/')}>
+                            Quay lại trang chủ
                         </Button>
                     </div>
                 </Col>

@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import { Navigate, Link, useNavigate } from 'react-router-dom'
-import { useState } from '../hooks/Hooks.js';
-import { doSignInWithGoogle } from '../../firebase/auth'
-import { useAuth } from '../../contexts/authContext'
-import api from "../../apiService.js";
+import { Button, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from "../../apiService.js";
+import { useAuth } from '../../contexts/authContext';
+import { doSignInWithGoogle } from '../../firebase/auth';
 import { useAuthStore } from '../../stores/useAuthStore.js';
+import { useState } from '../hooks/Hooks.js';
 
 const Login = () => {
     const { userLoggedIn } = useAuth()
@@ -18,7 +19,12 @@ const Login = () => {
     const [password, setPassword] = useState('')
     const [isSigningIn, setIsSigningIn] = useState(false)
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+    
     // Cơ sở
     const [campuses, setCampuses] = useState([]);
     const [selectedCampus, setSelectedCampus] = useState('');
@@ -126,11 +132,19 @@ const Login = () => {
 
                         <Form.Group className="mb-3" controlId="password">
                             <Form.Label>Mật khẩu</Form.Label>
-                            <Form.Control type="password"
-                                autoComplete='current-password'
-                                required
-                                value={password} onChange={(e) => { setPassword(e.target.value) }}
-                                placeholder="Nhập mật khẩu" />
+                            <InputGroup>
+                                <Form.Control
+                                    type={showPassword ? "text" : "password"}
+                                    autoComplete="current-password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Nhập mật khẩu"
+                                />
+                                <InputGroup.Text onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </InputGroup.Text>
+                            </InputGroup>
                         </Form.Group>
                         <div className="d-grid gap-2">
                             <Button style={{ backgroundColor: 'orange', borderColor: 'orange' }}

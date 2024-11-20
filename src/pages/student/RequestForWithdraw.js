@@ -32,20 +32,6 @@ const RequestForWithdraw = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Em muốn rút hồ sơ nhập học</td>
-                        <td>RutHoSo.docx</td>
-                        <td>01/10/2024</td>
-                        <td style={{ color: 'red' }}>Từ chối</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Em muốn rút hồ sơ nhập học</td>
-                        <td>RutHoSo.docx</td>
-                        <td>01/10/2024</td>
-                        <td style={{ color: 'green' }}>Chấp nhận</td>
-                    </tr>
                 </tbody>
             </Table>
 

@@ -123,10 +123,11 @@ function App() {
         <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
+        <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
       </Route>
       {userLoggedIn && (
         <Route element={<StudentLayout/>}>
-          <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
+          {/* <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} /> */}
           <Route path="/yeu-cau-rut-ho-so" element={<RequestForWithdraw />} />
           <Route path="/thong-tin-ca-nhan" element={<StudentProfile />} />
         </Route>

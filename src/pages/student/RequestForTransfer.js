@@ -1,23 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Breadcrumb, Table, Button, Modal, Form, Row, Col } from 'react-bootstrap';
 import api from "../../apiService.js";
-import { useOutletContext } from 'react-router-dom';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/authContext/index.js'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import uploadImage from '../../firebase/uploadImage.js';
 
 const RequestForTransfer = () => {
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { currentUser } = useAuth();
+    const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchRequests = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await api.get("/Student/RequestChangeMajor/get-request-change-major");
+            setRequests(response.data);
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách yêu cầu chuyển ngành:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Dùng useEffect để gọi khi component load lần đầu
+    useEffect(() => {
+        fetchRequests();
+    }, [fetchRequests]);
+
+    // Hàm xử lý trạng thái hiển thị
+    const renderStatus = (status) => {
+        switch (status) {
+            case 1:
+                return <span style={{ color: "orange" }}>Đang xử lý</span>;
+            case 2:
+                return <span style={{ color: "green" }}>Đã chấp nhận</span>;
+            case 3:
+                return <span style={{ color: "red" }}>Đã từ chối</span>;
+            default:
+                return <span style={{ color: "gray" }}>Không xác định</span>;
+        }
+    };
 
     // Lấy ngành học
     const [vocationalMajors, setVocationalMajors] = useState([]);
     const [collegeMajors, setCollegeMajors] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
-            if (campusId) {
+            if (currentUser.campusId) {
                 try {
                     const [vocationalResponse, collegeResponse] = await Promise.all([
-                        api.get(`/Major/get-majors-vocational-school?campus=${campusId}`),
-                        api.get(`/Major/get-majors-college?campus=${campusId}`),
+                        api.get(`/Major/get-majors-vocational-school?campus=${currentUser.campusId}`),
+                        api.get(`/Major/get-majors-college?campus=${currentUser.campusId}`),
                     ]);
 
                     setVocationalMajors(vocationalResponse.data);
@@ -28,21 +63,16 @@ const RequestForTransfer = () => {
             }
         };
         fetchData();
-    }, [campusId]);
+    }, [currentUser.campusId]);
 
     const [show, setShow] = useState(false); // Quản lý trạng thái hiển thị modal
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    // State để lưu thông tin form
     const [formData, setFormData] = useState({
-        fullName: "Quang An",
-        major: "Công nghệ thông tin",
-        specialization: "Kỹ thuật phần mềm",
-        transferMajor: "",
-        file: null,
-        reason: "",
+        majorNew: "",
+        description: "",
+        fileReasonRequestChangeMajor: null,
     });
 
     const handleChange = (e) => {
@@ -51,41 +81,47 @@ const RequestForTransfer = () => {
     };
 
     const handleFileChange = (e) => {
-        setFormData({ ...formData, file: e.target.files[0] });
+        setFormData({ ...formData, fileReasonRequestChangeMajor: e.target.files[0] });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
-        handleClose();
+        try {
+            const uploadedFileUrl = await uploadImage(formData.fileReasonRequestChangeMajor, "RequestChangeMajor");
+            const payload = {
+                majorNew: formData.majorNew,
+                description: formData.description,
+                fileReasonRequestChangeMajor: uploadedFileUrl,
+            };
+            const response = await api.post("/Student/RequestChangeMajor/add-request-change-major", payload);
+            if (response.status === 200) {
+                toast.success("Đã gửi đơn chuyển ngành thành công!");
+                await fetchRequests();
+                handleClose(); // Đóng modal
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi đơn chuyển ngành:", error);
+            toast.error("Đã xảy ra lỗi khi gửi đơn. Vui lòng thử lại.");
+        }
     };
 
-    const requests = [
-        {
-            id: 1,
-            content: "Em muốn chuyển sang ngành Công nghệ thông tin",
-            fileName: "Chuyennganh.docx",
-            createdAt: "01/10/2024",
-            status: "Từ chối"
-        },
-        {
-            id: 2,
-            content: "Em muốn chuyển sang ngành Công nghệ thông tin",
-            fileName: "Chuyennganh.docx",
-            createdAt: "01/10/2024",
-            status: "Chấp nhận"
-        },
-        {
-            id: 3,
-            content: "Em muốn chuyển sang ngành Công nghệ thông tin",
-            fileName: "Chuyennganh.docx",
-            createdAt: "01/10/2024",
-            status: "Đang đợi"
-        }
-    ];
+    // Chi tiết
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+
+    const handleShowDetails = (request) => {
+        setSelectedRequest(request);
+        setShowDetailModal(true);
+    };
+
+    const handleCloseDetails = () => {
+        setShowDetailModal(false);
+        setSelectedRequest(null);
+    };
 
     return (
         <Container className='my-5'>
+            <ToastContainer position="top-right" autoClose={3000} />
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Yêu cầu chuyển ngành</h1>
             <Breadcrumb>
                 <Breadcrumb.Item>
@@ -98,34 +134,98 @@ const RequestForTransfer = () => {
                     Tạo đơn
                 </Button>
             </div>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên ngành cũ</th>
-                        <th>Tên ngành mới</th>
-                        <th>Nội dung yêu cầu</th>
-                        <th>Đơn yêu cầu</th>
-                        <th>Phản hồi</th>
-                        <th>Trạng thái đơn</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {requests.map((request, index) => (
-                        <tr key={request.id}>
-                            <td>{index + 1}</td>
-                            <td>Công nghệ thông tin</td>
-                            <td>Công nghệ thông tin</td>
-                            <td>{request.content}</td>
-                            <td>{request.fileName}</td>
-                            <td>Đồng ý</td>
-                            <td style={{ color: request.status === 'Chấp nhận' ? 'green' : request.status === 'Từ chối' ? 'red' : 'orange' }}>
-                                {request.status}
-                            </td>
+            {loading ? (
+                <div>Đang tải dữ liệu...</div>
+            ) : (
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Ngành cũ</th>
+                            <th>Ngành mới</th>
+                            <th>Ngày yêu cầu</th>
+                            <th>File</th>
+                            <th>Trạng thái đơn</th>
+                            <th>Hành động</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {requests.map((request, index) => (
+                            <tr key={request.requestID}>
+                                <td>{index + 1}</td>
+                                <td>{request.majorO.majorName}</td>
+                                <td>{request.majorN.majorName}</td>
+                                <td>{new Date(request.dateRequest).toLocaleDateString()}</td>
+                                <td>
+                                    <a href={request.fileReasonRequestChangeMajor} target="_blank" rel="noopener noreferrer">
+                                        Xem file
+                                    </a>
+                                </td>
+                                <td>{renderStatus(request.status)}</td>
+                                <td>
+                                    <Button variant="info" onClick={() => handleShowDetails(request)}>
+                                        Chi tiết
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
+            <Modal show={showDetailModal} onHide={handleCloseDetails} centered size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title className="w-100 text-center" style={{ color: 'orange' }}>
+                        Chi tiết yêu cầu chuyển ngành
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedRequest ? (
+                        <div>
+                            <Row className="mb-3">
+                                <Col md={4}><strong>Ngành cũ:</strong></Col>
+                                <Col md={8}>{selectedRequest.majorO.majorName}</Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={4}><strong>Ngành mới:</strong></Col>
+                                <Col md={8}>{selectedRequest.majorN.majorName}</Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={4}><strong>Ngày yêu cầu:</strong></Col>
+                                <Col md={8}>{new Date(selectedRequest.dateRequest).toLocaleDateString()}</Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={4}><strong>File:</strong></Col>
+                                <Col md={8}>
+                                    <a href={selectedRequest.fileReasonRequestChangeMajor} target="_blank" rel="noopener noreferrer">
+                                        Xem file
+                                    </a>
+                                </Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={4}><strong>Trạng thái:</strong></Col>
+                                <Col md={8}>{renderStatus(selectedRequest.status)}</Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col md={4}><strong>Lý do:</strong></Col>
+                                <Col md={8}>{selectedRequest.description}</Col>
+                            </Row>
+                            {selectedRequest.reply && (
+                                <Row className="mb-3">
+                                    <Col md={4}><strong>Phản hồi:</strong></Col>
+                                    <Col md={8}>{selectedRequest.reply}</Col>
+                                </Row>
+                            )}
+                        </div>
+                    ) : (
+                        <div>Không tìm thấy thông tin chi tiết.</div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDetails}>
+                        Đóng
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <Modal show={show} onHide={handleClose} centered size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title className="w-100 text-center" style={{ color: 'orange' }}>
@@ -133,86 +233,70 @@ const RequestForTransfer = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <Row className="mb-3">
+                        <Col md={3}>
+                            <Form.Label>Họ và tên</Form.Label>
+                        </Col>
+                        <Col md={9}>
+                            <div>{currentUser.fullName}</div>
+                        </Col>
+                    </Row>
+                    <Row className="mb-3">
+                        <Col md={3}>
+                            <Form.Label>Ngành học</Form.Label>
+                        </Col>
+                        <Col md={9}>
+                            <div>{currentUser.major}</div>
+                        </Col>
+                    </Row>
                     <Form onSubmit={handleSubmit}>
                         <Row className="mb-3">
                             <Col md={3}>
-                                <Form.Label>Họ và tên</Form.Label>
-                            </Col>
-                            <Col md={9}>
-                                <div>{formData.fullName}</div>
-                            </Col>
-                        </Row>
-                        <Row className="mb-3">
-                            <Col md={3}>
-                                <Form.Label>Ngành học</Form.Label>
-                            </Col>
-                            <Col md={9}>
-                                <div>{formData.major}</div>
-                            </Col>
-                        </Row>
-                        <Row className="mb-3">
-                            <Col md={3}>
-                                <Form.Label>Chuyên ngành</Form.Label>
-                            </Col>
-                            <Col md={9}>
-                                <div>{formData.specialization}</div>
-                            </Col>
-                        </Row>
-                        <Row className="mb-3">
-                            <Col md={3}>
-                                <Form.Label>Ngành học chuyển</Form.Label>
+                                <Form.Label>Ngành học mới</Form.Label>
                             </Col>
                             <Col md={4}>
-                                <Form.Control as="select" name="transferMajor" value={formData.transferMajor} onChange={handleChange} required>
-                                    <option value="">Ngành</option>
-                                    <option value="Ngành A">Ngành A</option>
-                                    <option value="Ngành B">Ngành B</option>
-                                    <option value="Ngành C">Ngành C</option>
-                                </Form.Control>
-                            </Col>
-                            <Col md={5}>
-                                <Form.Control as="select" name="transferCourse" value={formData.transferCourse} onChange={handleChange} required>
-                                    <option value="">Chuyên ngành</option>
-                                    <option value="Chuyên ngành 1">Chuyên ngành 1</option>
-                                    <option value="Chuyên ngành 2">Chuyên ngành 2</option>
-                                    <option value="Chuyên ngành 3">Chuyên ngành 3</option>
-                                </Form.Control>
-                            </Col>
-                            {/* <Form.Group className="mb-3">
-                                <Form.Label>Ngành mới</Form.Label>
-                                <Form.Select
-                                    value={newMajorID}
-                                    onChange={(e) => setNewMajorID(e.target.value)}
-                                >
-                                    <option value="">Chọn ngành mới</option>
-                                    {collegeMajors.length > 0 && (
-                                        <optgroup label="Ngành học Cao đẳng">
-                                            {collegeMajors.map((major) => (
-                                                <option key={major.majorID} value={major.majorID}>
-                                                    {major.majorName}
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    )}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Chọn ngành</Form.Label>
+                                    <Form.Select
+                                        name="majorNew"
+                                        value={formData.majorNew}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Chọn ngành mới</option>
+                                        {collegeMajors.length > 0 && (
+                                            <optgroup label="Ngành học Cao đẳng">
+                                                {collegeMajors.map((major) => (
+                                                    <option key={major.majorID} value={major.majorID}>
+                                                        {major.majorName}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        )}
 
-                                    {vocationalMajors.length > 0 && (
-                                        <optgroup label="Ngành học Trung cấp">
-                                            {vocationalMajors.map((major) => (
-                                                <option key={major.majorID} value={major.majorID}>
-                                                    {major.majorName}
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    )}
-                                </Form.Select>
-                            </Form.Group> */}
+                                        {vocationalMajors.length > 0 && (
+                                            <optgroup label="Ngành học Trung cấp">
+                                                {vocationalMajors.map((major) => (
+                                                    <option key={major.majorID} value={major.majorID}>
+                                                        {major.majorName}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        )}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
                         </Row>
                         <Row className="mb-3">
                             <Col md={3}>
                                 <Form.Label>Đơn xin chuyển ngành</Form.Label>
                             </Col>
                             <Col md={9}>
-                                <Form.Control type="file" onChange={handleFileChange} required />
+                                <Form.Control
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    required
+                                />
                             </Col>
                         </Row>
                         <Row className="mb-1">
@@ -220,7 +304,14 @@ const RequestForTransfer = () => {
                                 <Form.Label>Lý do</Form.Label>
                             </Col>
                             <Col md={9}>
-                                <Form.Control as="textarea" rows={3} name="reason" value={formData.reason} onChange={handleChange} placeholder="Lý do chuyển ngành" required />
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </Col>
                         </Row>
                         <Row className="mb-3">

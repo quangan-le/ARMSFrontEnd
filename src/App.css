@@ -766,7 +766,7 @@ footer {
   transition: color 0.3s ease !important;
 }
 
-.nav-link:hover {
+.sidebar .nav-link:hover {
   color: #f90 !important;
 }
 

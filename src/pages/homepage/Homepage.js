@@ -12,10 +12,6 @@ import SliderBanner from "./SilderBanner";
 import { useAuth } from '../../contexts/authContext/index.js'
 
 const Homepage = () => {
-  const { currentUser } = useAuth();
-  if (currentUser) {
-    console.log("Campus ID:", currentUser);
-  }
   const location = useLocation();
 
   useEffect(() => {

@@ -156,11 +156,9 @@ const ApplicationSearch = () => {
                     otp: otp
                 }
             });
-            console.log(response.data.token);
-
             toast.success('Xác thực thành công!');
-            const dataResponse = await api.post(
-                '/RegisterAdmission/search-register-admission',
+            const dataResponse = await axios.post(
+                'https://localhost:5001/api/RegisterAdmission/search-register-admission',
                 { citizenIentificationNumber: cccd },
                 {
                     headers: {
@@ -176,6 +174,7 @@ const ApplicationSearch = () => {
             toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
         }
     };
+    console.log(applicationData);
 
     // CSS classes cho các bước tiến trình
     const stepClasses = (step) => {
@@ -224,24 +223,24 @@ const ApplicationSearch = () => {
         }
     }, [applicationData]); // Chạy lại khi applicationData thay đổi
 
-    useEffect(() => {
-        const fetchMajors = async () => {
-            try {
-                const [major1Response, major2Response] = await Promise.all([
-                    api.get(`/Major/get-major-details?MajorId=${applicationData.major1}`),
-                    api.get(`/Major/get-major-details?MajorId=${applicationData.major2}`)
-                ]);
-                setMajorName1(major1Response.data.majorName);
-                setMajorName2(major2Response.data.majorName);
-            } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu ngành học:", error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchMajors = async () => {
+    //         try {
+    //             const [major1Response, major2Response] = await Promise.all([
+    //                 api.get(`/Major/get-major-details?MajorId=${applicationData.major1}`),
+    //                 api.get(`/Major/get-major-details?MajorId=${applicationData.major2}`)
+    //             ]);
+    //             setMajorName1(major1Response.data.majorName);
+    //             setMajorName2(major2Response.data.majorName);
+    //         } catch (error) {
+    //             console.error("Lỗi khi lấy dữ liệu ngành học:", error);
+    //         }
+    //     };
 
-        if (applicationData && applicationData.major1 && applicationData.major2) {
-            fetchMajors();
-        }
-    }, [applicationData]); // Chạy lại khi applicationData thay đổi
+    //     if (applicationData && applicationData.major1 && applicationData.major2) {
+    //         fetchMajors();
+    //     }
+    // }, [applicationData]); // Chạy lại khi applicationData thay đổi
 
     // Nhập học
     const [selectedEnrollmentForm, setSelectedEnrollmentForm] = useState(null); // File đơn nhập học
@@ -291,13 +290,12 @@ const ApplicationSearch = () => {
         const selectedCampusPost = {
             campus: applicationData.campusId
         };
-        console.log(selectedCampusPost)
         try {
             // Gửi yêu cầu thanh toán đến VNPAY
-            //const paymentResponse = await api.post('/VNPay/pay-admission', applicationData.campusId);
-            const paymentResponse = await axios.post(
-                'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-admission', selectedCampusPost
-            );
+            const paymentResponse = await api.post('/VNPay/pay-admission', selectedCampusPost);
+            // const paymentResponse = await axios.post(
+            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-admission', selectedCampusPost
+            // );
 
             // Chuyển hướng người dùng đến trang thanh toán của VNPAY
             window.location.href = paymentResponse.data.paymentUrl;
@@ -774,6 +772,7 @@ const ApplicationSearch = () => {
                                             onClick={handleEnrollmentSubmit}
                                             className="bg-orange text-white px-4 py-2"
                                             style={{ width: "auto" }}
+                                            disabled={!!(applicationData.birthCertificate || applicationData.admissionForm)}
                                         >
                                             Gửi thông tin nhập học
                                         </Button>
@@ -784,34 +783,41 @@ const ApplicationSearch = () => {
                         {currentStep === 4 && (
                             <div className="enrollment-section mt-4">
                                 <h4 className="text-orange mb-3">Hồ sơ nhập học</h4>
-                                {applicationData.admissionFormUrl ? (
-                                    <div className="mb-3">
-                                        <p><strong>Đơn nhập học:</strong></p>
-                                        <a href={applicationData.admissionFormUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                                            Xem Đơn nhập học
-                                        </a>
-                                    </div>
-                                ) : (
-                                    <p>Không tìm thấy Đơn nhập học.</p>
-                                )}
+                                <Row>
+                                    <Col md={6}>
+                                        {applicationData.admissionForm ? (
+                                            <div className="mb-3 d-flex align-items-center">
+                                                <p className="mb-0 me-2"><strong>Đơn nhập học:</strong></p>
+                                                <a href={applicationData.admissionForm} target="_blank" rel="noopener noreferrer">
+                                                    Tải xuống Đơn nhập học đã gửi
+                                                    <Download className="ms-2" />
+                                                </a>
+                                            </div>
+                                        ) : (
+                                            <p>Không tìm thấy Đơn nhập học.</p>
+                                        )}
+                                    </Col>
+                                    <Col md={6}>
 
-                                {applicationData.birthCertificateUrl ? (
-                                    <div className="mb-3">
-                                        <p><strong>Giấy khai sinh:</strong></p>
-                                        <img
-                                            src={applicationData.birthCertificateUrl}
-                                            alt="Giấy khai sinh"
-                                            className="img-fluid"
-                                            style={{
-                                                maxWidth: "300px",
-                                                maxHeight: "300px",
-                                                border: "1px solid #ccc"
-                                            }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <p>Không tìm thấy Giấy khai sinh.</p>
-                                )}
+                                        {applicationData.birthCertificate ? (
+                                            <div className="mb-3">
+                                                <p><strong>Giấy khai sinh:</strong></p>
+                                                <img
+                                                    src={applicationData.birthCertificate}
+                                                    alt="Giấy khai sinh"
+                                                    className="img-fluid"
+                                                    style={{
+                                                        maxWidth: "300px",
+                                                        maxHeight: "300px",
+                                                        border: "1px solid #ccc"
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <p>Không tìm thấy Giấy khai sinh.</p>
+                                        )}
+                                    </Col>
+                                </Row>
                             </div>
                         )}
                     </Card>

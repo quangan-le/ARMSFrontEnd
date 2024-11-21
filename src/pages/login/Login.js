@@ -5,15 +5,14 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from "../../apiService.js";
-import { useAuth } from '../../contexts/authContext';
 import { doSignInWithGoogle } from '../../firebase/auth';
 import { useAuthStore } from '../../stores/useAuthStore.js';
 import { useState } from '../hooks/Hooks.js';
+import { useAuth } from "../../contexts/authContext"; 
 
 const Login = () => {
-    const { userLoggedIn } = useAuth()
-    const { loginWithCustomAuth } = useAuth();
-    const { addUser } = useAuthStore()
+    const { addUser } = useAuthStore();
+    const { userLoggedIn, initializeUser } = useAuth();
 
     const [username, setUserName] = useState('')
     const [password, setPassword] = useState('')
@@ -24,7 +23,7 @@ const Login = () => {
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
-    
+
     // Cơ sở
     const [campuses, setCampuses] = useState([]);
     const [selectedCampus, setSelectedCampus] = useState('');
@@ -80,26 +79,27 @@ const Login = () => {
         }
     };
 
-    const onGoogleSignIn = (e) => {
+    const onGoogleSignIn = async (e) => {
         e.preventDefault()
         if (!selectedCampus) {
             toast.error("Vui lòng chọn cơ sở.");
             return;
         }
-        localStorage.setItem("campusId", selectedCampus);
-
-        if (!isSigningIn) {
-            setIsSigningIn(true)
-            doSignInWithGoogle(selectedCampus, loginWithCustomAuth)
-                .then(() => {
-                    navigate('/');
-                    setIsSigningIn(false);
-                })
-                .catch(err => {
-                    console.error(err);
-                    setIsSigningIn(false);
-                    toast.error("Tài khoản của bạn không tồn tại trong campus hiện tại.");
-                });
+        // localStorage.setItem("campusId", selectedCampus);
+        try {
+            const user = await doSignInWithGoogle();
+            const isUserValid = await initializeUser(user);
+            if (isUserValid) {
+                toast.success("Đăng nhập thành công!");
+                navigate("/");
+            } else {
+                throw new Error("Thông tin đăng nhập không hợp lệ. Vui lòng thử lại!");
+            }
+        } catch (error) {
+            console.error(error.message || "Lỗi không xác định.");
+            toast.error(error.message || "Thông tin đăng nhập không hợp lệ! Vui lòng thử lại!");
+        } finally {
+            setIsSigningIn(false);
         }
     }
     return (

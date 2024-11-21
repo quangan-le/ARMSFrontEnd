@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { auth } from "../../firebase/firebase";
-import { GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
+import {  onAuthStateChanged } from "firebase/auth";
+import api from "../../apiService";
+import { doSignOut } from "../../firebase/auth";
 
 const AuthContext = React.createContext();
 
@@ -20,34 +22,47 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function initializeUser(user) {
+    let isUserValid = false;
     if (user) {
+      try {
+        const idToken = await user.getIdToken();
+        const gGLoginViewModel = { idToken };
 
-      setCurrentUser({ ...user });
+        const response = await api.post(
+          "/Authentication/gg/login-with-google",
+          gGLoginViewModel
+        );
 
-      // check if the auth provider is google or not
-      const isGoogle = user.providerData.some(
-        (provider) => provider.providerId === GoogleAuthProvider.PROVIDER_ID
-      );
-      setIsGoogleUser(isGoogle);
-      setUserLoggedIn(true);
+        if (response.data) {
+          const token = response.data.bear;
+          localStorage.setItem("token", token);
+          setCurrentUser(user); 
+          setUserLoggedIn(true);
+          isUserValid = true;
+        } else {
+          await doSignOut(); 
+          setCurrentUser(null);
+          setUserLoggedIn(false);
+        }
+      } catch (error) {
+        await doSignOut(); 
+        console.error("Lỗi xác thực API:", error);
+        setCurrentUser(null);
+        setUserLoggedIn(false);
+      }
     } else {
       setCurrentUser(null);
       setUserLoggedIn(false);
     }
-
     setLoading(false);
+    return isUserValid;
   }
-  // Hàm để xử lý login thủ công
-  const loginWithCustomAuth = (userData) => {
-    setCurrentUser(userData); 
-    setUserLoggedIn(true); 
-  };
+
   const value = {
     userLoggedIn,
     isGoogleUser,
     currentUser,
-    setCurrentUser,
-    loginWithCustomAuth
+    initializeUser
   };
 
   return (

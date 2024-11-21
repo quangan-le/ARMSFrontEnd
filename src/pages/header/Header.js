@@ -11,6 +11,9 @@ import { useAuthStore } from "../../stores/useAuthStore.js";
 
 const Header = ({ onCampusChange }) => {
   const { currentUser, userLoggedIn } = useAuth();
+  if (currentUser) {
+    console.log("currentUser:", currentUser);
+  }
   const { removeUser } = useAuthStore()
   const navigate = useNavigate();
 

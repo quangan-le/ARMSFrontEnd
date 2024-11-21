@@ -72,31 +72,31 @@ function App() {
 
   if (customLoginUser && checkRole("SchoolService")) {
     return <Routes>
-       <Route element={<ManagerLayout role="SchoolService" />}>
-          <Route path="/school-service/dashboard" element={<Dashboard />} />
-          <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
-          <Route path="/school-service/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
-          <Route path="/school-service/danh-sach-tin-tuc" element={<NewsList />} />
-          <Route path="/school-service/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
-          <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
-          <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
-          <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
-        </Route>
+      <Route element={<ManagerLayout role="SchoolService" />}>
+        <Route path="/school-service/dashboard" element={<Dashboard />} />
+        <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
+        <Route path="/school-service/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
+        <Route path="/school-service/danh-sach-tin-tuc" element={<NewsList />} />
+        <Route path="/school-service/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
+        <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
+        <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
+        <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
+      </Route>
     </Routes>
   }
 
   if (customLoginUser && checkRole("AdmissionOfficer")) {
     return <Routes>
-        <Route element={<ManagerLayout role="AdmissionOfficer" />}>
-          <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
-          <Route path="/admissions-officer/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAO />} />
-          <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={<StudentConsultationList />} />
-        </Route>
+      <Route element={<ManagerLayout role="AdmissionOfficer" />}>
+        <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
+        <Route path="/admissions-officer/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAO />} />
+        <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={<StudentConsultationList />} />
+      </Route>
     </Routes>
   }
   if (customLoginUser && checkRole("AdmissionCouncil")) {
     return <Routes>
-         <Route element={<ManagerLayout role="AdmissionCouncil" />}>
+      <Route element={<ManagerLayout role="AdmissionCouncil" />}>
         <Route path="/admissions-council/dashboard" element={<Dashboard />} />
         <Route path="/admissions-council/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAC />} />
         <Route path="/admissions-council/ke-hoach-tuyen-sinh" element={<PlanAdmission />} />
@@ -123,11 +123,10 @@ function App() {
         <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
-        <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
       </Route>
       {userLoggedIn && (
-        <Route element={<StudentLayout/>}>
-          {/* <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} /> */}
+        <Route element={<StudentLayout />}>
+          <Route path="/yeu-cau-chuyen-nganh" element={<RequestForTransfer />} />
           <Route path="/yeu-cau-rut-ho-so" element={<RequestForWithdraw />} />
           <Route path="/thong-tin-ca-nhan" element={<StudentProfile />} />
         </Route>

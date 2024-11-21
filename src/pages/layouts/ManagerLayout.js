@@ -3,27 +3,23 @@ import { Col, Container, Row } from "react-bootstrap";
 import { Outlet } from "react-router-dom";
 import ManagerHeader from "../header/ManagerHeader";
 import Sidebar from "../sidebar/Sidebar";
+import { useAuthStore } from "../../stores/useAuthStore.js";
 
 const ManagerLayout = ({ role }) => {
-  const [selectedCampus, setSelectedCampus] = useState({
-    id: "",
-    name: ""
-  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const { user } = useAuthStore();
+  const selectedCampus = user.campusId;
 
-  const handleCampusChange = (campus) => {
-    setSelectedCampus(campus);
-  };
   return (
     <div>
       <ManagerHeader
-        onCampusChange={handleCampusChange}
         toggleSidebar={toggleSidebar}
         role={role}
+        selectedCampus={selectedCampus}
       />
 
       <Container fluid>

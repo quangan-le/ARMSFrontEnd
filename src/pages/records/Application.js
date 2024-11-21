@@ -306,7 +306,7 @@ const Application = () => {
         academicTranscriptsMajor2: [],
     });
 
-    // Lu trữ ảnh tạm thời
+    // Lưu trữ ảnh tạm thời
     const [tempImages, setTempImages] = useState({
         imgpriority: null,
         imgCitizenIdentification1: null,
@@ -975,7 +975,6 @@ const Application = () => {
                                         <option value="">Chọn giới tính</option>
                                         <option value="true">Nam</option>
                                         <option value="false">Nữ</option>
-                                        <option value="other">Khác</option>
                                     </Form.Control>
                                 </Form.Group>
                             </Col>
@@ -993,7 +992,7 @@ const Application = () => {
                         </Row>
 
                         <Row className="mt-3">
-                            <Col md={4} className="mt-2">
+                            <Col md={3} className="mt-2">
                                 <Form.Group controlId="citizenIentificationNumber">
                                     <Form.Label>Số CMND/CCCD</Form.Label>
                                     <Form.Control
@@ -1004,7 +1003,7 @@ const Application = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={4} className="mt-2">
+                            <Col md={3} className="mt-2">
                                 <Form.Group controlId="ciDate">
                                     <Form.Label>Ngày cấp</Form.Label>
                                     <Form.Control
@@ -1014,7 +1013,7 @@ const Application = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={4} className="mt-2">
+                            <Col md={6} className="mt-2">
                                 <Form.Group controlId="ciAddress">
                                     <Form.Label>Nơi cấp</Form.Label>
                                     <Form.Control

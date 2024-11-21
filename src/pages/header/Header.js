@@ -1,6 +1,6 @@
 // src/components/Header.js
 import React from "react";
-import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton, Badge } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, Container, Button, Dropdown, DropdownButton, Badge, Modal } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from '../hooks/Hooks.js';
 import api from "../../apiService.js";
@@ -86,6 +86,11 @@ const Header = ({ onCampusChange }) => {
   const handleNotificationToggle = () => {
     setShowNotification(!showNotification);
   };
+  // Modal xác nhận đăng xuất
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const handleLogoutClick = () => {
+    setShowConfirmModal(true);
+  };
 
   // Đăng xuất
   const handleLogout = async () => {
@@ -96,6 +101,11 @@ const Header = ({ onCampusChange }) => {
     } catch (error) {
       console.error("Lỗi khi đăng xuất:", error);
     }
+    setShowConfirmModal(false);
+  };
+
+  const handleCancelLogout = () => {
+    setShowConfirmModal(false); // Đóng modal nếu người dùng chọn hủy
   };
 
   return (
@@ -165,7 +175,7 @@ const Header = ({ onCampusChange }) => {
                   <Dropdown.Item as={Link} to="/thong-tin-ca-nhan"><PersonCircle className="me-2" style={{ color: 'orange' }} />Thông tin cá nhân</Dropdown.Item>
                   <Dropdown.Item as={Link} to="/yeu-cau-chuyen-nganh"><ArrowRepeat className="me-2" style={{ color: 'orange' }} />Yêu cầu chuyển ngành</Dropdown.Item>
                   <Dropdown.Item as={Link} to="/yeu-cau-rut-ho-so"><CashCoin className="me-2" style={{ color: 'orange' }} />Yêu cầu rút hồ sơ và hoàn học phí</Dropdown.Item>
-                  <Dropdown.Item onClick={handleLogout}><BoxArrowRight className="me-2" style={{ color: 'orange' }} />Đăng xuất</Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogoutClick}><BoxArrowRight className="me-2" style={{ color: 'orange' }} />Đăng xuất</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav>
@@ -176,6 +186,35 @@ const Header = ({ onCampusChange }) => {
           )}
         </Navbar.Collapse>
       </Container>
+      <Modal
+        show={showConfirmModal}
+        onHide={handleCancelLogout}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title className="text-center w-100 text-orange">Xác nhận đăng xuất</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={handleCancelLogout}
+            style={{ flex: 1 }}
+          >
+            Hủy
+          </Button>
+          <Button
+            variant="warning"
+            onClick={handleLogout}
+            style={{ flex: 1 }}
+          >
+            Đăng xuất
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </Navbar>
   );
 };

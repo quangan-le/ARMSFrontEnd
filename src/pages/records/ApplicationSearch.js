@@ -9,11 +9,12 @@ import { Download } from 'react-bootstrap-icons';
 import uploadImage from '../../firebase/uploadImage.js';
 
 const ApplicationSearch = () => {
+    const navigate = useNavigate();
     // Xử lý thông báo thanh toán
     useEffect(() => {
         // Kiểm tra cờ trong sessionStorage
         const admissionSuccess = sessionStorage.getItem('admissionSuccess');
-        const paySuccess = sessionStorage.getItem('paySuccess');
+        const doneSuccess = sessionStorage.getItem('doneSuccess');
 
         if (admissionSuccess) {
             // Hiển thị toast thành công
@@ -27,80 +28,80 @@ const ApplicationSearch = () => {
             // Dọn dẹp timeout khi component unmount
             return () => clearTimeout(timeout);
         }
-        if (paySuccess) {
+        if (doneSuccess) {
             toast.success('Thanh toán phí nhập học thành công!');
             const timeout = setTimeout(() => {
-                sessionStorage.removeItem('paySuccess');
+                sessionStorage.removeItem('doneSuccess');
             }, 2000);
             // Dọn dẹp timeout khi component unmount
             return () => clearTimeout(timeout);
         }
     }, []);
 
-    const location = useLocation();
-    const navigate = useNavigate();
-    //Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
-    function formatVNPayDate(vnpDate) {
-        if (!vnpDate || vnpDate.length !== 14) return null;
+    // const location = useLocation();
+   
+    // //Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
+    // function formatVNPayDate(vnpDate) {
+    //     if (!vnpDate || vnpDate.length !== 14) return null;
 
-        // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
-        const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
-        return formattedDate;
-    }
-    // Xử lý thanh toán
-    useEffect(() => {
-        // Lấy dữ liệu data từ sessionStorage
-        const storedFormData = JSON.parse(sessionStorage.getItem('data'));
-        if (!storedFormData) return;
-        // Lấy dữ liệu trả về từ VNPAY trong query params
-        const queryParams = new URLSearchParams(location.search);
-        const payFeeAdmission = {
-            txnRef: queryParams.get('vnp_TxnRef'),
-            amount: queryParams.get('vnp_Amount'),
-            bankCode: queryParams.get('vnp_BankCode'),
-            bankTranNo: queryParams.get('vnp_BankTranNo'),
-            cardType: queryParams.get('vnp_CardType'),
-            orderInfo: queryParams.get('vnp_OrderInfo'),
-            payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
-            responseCode: queryParams.get('vnp_ResponseCode'),
-            tmnCode: queryParams.get('vnp_TmnCode'),
-            transactionNo: queryParams.get('vnp_TransactionNo'),
-            transactionStatus: queryParams.get('vnp_TransactionStatus'),
-            secureHash: queryParams.get('vnp_SecureHash'),
-            isFeeRegister: true,
-        };
+    //     // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
+    //     const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
+    //     return formattedDate;
+    // }
+    // // Xử lý thanh toán
+    // useEffect(() => {
+    //     // Lấy dữ liệu data từ sessionStorage
+    //     const storedFormData = JSON.parse(sessionStorage.getItem('data'));
+    //     if (!storedFormData) return;
+    //     // Lấy dữ liệu trả về từ VNPAY trong query params
+    //     const queryParams = new URLSearchParams(location.search);
+    //     const payFeeAdmission = {
+    //         txnRef: queryParams.get('vnp_TxnRef'),
+    //         amount: queryParams.get('vnp_Amount'),
+    //         bankCode: queryParams.get('vnp_BankCode'),
+    //         bankTranNo: queryParams.get('vnp_BankTranNo'),
+    //         cardType: queryParams.get('vnp_CardType'),
+    //         orderInfo: queryParams.get('vnp_OrderInfo'),
+    //         payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
+    //         responseCode: queryParams.get('vnp_ResponseCode'),
+    //         tmnCode: queryParams.get('vnp_TmnCode'),
+    //         transactionNo: queryParams.get('vnp_TransactionNo'),
+    //         transactionStatus: queryParams.get('vnp_TransactionStatus'),
+    //         secureHash: queryParams.get('vnp_SecureHash'),
+    //         isFeeRegister: true,
+    //     };
 
-        // Kết hợp dữ liệu formData và payFeeAdmission
-        const updatedFormData = {
-            ...storedFormData,
-            payFeeAdmission
-        };
-        // Gọi API
-        const submitApplication = async () => {
-            try {
-                console.log('updatedFormData', updatedFormData);
+    //     // Kết hợp dữ liệu formData và payFeeAdmission
+    //     const updatedFormData = {
+    //         ...storedFormData,
+    //         payFeeAdmission
+    //     };
+    //     // Gọi API
+    //     const submitApplication = async () => {
+    //         try {
+    //             console.log('updatedFormData', updatedFormData);
 
-                const response = await api.put('/RegisterAdmission/done-profile-admission', updatedFormData);
+    //             const response = await api.put('/RegisterAdmission/done-profile-admission', updatedFormData);
 
-                // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
-                sessionStorage.setItem('paySuccess', 'true');
+    //             // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
+    //             sessionStorage.setItem('doneSuccess', 'true');
 
-                // Xóa formData sau khi gửi và chuyển hướng
-                sessionStorage.removeItem('data');
-                // Xóa query string và tải lại trang
-                window.history.replaceState({}, document.title, '/tra-cuu-ho-so');
-                window.location.reload();
-            } catch (error) {
-                console.error('Lỗi khi gửi đơn:', error);
-                //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
-            }
-        };
+    //             // Xóa formData sau khi gửi và chuyển hướng
+    //             sessionStorage.removeItem('data');
+    //             // Xóa query string và tải lại trang
+    //             window.history.replaceState({}, document.title, '/tra-cuu-ho-so');
+    //             window.location.reload();
+    //         } catch (error) {
+    //             console.error('Lỗi khi gửi đơn:', error);
+    //             //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+    //         }
+    //     };
 
-        // Chỉ gọi submitApplication nếu thanh toán thành công
-        if (queryParams.get('vnp_ResponseCode') === '00') {
-            submitApplication();
-        }
-    }, [location, navigate]);
+    //     // Chỉ gọi submitApplication nếu thanh toán thành công
+    //     if (queryParams.get('vnp_ResponseCode') === '00') {
+    //         submitApplication();
+    //     }
+    // }, [location, navigate]);
 
     const [cccd, setCccd] = useState('');
     const [otp, setOtp] = useState('');

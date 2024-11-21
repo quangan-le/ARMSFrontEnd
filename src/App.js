@@ -45,6 +45,7 @@ import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js
 import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
 import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
+import Payment from "./pages/records/Payment.js";
 
 
 function App() {
@@ -121,6 +122,7 @@ function App() {
         <Route path="/tuyen-sinh" element={<Information />} />
         <Route path="/nop-ho-so" element={<Application />} />
         <Route path="/nop-ho-so-lien-thong" element={<IntermediateApplication />} />
+        <Route path="/thanh-toan" element={<Payment />} />
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
       </Route>

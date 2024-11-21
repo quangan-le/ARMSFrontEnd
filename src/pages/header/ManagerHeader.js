@@ -106,9 +106,11 @@ const ManagerHeader = ({ toggleSidebar, role, campusId}) => {
       {/* Modal Xác nhận Đăng xuất */}
       <Modal show={showConfirmModal} onHide={handleCancelLogout} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Xác nhận đăng xuất</Modal.Title>
+        <Modal.Title className="text-center w-100 text-orange">Xác nhận đăng xuất</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?</Modal.Body>
+        <Modal.Body className="text-center">
+          Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?
+        </Modal.Body>
         <Modal.Footer className="d-flex justify-content-center gap-2">
           <Button variant="secondary" onClick={handleCancelLogout} style={{ flex: 1 }}>
             Hủy

@@ -8,70 +8,70 @@ import 'react-toastify/dist/ReactToastify.css';
 import uploadImage from '../../firebase/uploadImage.js';
 
 const IntermediateApplication = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    // Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
-    function formatVNPayDate(vnpDate) {
-        if (!vnpDate || vnpDate.length !== 14) return null;
+    // const location = useLocation();
+    // const navigate = useNavigate();
+    // // Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
+    // function formatVNPayDate(vnpDate) {
+    //     if (!vnpDate || vnpDate.length !== 14) return null;
 
-        // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
-        const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
-        return formattedDate;
-    }
-    // Xử lý thanh toán
-    useEffect(() => {
-        // Lấy dữ liệu formData từ sessionStorage
-        const storedFormData = JSON.parse(sessionStorage.getItem('formData2'));
-        console.log(storedFormData);
+    //     // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
+    //     const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
+    //     return formattedDate;
+    // }
+    // // Xử lý thanh toán
+    // useEffect(() => {
+    //     // Lấy dữ liệu formData từ sessionStorage
+    //     const storedFormData = JSON.parse(sessionStorage.getItem('formData2'));
+    //     console.log(storedFormData);
 
-        if (!storedFormData) return;
-        // Lấy dữ liệu trả về từ VNPAY trong query params
-        const queryParams = new URLSearchParams(location.search);
-        const payFeeAdmission = {
-            txnRef: queryParams.get('vnp_TxnRef'),
-            amount: queryParams.get('vnp_Amount'),
-            bankCode: queryParams.get('vnp_BankCode'),
-            bankTranNo: queryParams.get('vnp_BankTranNo'),
-            cardType: queryParams.get('vnp_CardType'),
-            orderInfo: queryParams.get('vnp_OrderInfo'),
-            payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
-            responseCode: queryParams.get('vnp_ResponseCode'),
-            tmnCode: queryParams.get('vnp_TmnCode'),
-            transactionNo: queryParams.get('vnp_TransactionNo'),
-            transactionStatus: queryParams.get('vnp_TransactionStatus'),
-            secureHash: queryParams.get('vnp_SecureHash'),
-            isFeeRegister: true,
-        };
+    //     if (!storedFormData) return;
+    //     // Lấy dữ liệu trả về từ VNPAY trong query params
+    //     const queryParams = new URLSearchParams(location.search);
+    //     const payFeeAdmission = {
+    //         txnRef: queryParams.get('vnp_TxnRef'),
+    //         amount: queryParams.get('vnp_Amount'),
+    //         bankCode: queryParams.get('vnp_BankCode'),
+    //         bankTranNo: queryParams.get('vnp_BankTranNo'),
+    //         cardType: queryParams.get('vnp_CardType'),
+    //         orderInfo: queryParams.get('vnp_OrderInfo'),
+    //         payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
+    //         responseCode: queryParams.get('vnp_ResponseCode'),
+    //         tmnCode: queryParams.get('vnp_TmnCode'),
+    //         transactionNo: queryParams.get('vnp_TransactionNo'),
+    //         transactionStatus: queryParams.get('vnp_TransactionStatus'),
+    //         secureHash: queryParams.get('vnp_SecureHash'),
+    //         isFeeRegister: true,
+    //     };
 
-        // Kết hợp dữ liệu formData và payFeeAdmission
-        const updatedFormData = {
-            ...storedFormData,
-            payFeeAdmission
-        };
-        
-        // Submit
-        const submitApplication = async () => {
-            try {
-                //const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
-                const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+    //     // Kết hợp dữ liệu formData và payFeeAdmission
+    //     const updatedFormData = {
+    //         ...storedFormData,
+    //         payFeeAdmission
+    //     };
 
-                // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
-                sessionStorage.setItem('admissionSuccess', 'true');
+    //     // Submit
+    //     const submitApplication = async () => {
+    //         try {
+    //             //const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
+    //             const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
 
-                // Xóa formData sau khi gửi và chuyển hướng
-                sessionStorage.removeItem('formData2');
-                navigate('/tra-cuu-ho-so');
-            } catch (error) {
-                console.error('Lỗi khi gửi đơn:', error);
-                //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
-            }
-        };
+    //             // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
+    //             sessionStorage.setItem('admissionSuccess', 'true');
 
-        // Chỉ gọi submitApplication nếu thanh toán thành công
-        if (queryParams.get('vnp_ResponseCode') === '00') {
-            submitApplication();
-        }
-    }, [location, navigate]);
+    //             // Xóa formData sau khi gửi và chuyển hướng
+    //             sessionStorage.removeItem('formData');
+    //             navigate('/tra-cuu-ho-so');
+    //         } catch (error) {
+    //             console.error('Lỗi khi gửi đơn:', error);
+    //             //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+    //         }
+    //     };
+
+    //     // Chỉ gọi submitApplication nếu thanh toán thành công
+    //     if (queryParams.get('vnp_ResponseCode') === '00') {
+    //         submitApplication();
+    //     }
+    // }, [location, navigate]);
 
     const [formData, setFormData] = useState({
         fullname: "",
@@ -91,7 +91,8 @@ const IntermediateApplication = () => {
         phoneParents: "",
         campusId: "",
         major1: "",
-        yearOfGraduation: 0,
+        major2: "",
+        yearOfGraduation: "",
         schoolName: "",
         recipientResults: true,
         permanentAddress: true,
@@ -102,7 +103,9 @@ const IntermediateApplication = () => {
         imgAcademicTranscript1: "",
         priorityDetailPriorityID: 0,
         campusName: "",
+        studentCode: "",
     });
+    
     // Lưu trữ ảnh tạm thời
     const [tempImages, setTempImages] = useState({
         imgpriority: null,
@@ -137,7 +140,6 @@ const IntermediateApplication = () => {
             // Kiểm tra nếu thời gian hiện tại trong bất kỳ khoảng nào
             const withinTime = times.some((admission) => {
                 const start = new Date(admission.startRegister);
-                console.log(start);
                 const end = new Date(admission.endRegister);
                 return currentTime >= start && currentTime <= end;
             });
@@ -247,6 +249,8 @@ const IntermediateApplication = () => {
     // Ngành học
     const [majors, setMajors] = useState([]);
     const [selectedMajor1, setSelectedMajor1] = useState('');
+    const [selectedMajor2, setSelectedMajor2] = useState('');
+
     // Cập nhật formData và ngành học khi selectedCampus thay đổi
     useEffect(() => {
         if (selectedCampus?.id) {
@@ -256,9 +260,11 @@ const IntermediateApplication = () => {
                 campusName: selectedCampus.name,
             }));
             setSelectedMajor1('');
+            setSelectedMajor2('');
+
             const fetchMajors = async () => {
                 try {
-                    const response = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
+                    const response = await api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`);
                     setMajors(response.data);
                 } catch (error) {
                     console.error('Lỗi khi lấy giá trị ngành học', error);
@@ -275,6 +281,15 @@ const IntermediateApplication = () => {
         setFormData(prevData => ({
             ...prevData,
             major1: selectedMajorId
+        }));
+    };
+    // Khi người dùng chọn ngành cho nguyện vọng
+    const handleMajorChange2 = (e) => {
+        const selectedMajorId = e.target.value;
+        setSelectedMajor2(selectedMajorId);
+        setFormData(prevData => ({
+            ...prevData,
+            major2: selectedMajorId
         }));
     };
 
@@ -377,8 +392,9 @@ const IntermediateApplication = () => {
                 }
             }
         }
-        // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
-        sessionStorage.setItem('formData2', JSON.stringify(formData));
+        console.log(formData);
+        //Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
+        sessionStorage.setItem('formData', JSON.stringify(formData));
 
         const selectedCampusPost = {
             campus: selectedCampus.id
@@ -428,7 +444,7 @@ const IntermediateApplication = () => {
                         <h4 className='text-orange'>Thông tin thí sinh</h4>
                         <Row>
                             <Col md={3} className="mt-2">
-                                <Form.Group controlId="fullName">
+                                <Form.Group controlId="fullname">
                                     <Form.Label>Họ và tên</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -631,12 +647,12 @@ const IntermediateApplication = () => {
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
-                                <Form.Group>
+                                <Form.Group controlId="studentCode">
                                     <Form.Label>Mã sinh viên</Form.Label>
                                     <Form.Control
                                         type="text"
                                         placeholder="Nhập mã sinh viên"
-                                        // value={formData.schoolName}
+                                        value={formData.studentCode}
                                         onChange={handleChange}
                                     />
                                 </Form.Group>
@@ -655,35 +671,42 @@ const IntermediateApplication = () => {
                         </Row>
                         <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
                         <Row className="mt-2">
-                            <Row className='mb-2'>
-                                <Col md={3}>
-                                    <Form.Group controlId="campusId">
-                                        <Form.Label>Cơ sở</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={selectedCampus?.name || ''}
-                                            readOnly
-                                            className="bg-light"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Col md={6}>
-                                <Row>
-                                    <Form.Label>Nguyện vọng</Form.Label>
-                                    <Col md={6} className="mb-2">
-                                        <Form.Group controlId="majorSelection">
-                                            <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
-                                                <option value="">Chọn ngành</option>
-                                                {majors.map(major => (
-                                                    <option key={major.majorID} value={major.majorID}>
-                                                        {major.majorName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
+                            <Col md={3}>
+                                <Form.Group controlId="campusId">
+                                    <Form.Label>Cơ sở</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={selectedCampus?.name || ''}
+                                        readOnly
+                                        className="bg-light"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mb-2">
+                                <Form.Group controlId="major1">
+                                    <Form.Label>Nguyện vọng 1</Form.Label>
+                                    <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
+                                        <option value="">Chọn ngành</option>
+                                        {majors.map(major => (
+                                            <option key={major.majorID} value={major.majorID}>
+                                                {major.majorName}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={3} className="mb-2">
+                                <Form.Group controlId="major2">
+                                    <Form.Label>Nguyện vọng 2</Form.Label>
+                                    <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
+                                        <option value="">Chọn ngành</option>
+                                        {majors.map(major => (
+                                            <option key={major.majorID} value={major.majorID}>
+                                                {major.majorName}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
                             </Col>
                         </Row>
                         <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
@@ -809,7 +832,7 @@ const IntermediateApplication = () => {
                         <Row>
                             <Col md={6}>
                                 <Row>
-                                    <Col md={3} className='mt-2'>
+                                    <Col md={6} className='mt-2'>
                                         <Form.Group>
                                             <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
                                             <Form.Control
@@ -824,7 +847,7 @@ const IntermediateApplication = () => {
                                             )}
                                         </Form.Group>
                                     </Col>
-                                    <Col md={3} className='mt-2'>
+                                    <Col md={6} className='mt-2'>
                                         <Form.Group>
                                             <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
                                             <Form.Control
@@ -841,9 +864,9 @@ const IntermediateApplication = () => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col md={6}>
+                            <Col md={3} className='mt-2'>
                                 <Form.Group>
-                                    <Form.Label>Bảng điểm tốt nghiệp trung cấp</Form.Label>
+                                    <Form.Label>Bảng điểm</Form.Label>
                                     <Form.Control
                                         type="file"
                                         accept="image/*"

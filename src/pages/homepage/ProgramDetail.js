@@ -15,6 +15,7 @@ const ProgramDetail = () => {
                     `/Major/get-major-details?MajorId=${majorID}& &AdmissionInformationID=${admissionInformationID}`
                 );
                 setMajorInfo(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching major data:', error);
             } finally {
@@ -46,9 +47,11 @@ const ProgramDetail = () => {
                 <Breadcrumb.Item active className="text-orange">{majorInfo.majorName}</Breadcrumb.Item>
             </Breadcrumb>
 
-            <div className="table-container">
+            <div >
                 <h4 className='text-orange mt-4'>I. Tổng quan ngành {majorInfo.majorName}:</h4>
                 <p>{majorInfo.description || 'Không có mô tả'}</p>
+                <li><strong>Mã ngành:</strong> {majorInfo.majorID}</li>
+                <li><strong>Mã code:</strong> {majorInfo.majorCode}</li>
                 <li><strong>Thời gian học tập:</strong> {majorInfo.timeStudy}</li>
                 <li><strong>Học phí:</strong> {majorInfo.tuition.toLocaleString()} VND</li>
                 <li><strong>Chỉ tiêu tuyển:</strong> {majorInfo.target} học sinh</li>
@@ -130,7 +133,7 @@ const ProgramDetail = () => {
                 </div>
 
                 <p>
-                    Thông tin tuyển sinh ngành {majorInfo.majorName} chi tiết tại{' '}
+                    Thông tin tuyển sinh chi tiết tại{' '}
                     <Link to="/tuyen-sinh" className="text-orange">Tuyển sinh</Link>
                 </p>
             </div>

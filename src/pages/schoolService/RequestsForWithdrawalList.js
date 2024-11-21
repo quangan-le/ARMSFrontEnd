@@ -15,8 +15,7 @@ const RequestsForWithdrawalList = () => {
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
     const [selectedStatus, setSelectedStatus] = useState("");
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
 
     // Gọi API để lấy danh sách các request rút hồ sơ theo điều kiện tìm kiếm
     const fetchRequestsForWithdrawalList = async () => {

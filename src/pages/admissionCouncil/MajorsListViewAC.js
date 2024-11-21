@@ -13,8 +13,7 @@ const MajorsListViewAC = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const majorsPerPage = 10;
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
 
     const getDiplomaName = (typeDiploma) => {

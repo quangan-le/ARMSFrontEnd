@@ -4,9 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
 const AdmissionRegistrationList = () => {
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
-
+    const { campusId } = useOutletContext();
     const [search, setSearchTerm] = useState('');
     const [registerAdmissions, setRegisterAdmissions] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -33,11 +31,8 @@ const AdmissionRegistrationList = () => {
     };
 
     useEffect(() => {
-        if (selectedCampus && selectedCampus.id) {
-            const campusId = selectedCampus.id;
-            fetchRegisterAdmissions(campusId);
-        }
-    }, [selectedCampus, search, currentPage]);
+        fetchRegisterAdmissions();
+    }, [campusId, search, currentPage]);
 
     const startItem = (currentPage - 1) * registerAdmissionsPerPage + 1;
     const endItem = Math.min(currentPage * registerAdmissionsPerPage, totalItems);

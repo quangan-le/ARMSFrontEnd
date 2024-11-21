@@ -16,8 +16,7 @@ const NewsList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [categories, setCategories] = useState([]);
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
     useEffect(() => {
         const fetchCategories = async () => {
             try {

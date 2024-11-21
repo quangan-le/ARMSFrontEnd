@@ -15,8 +15,7 @@ const UserList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [accounts, setAccounts] = useState([]);
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
     const itemsPerPage = 8;
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);

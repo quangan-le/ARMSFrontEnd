@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from "../../apiService.js";
 import { useAuthStore } from "../../stores/useAuthStore.js";
 
-const ManagerHeader = ({ toggleSidebar, role, selectedCampus}) => {
+const ManagerHeader = ({ toggleSidebar, role, campusId}) => {
   const { removeUser } = useAuthStore();
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ const ManagerHeader = ({ toggleSidebar, role, selectedCampus}) => {
   }, []);
 
   // Lấy tên campus từ ID
-  const campusName = campusList.find(campus => campus.campusId === selectedCampus)?.campusName || "Cơ sở chưa xác định";
+  const campusName = campusList.find(campus => campus.campusId === campusId)?.campusName || "Cơ sở chưa xác định";
 
   // Map role ID 
   const roleNames = {

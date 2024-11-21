@@ -11,8 +11,7 @@ const MajorsListView = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const majorsPerPage = 10;
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
 
     // Gọi API để lấy danh sách các majors theo điều kiện tìm kiếm
     const fetchMajors = async () => {
@@ -26,6 +25,7 @@ const MajorsListView = () => {
                         College: selectedCollege || null,
                     },
                 });
+                console.log(response.data);
                  setMajors(response.data.item);
                  setTotalPages(response.data.pageCount);
                  setTotalItems(response.data.totalItems);
@@ -55,6 +55,7 @@ const MajorsListView = () => {
     };
     // Gọi API lấy danh sách major khi search hoặc currentPage thay đổi
     useEffect(() => {
+        console.log('test');
         fetchMajors();
     }, [search, currentPage, campusId, selectedCollege]);
 

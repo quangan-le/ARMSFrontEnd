@@ -11,8 +11,7 @@ const AccountList = () => {
     const majorsPerPage = 10;
 
     const [accounts, setAccounts] = useState([]);
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
 // Gọi API để lấy danh sách các accounts theo điều kiện tìm kiếm
 const fetchAccounts = async () => {
     try {

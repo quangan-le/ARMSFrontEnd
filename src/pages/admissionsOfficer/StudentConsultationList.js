@@ -15,8 +15,7 @@ const StudentConsultationList = () => {
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
     const [selectedType, setSelectedType] = useState("");
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
 
     // Major data
     const [vocationalMajors, setVocationalMajors] = useState([]);

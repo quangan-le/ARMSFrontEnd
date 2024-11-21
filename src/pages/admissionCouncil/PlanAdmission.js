@@ -9,8 +9,7 @@ const PlanAdmission = () => {
     const [selectedCollege, setSelectedCollege] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const majorsPerPage = 10;
-    const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const { campusId } = useOutletContext();
 
     const fetchAdmissionInformations = async () => {
         try {

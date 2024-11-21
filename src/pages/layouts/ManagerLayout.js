@@ -12,14 +12,14 @@ const ManagerLayout = ({ role }) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
   const { user } = useAuthStore();
-  const selectedCampus = user.campusId;
+  const campusId = user.campusId;
 
   return (
     <div>
       <ManagerHeader
         toggleSidebar={toggleSidebar}
         role={role}
-        selectedCampus={selectedCampus}
+        campusId={campusId}
       />
 
       <Container fluid>
@@ -35,7 +35,7 @@ const ManagerLayout = ({ role }) => {
             className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}
           >
             {/* Render nested routes with context */}
-            <Outlet context={{ selectedCampus }} />
+            <Outlet context={{ campusId }} />
           </Col>
         </Row>
       </Container>

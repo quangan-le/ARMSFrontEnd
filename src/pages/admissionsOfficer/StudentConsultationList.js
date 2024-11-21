@@ -38,7 +38,8 @@ const StudentConsultationList = () => {
                         Status: selectedType || null,
                     },
                 });
-                setStudentConsultation(response.data.item);
+                console.log(response.data);
+                setStudentConsultation(response.data);
                 setTotalPages(response.data.pageCount);
                 setTotalItems(response.data.totalItems);
             }
@@ -161,7 +162,7 @@ const StudentConsultationList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {studentConsultation.length > 0 ? (
+                    {studentConsultation ? (
                         studentConsultation.map((consultation, index) => (
                             <tr key={consultation.studentConsultationId}>
                                 <td className="text-center fw-bold">{index + 1}</td>
@@ -300,18 +301,24 @@ const StudentConsultationList = () => {
                                 onChange={handleInputChange}
                             >
                                 <option value="">Chọn ngành</option>
-                                {selectedConsultation.type ? (
-                                    vocationalMajors.map((major) => (
-                                        <option key={major.id} value={major.id}>
-                                            {major.name}
-                                        </option>
-                                    ))
-                                ) : (
-                                    collegeMajors.map((major) => (
-                                        <option key={major.id} value={major.id}>
-                                            {major.name}
-                                        </option>
-                                    ))
+                                {collegeMajors.length > 0 && (
+                                    <optgroup label="Ngành học Cao đẳng">
+                                        {collegeMajors.map((major) => (
+                                            <option key={major.majorID} value={major.majorID}>
+                                                {major.majorName}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+
+                                {vocationalMajors.length > 0 && (
+                                    <optgroup label="Ngành học Trung cấp">
+                                        {vocationalMajors.map((major) => (
+                                            <option key={major.majorID} value={major.majorID}>
+                                                {major.majorName}
+                                            </option>
+                                        ))}
+                                    </optgroup>
                                 )}
                             </Form.Select>
                         </Form.Group>

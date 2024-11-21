@@ -121,7 +121,7 @@ const Sidebar = ({ role }) => {
                 <House className="me-2" /> Trang chủ
               </NavLink>
               <NavLink
-                to="/admissions-officer/danh-sach-nganh-hoc"
+                to="/admissions-officer/danh-sach-nganh-tuyen-sinh"
                 className={({ isActive }) =>
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }

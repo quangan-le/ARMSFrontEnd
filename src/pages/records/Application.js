@@ -1170,7 +1170,7 @@ const Application = () => {
                                         <Form.Control
                                             type="text"
                                             value={selectedCampus?.name || ''}
-                                            readOnly
+                                            disabled
                                             className="bg-light"
                                         />
                                     </Form.Group>

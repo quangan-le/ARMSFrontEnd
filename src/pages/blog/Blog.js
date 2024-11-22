@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Pagination, Breadcrumb, Form } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Col, Container, Form, Pagination, Row } from 'react-bootstrap';
 import { Link, useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
@@ -64,14 +64,15 @@ const Blog = () => {
     return (
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Tin tức</h1>
+            
+
+            <div className="filter-section m-3 ">
             <Breadcrumb>
                 <Breadcrumb.Item>
                     <Link to="/">Trang chủ</Link>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Tin tức</Breadcrumb.Item>
             </Breadcrumb>
-
-            <div className="filter-section m-3">
                 <Row className="align-items-center">
                     <Col md={9} className="mt-3 d-flex align-items-center">
                         <Form.Control

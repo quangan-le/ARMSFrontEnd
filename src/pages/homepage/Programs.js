@@ -35,14 +35,13 @@ const Programs = () => {
     return (
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Ngành học</h1>
+            <div className="table-container">
             <Breadcrumb>
                 <Breadcrumb.Item>
                     <Link to="/">Trang chủ</Link>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Ngành học</Breadcrumb.Item>
             </Breadcrumb>
-
-            <div className="table-container">
                 {loading && <Spinner animation="border" />}
                 {error && <p className="text-danger">Lỗi: {error.message}</p>}
 

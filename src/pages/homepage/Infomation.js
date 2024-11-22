@@ -77,13 +77,13 @@ const Information = () => {
 
     return (
         <Container className="my-3">
+            <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Thông tin tuyển sinh</h1>
             <Breadcrumb>
                 <Breadcrumb.Item>
                     <Link to="/">Trang chủ</Link>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item active className='text-orange'>Thông tin tuyển sinh</Breadcrumb.Item>
             </Breadcrumb>
-            <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Thông tin tuyển sinh</h1>
             <h4 className='text-orange mt-4'>I. Chuyên ngành đào tạo và học phí</h4>
             {loading && <Spinner animation="border" />}
             {error && <p className="text-danger">Lỗi: {error.message}</p>}

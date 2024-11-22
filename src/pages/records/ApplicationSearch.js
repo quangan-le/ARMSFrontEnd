@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Container, Form, Button, Row, Col, Card, Breadcrumb, Badge } from 'react-bootstrap';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row } from 'react-bootstrap';
+import { Download } from 'react-bootstrap-icons';
+import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../apiService';
-import axios from 'axios';
-import { Download } from 'react-bootstrap-icons';
 import uploadImage from '../../firebase/uploadImage.js';
 
 const ApplicationSearch = () => {
@@ -308,13 +308,13 @@ const ApplicationSearch = () => {
     return (
         <Container className="my-3">
             <ToastContainer position="top-right" autoClose={3000} />
+            <Form className="my-4 mx-3">
             <Breadcrumb>
                 <Breadcrumb.Item>
                     <Link to="/">Trang chủ</Link>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
             </Breadcrumb>
-            <Form className="my-4 mx-3">
                 <Row className="align-items-center">
                     <Col xs="auto">
                         <Form.Label className="me-2 mb-0">Nhập CCCD/CMND:</Form.Label>

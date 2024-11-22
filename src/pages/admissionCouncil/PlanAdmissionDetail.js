@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Container } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Container, Row, Col } from 'react-bootstrap';
 
 const PlanAdmissionDetail = () => {
     const [showEditModal, setShowEditModal] = useState(false);
@@ -38,21 +38,23 @@ const PlanAdmissionDetail = () => {
     return (
         <Container>
             <h2 className="text-center text-orange fw-bold mb-4">Chi tiết hoạch tuyển sinh</h2>
-            {/* Phần I: Thông tin */}
-            <h4>I. Thông tin</h4>
-            <div className="mb-3">
-                <p><strong>Năm:</strong> {admissionInfo.year}</p>
-                <p><strong>Thời gian bắt đầu:</strong> {admissionInfo.startDate}</p>
-                <p><strong>Thời gian kết thúc:</strong> {admissionInfo.endDate}</p>
-                <p><strong>Lệ phí:</strong> {admissionInfo.fee}</p>
-                <p><strong>Hình thức nhập học:</strong> {admissionInfo.enrollmentMethod}</p>
-                <Button variant="primary" onClick={() => handleShowEditModal('I')}>
-                    Chỉnh sửa
-                </Button>
-            </div>
 
-            {/* Phần II: Đợt tuyển sinh */}
-            <h4>II. Đợt tuyển sinh</h4>
+            <h4 className='text-orange mt-4'>I. Thông tin</h4>
+            <Row>
+                <Col md={10}>
+                    <p><strong>Năm:</strong> {admissionInfo.year}</p>
+                    <p><strong>Thời gian bắt đầu:</strong> {admissionInfo.startDate}</p>
+                    <p><strong>Thời gian kết thúc:</strong> {admissionInfo.endDate}</p>
+                    <p><strong>Lệ phí:</strong> {admissionInfo.fee}</p>
+                    <p><strong>Hình thức nhập học:</strong> {admissionInfo.enrollmentMethod}</p>
+                </Col>
+                <Col md={2}>
+                    <Button variant="warning" onClick={() => handleShowEditModal('I')}>
+                        Chỉnh sửa
+                    </Button>
+                </Col>
+            </Row>
+            <h4 className='text-orange mt-4'>II. Đợt tuyển sinh</h4>
             <Table striped bordered hover>
                 <thead>
                     <tr>
@@ -80,8 +82,7 @@ const PlanAdmissionDetail = () => {
                 </tbody>
             </Table>
 
-            {/* Phần III: Ngành tuyển */}
-            <h4>III. Ngành tuyển</h4>
+            <h4 className='text-orange mt-4'>III. Ngành tuyển</h4>
             <Table striped bordered hover>
                 <thead>
                     <tr>

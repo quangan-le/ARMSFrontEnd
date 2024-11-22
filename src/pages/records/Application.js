@@ -180,6 +180,9 @@ const Application = () => {
             ward: ""
         }));
         setSelectedDistrict('');
+        validateField("province", selected);
+        validateField("district", ""); // Xóa lỗi khi district bị reset
+        validateField("ward", ""); // Xóa lỗi khi ward bị reset
     };
 
     const handleDistrictChange = (e) => {
@@ -848,12 +851,132 @@ const Application = () => {
     };
 
     // formData
+    // const handleChange = (e) => {
+    //     const { id, value, type, checked } = e.target;
+    //     setFormData(prevState => ({
+    //         ...prevState,
+    //         [id]: (id === "gender" || id === "recipientResults") ? (value === "true") : (type === "checkbox" ? checked : value)
+    //     }));
+    // };
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
-        setFormData(prevState => ({
+
+        // Cập nhật giá trị trong formData
+        const updatedValue =
+            id === "gender" || id === "recipientResults"
+                ? value === "true"
+                : type === "checkbox"
+                    ? checked
+                    : value;
+
+        setFormData((prevState) => ({
             ...prevState,
-            [id]: (id === "gender" || id === "recipientResults") ? (value === "true") : (type === "checkbox" ? checked : value)
+            [id]: updatedValue,
         }));
+
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            [id]: validateField(id, updatedValue),
+        }));
+    };
+
+    // Validate
+    const [formErrors, setFormErrors] = useState({});
+    const validateField = (field, value) => {
+        let error = "";
+
+        switch (field) {
+            case "fullname":
+                if (!value.trim()) {
+                    error = "Họ và tên không được để trống.";
+                }
+                break;
+            case "dob":
+                if (!value) {
+                    error = "Ngày sinh không được để trống.";
+                } else if (new Date(value) > new Date()) {
+                    error = "Ngày sinh không hợp lệ.";
+                }
+                break;
+            case "gender":
+                if (value === "") {
+                    error = "Giới tính được yêu cầu.";
+                }
+                break;
+            case "nation":
+                if (!value.trim()) {
+                    error = "Dân tộc không được để trống.";
+                }
+                break;
+            case "citizenIentificationNumber":
+                if (!value.trim()) {
+                    error = "CCCD/CMND không được để trống.";
+                } else if (!/^\d{9}$|^\d{12}$/.test(value)) {
+                    error = "CCCD/CMND phải có 9 hoặc 12 chữ số.";
+                }
+                break;
+            case "ciDate":
+                if (!value) {
+                    error = "Ngày cấp không được để trống.";
+                } else if (new Date(value) > new Date()) {
+                    error = "Ngày cấp không hợp lệ.";
+                }
+                break;
+            case "ciAddress":
+                if (!value.trim()) {
+                    error = "Nơi cấp không được để trống.";
+                }
+                break;
+            case "province":
+                if (value === "") {
+                    error = "Tỉnh/Thành phố không được để trống.";
+                }
+                break;
+            case "district":
+                if (value === "") {
+                    error = "Quận/Huyện không được để trống.";
+                }
+                break;
+            case "ward":
+                if (value === "") {
+                    error = "Xã/Phường/Thị trấn không được để trống.";
+                }
+                break;
+
+
+
+
+            case "emailStudent":
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!value.trim()) {
+                    error = "Email không được để trống.";
+                } else if (!emailRegex.test(value)) {
+                    error = "Email không đúng định dạng.";
+                }
+                break;
+            case "phoneStudent":
+                const phoneRegex = /^[0-9]{10,11}$/;
+                if (!value.trim()) {
+                    error = "Số điện thoại không được để trống.";
+                } else if (!phoneRegex.test(value)) {
+                    error = "Số điện thoại không đúng định dạng.";
+                }
+                break;
+            default:
+                break;
+        }
+
+        return error;
+    };
+
+    const validateForm = () => {
+        const errors = {};
+        Object.keys(formData).forEach((field) => {
+            const error = validateField(field, formData[field]);
+            if (error) errors[field] = error;
+        });
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0; // Trả về true nếu không có lỗi
     };
 
     // Gửi dữ liệu và upload ảnh
@@ -867,11 +990,17 @@ const Application = () => {
             return currentTime >= start && currentTime <= end;
         });
 
-        if (!isWithinTime) {
-            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000); // Chờ 3 giây để người dùng thấy thông báo
+        // if (!isWithinTime) {
+        //     toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+        //     setTimeout(() => {
+        //         window.location.reload();
+        //     }, 3000); // Chờ 3 giây để người dùng thấy thông báo
+        //     return;
+        // }
+
+        // Validate dữ liệu trước khi submit
+        if (!validateForm()) {
+            toast.error("Vui lòng kiểm tra lại các trường bị lỗi.");
             return;
         }
 
@@ -942,7 +1071,7 @@ const Application = () => {
                     </div>
                 </Row>
             </div>
-            {isWithinAdmissionTime ? (
+            {!isWithinAdmissionTime ? (
                 <Container className="mt-5 mb-3 px-4">
                     <Form onSubmit={handleSubmit}>
                         <h4 className='text-orange'>Thông tin thí sinh</h4>
@@ -956,6 +1085,7 @@ const Application = () => {
                                         value={formData.fullname}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.fullname && <p className="error">{formErrors.fullname}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -966,6 +1096,7 @@ const Application = () => {
                                         value={formData.dob}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.dob && <p className="error">{formErrors.dob}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -976,6 +1107,7 @@ const Application = () => {
                                         <option value="true">Nam</option>
                                         <option value="false">Nữ</option>
                                     </Form.Control>
+                                    {formErrors.gender && <p className="error">{formErrors.gender}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -987,6 +1119,7 @@ const Application = () => {
                                         value={formData.nation}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.nation && <p className="error">{formErrors.nation}</p>}
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -1001,6 +1134,7 @@ const Application = () => {
                                         value={formData.citizenIentificationNumber}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.citizenIentificationNumber && <p className="error">{formErrors.citizenIentificationNumber}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -1011,6 +1145,7 @@ const Application = () => {
                                         value={formData.ciDate}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.ciDate && <p className="error">{formErrors.ciDate}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={6} className="mt-2">
@@ -1022,6 +1157,7 @@ const Application = () => {
                                         value={formData.ciAddress}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.ciAddress && <p className="error">{formErrors.ciAddress}</p>}
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -1035,13 +1171,14 @@ const Application = () => {
                                         value={formData.province}
                                         onChange={handleProvinceChange}
                                     >
-                                        <option value="">Tỉnh/thành phố</option>
+                                        <option value="">Tỉnh/Thành phố</option>
                                         {provinces.map((province) => (
                                             <option key={province.code} value={province.code}>
                                                 {province.name}
                                             </option>
                                         ))}
                                     </Form.Control>
+                                    {formErrors.province && <p className="error">{formErrors.province}</p>}
                                 </Form.Group>
                             </Col>
 
@@ -1060,6 +1197,7 @@ const Application = () => {
                                             </option>
                                         ))}
                                     </Form.Control>
+                                    {formErrors.district && <p className="error">{formErrors.district}</p>}
                                 </Form.Group>
                             </Col>
 
@@ -1078,9 +1216,9 @@ const Application = () => {
                                             </option>
                                         ))}
                                     </Form.Control>
+                                    {formErrors.ward && <p className="error">{formErrors.ward}</p>}
                                 </Form.Group>
                             </Col>
-
                             <Col md={3} xs={12} className="mb-3">
                                 <Form.Group controlId="specificAddress">
                                     <Form.Control
@@ -1504,6 +1642,7 @@ const Application = () => {
                                         type="file"
                                         accept="image/*"
                                         onChange={handleFrontCCCDChange}
+                                        required
                                     />
                                     {frontCCCD && (
                                         <div className="image-preview-container mt-2">
@@ -1519,6 +1658,7 @@ const Application = () => {
                                         type="file"
                                         accept="image/*"
                                         onChange={handleBackCCCDChange}
+                                        required
                                     />
                                     {backCCCD && (
                                         <div className="image-preview-container mt-2">
@@ -1536,6 +1676,7 @@ const Application = () => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleGraduationCertificateChange(e, true)}
+                                            required
                                         />
                                         {diplomaMajor1 && (
                                             <div className="image-preview-container mt-2">
@@ -1554,6 +1695,7 @@ const Application = () => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleGraduationCertificateChange(e, false)}
+                                            required
                                         />
                                         {diplomaMajor2 && (
                                             <div className="image-preview-container mt-2">
@@ -1575,6 +1717,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1585,6 +1728,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1595,6 +1739,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1605,6 +1750,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1615,6 +1761,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1625,6 +1772,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1635,6 +1783,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
+                                                    required
                                                 />
                                             </Col>
                                         )}
@@ -1645,6 +1794,7 @@ const Application = () => {
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
+                                                    required
                                                 />
                                             </Col>
                                         )}

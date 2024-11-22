@@ -50,19 +50,19 @@ const Payment = () => {
             ...baseFormData,
             payFeeAdmission,
         };
+        console.log(updatedFormData);
 
         // Submit
         const submitApplication = async () => {
             try {
-                let response;
                 if (storedFormData) {
-                    response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+                    const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
                     // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
                     sessionStorage.setItem('admissionSuccess', 'true');
                     sessionStorage.removeItem('formData');
 
                 } else if (storedFormDataDone) {
-                    response = await api.put('/RegisterAdmission/done-profile-admission', updatedFormData);
+                    const response = await api.put('/RegisterAdmission/done-profile-admission', updatedFormData);
                     // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
                     sessionStorage.setItem('doneSuccess', 'true');
                     sessionStorage.removeItem('data');
@@ -77,6 +77,11 @@ const Payment = () => {
         // Chỉ gọi submitApplication nếu thanh toán thành công
         if (queryParams.get('vnp_ResponseCode') === '00') {
             submitApplication();
+        } else {
+            toast.error('Thanh toán không thành công. Vui lòng thử lại!');
+            setTimeout(() => {
+                navigate('/nop-ho-so'); 
+            }, 3000); 
         }
     }, [location, navigate]);
 

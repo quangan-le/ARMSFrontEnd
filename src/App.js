@@ -125,7 +125,6 @@ function App() {
         <Route path="/thanh-toan" element={<Payment />} />
         <Route path="/tra-cuu-ho-so" element={<ApplicationSearch />} />
         <Route path="/cap-nhat-ho-so" element={<ApplicationUpdate />} />
-        <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh" element={<PlanAdmissionDetail />} />
 
       </Route>
       {userLoggedIn && (

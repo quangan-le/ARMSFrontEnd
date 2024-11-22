@@ -39,7 +39,7 @@ const ApplicationSearch = () => {
     }, []);
 
     // const location = useLocation();
-   
+
     // //Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
     // function formatVNPayDate(vnpDate) {
     //     if (!vnpDate || vnpDate.length !== 14) return null;
@@ -157,25 +157,31 @@ const ApplicationSearch = () => {
                     otp: otp
                 }
             });
+            const token = response.data?.token;
+            //console.log('token',token);
+            if (!token) {
+                toast.error('Token không tồn tại trong phản hồi.');
+                return;
+            }
             toast.success('Xác thực thành công!');
             const dataResponse = await axios.post(
                 'https://localhost:5001/api/RegisterAdmission/search-register-admission',
                 { citizenIentificationNumber: cccd },
                 {
                     headers: {
-                        Authorization: `Bearer ${response.data.token}`
+                        Authorization: `Bearer ${token}`
                     }
                 }
             );
             setApplicationData(dataResponse.data);
             setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor1, dataResponse.data.typeofStatusMajor2));
-            handleClose();
+            handleClose(dataResponse.data);
+            console.log(dataResponse.data);
         } catch (error) {
             console.error('Lỗi xác thực OTP:', error);
             toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
         }
     };
-    console.log(applicationData);
 
     // CSS classes cho các bước tiến trình
     const stepClasses = (step) => {
@@ -309,12 +315,12 @@ const ApplicationSearch = () => {
         <Container className="my-3">
             <ToastContainer position="top-right" autoClose={3000} />
             <Form className="my-4 mx-3">
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <Link to="/">Trang chủ</Link>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
-            </Breadcrumb>
+                <Breadcrumb>
+                    <Breadcrumb.Item>
+                        <Link to="/">Trang chủ</Link>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
+                </Breadcrumb>
                 <Row className="align-items-center">
                     <Col xs="auto">
                         <Form.Label className="me-2 mb-0">Nhập CCCD/CMND:</Form.Label>

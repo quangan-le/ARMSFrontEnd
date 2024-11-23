@@ -1,15 +1,15 @@
 // src/pages/Homepage.js
 import React, { useEffect, useState } from "react";
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { Link, useOutletContext, useLocation } from 'react-router-dom';
+import { Link, useLocation, useOutletContext } from 'react-router-dom';
 import Slider from "react-slick";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import api from "../../apiService.js";
+import SubizChat from "../../subiz/SubizChat.js";
 import SliderBanner from "./SilderBanner";
-import { useAuth } from '../../contexts/authContext/index.js'
 
 const Homepage = () => {
   const location = useLocation();
@@ -306,6 +306,7 @@ const Homepage = () => {
   };
   return (
     <div>
+      <SubizChat/>
       {loading ? (
         <div className="banner-placeholder">
           <span className="loading-text">Đang tải...</span>

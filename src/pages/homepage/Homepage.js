@@ -126,11 +126,11 @@ const Homepage = () => {
         </ul>
       )
       : "Đang tải dữ liệu...",
-    "Học phí": admissionInfo
+    "Phí nhập học": admissionInfo
       ? (
         <div>
           <p>Lệ phí xét tuyển: {admissionInfo.feeRegister.toLocaleString()} VND</p>
-          <p>Học phí: {admissionInfo.feeAdmission.toLocaleString()} VND</p>
+          <p>Học phí kì đầu tiên: {admissionInfo.feeAdmission.toLocaleString()} VND</p>
         </div>
       )
       : "Đang tải dữ liệu..."

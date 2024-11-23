@@ -9,72 +9,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Application = () => {
-    // const location = useLocation();
-    // const navigate = useNavigate();
-    // // Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
-    // function formatVNPayDate(vnpDate) {
-    //     if (!vnpDate || vnpDate.length !== 14) return null;
-
-    //     // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
-    //     const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
-    //     return formattedDate;
-    // }
-    // // Xử lý thanh toán
-    // useEffect(() => {
-    //     // Lấy dữ liệu formData từ sessionStorage
-    //     const storedFormData = JSON.parse(sessionStorage.getItem('formData'));
-    //     console.log(storedFormData);
-
-    //     if (!storedFormData) return;
-    //     // Lấy dữ liệu trả về từ VNPAY trong query params
-    //     const queryParams = new URLSearchParams(location.search);
-    //     const payFeeAdmission = {
-    //         txnRef: queryParams.get('vnp_TxnRef'),
-    //         amount: queryParams.get('vnp_Amount'),
-    //         bankCode: queryParams.get('vnp_BankCode'),
-    //         bankTranNo: queryParams.get('vnp_BankTranNo'),
-    //         cardType: queryParams.get('vnp_CardType'),
-    //         orderInfo: queryParams.get('vnp_OrderInfo'),
-    //         payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
-    //         responseCode: queryParams.get('vnp_ResponseCode'),
-    //         tmnCode: queryParams.get('vnp_TmnCode'),
-    //         transactionNo: queryParams.get('vnp_TransactionNo'),
-    //         transactionStatus: queryParams.get('vnp_TransactionStatus'),
-    //         secureHash: queryParams.get('vnp_SecureHash'),
-    //         isFeeRegister: true,
-    //     };
-
-    //     // Kết hợp dữ liệu formData và payFeeAdmission
-    //     const updatedFormData = {
-    //         ...storedFormData,
-    //         payFeeAdmission
-    //     };
-    //     //console.log(updatedFormData);
-    //     // Gọi API
-    //     const submitApplication = async () => {
-    //         try {
-    //             //const response = await axios.post('https://roughy-finer-seemingly.ngrok-free.app/api/RegisterAdmission/add-register-admission', updatedFormData);
-    //             const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
-
-    //             console.log('Đơn đã được gửi thành công:', response.data);
-
-    //             // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
-    //             sessionStorage.setItem('admissionSuccess', 'true');
-
-    //             // Xóa formData sau khi gửi và chuyển hướng
-    //             sessionStorage.removeItem('formData');
-    //             navigate('/tra-cuu-ho-so');
-    //         } catch (error) {
-    //             console.error('Lỗi khi gửi đơn:', error);
-    //             //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
-    //         }
-    //     };
-
-    //     // Chỉ gọi submitApplication nếu thanh toán thành công
-    //     if (queryParams.get('vnp_ResponseCode') === '00') {
-    //         submitApplication();
-    //     }
-    // }, [location, navigate]);
 
     const { selectedCampus } = useOutletContext();
     const [isWithinAdmissionTime, setIsWithinAdmissionTime] = useState(false);
@@ -280,7 +214,7 @@ const Application = () => {
         campusId: "",
         major1: "",
         major2: "",
-        yearOfGraduation: 0,
+        yearOfGraduation: "",
         schoolName: "",
         recipientResults: true,
         permanentAddress: true,
@@ -303,7 +237,7 @@ const Application = () => {
         typeOfTranscriptMajor1: null,
         typeOfDiplomaMajor2: null,
         typeOfTranscriptMajor2: null,
-        priorityDetailPriorityID: 0,
+        priorityDetailPriorityID: null,
         campusName: "",
         academicTranscriptsMajor1: [],
         academicTranscriptsMajor2: [],
@@ -527,9 +461,13 @@ const Application = () => {
     const handleSubjectGroupChange1 = (e) => {
         const selectedGroup = e.target.value;
         const selectedGroupData = subjectGroups1.find(group => group.subjectGroup === selectedGroup);
-        setSelectedGroupData1(selectedGroupData);
-        setAcademicTranscriptsMajor1([]);
-        setDisplayedFields1([]);
+        if (selectedGroupData) {
+            setSelectedGroupData1(selectedGroupData);
+            setAcademicTranscriptsMajor1([]);
+            setDisplayedFields1([]);
+        } else {
+            setSelectedGroupData1(null);
+        }
 
         // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
         if (selectedAdmissionType1 === 5 && selectedGroupData) {
@@ -566,10 +504,13 @@ const Application = () => {
     const handleSubjectGroupChange2 = (e) => {
         const selectedGroup = e.target.value;
         const selectedGroupData = subjectGroups2.find(group => group.subjectGroup === selectedGroup);
-        setSelectedGroupData2(selectedGroupData);
-        setAcademicTranscriptsMajor2([]);
-        setDisplayedFields2([]);
-
+        if (selectedGroupData) {
+            setSelectedGroupData2(selectedGroupData);
+            setAcademicTranscriptsMajor2([]);
+            setDisplayedFields2([]);
+        } else {
+            setSelectedGroupData2(null);
+        }
         // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
         if (selectedAdmissionType2 === 5 && selectedGroupData) {
             // Nếu chọn "Xét điểm thi THPT", chỉ hiển thị 3 ô nhập điểm cho 3 môn đã chọn
@@ -979,9 +920,13 @@ const Application = () => {
         return Object.keys(errors).length === 0; // Trả về true nếu không có lỗi
     };
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
     // Gửi dữ liệu và upload ảnh
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true); // Bắt đầu trạng thái loading
+        setLoadingMessage('Đang lưu hồ sơ...');
         const currentTime = new Date();
         // Kiểm tra nếu thời gian hiện tại không nằm trong bất kỳ khoảng nào
         const isWithinTime = admissionTimes.some((admission) => {
@@ -990,17 +935,19 @@ const Application = () => {
             return currentTime >= start && currentTime <= end;
         });
 
-        // if (!isWithinTime) {
-        //     toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
-        //     setTimeout(() => {
-        //         window.location.reload();
-        //     }, 3000); // Chờ 3 giây để người dùng thấy thông báo
-        //     return;
-        // }
+        if (!isWithinTime) {
+            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+            setIsLoading(false); // Kết thúc loading
+            return;
+        }
 
         // Validate dữ liệu trước khi submit
         if (!validateForm()) {
             toast.error("Vui lòng kiểm tra lại các trường bị lỗi.");
+            setIsLoading(false);
             return;
         }
 
@@ -1012,7 +959,21 @@ const Application = () => {
         };
 
         // Duyệt qua các ảnh trong tempImages và upload
-        for (const [key, file] of Object.entries(tempImages)) {
+        // for (const [key, file] of Object.entries(tempImages)) {
+        //     if (file) {
+        //         const folder = 'RegisterAdmission';
+        //         try {
+        //             // Upload ảnh và lấy URL
+        //             const url = await uploadImage(file, folder);
+
+        //             // Cập nhật updatedFormData với URL ảnh đã upload
+        //             updatedFormData[key] = url;
+        //         } catch (error) {
+        //             console.error(`Error uploading ${key}:`, error);
+        //         }
+        //     }
+        // }
+        const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {
             if (file) {
                 const folder = 'RegisterAdmission';
                 try {
@@ -1025,7 +986,10 @@ const Application = () => {
                     console.error(`Error uploading ${key}:`, error);
                 }
             }
-        }
+        });
+        await Promise.all(uploadPromises);
+
+        setLoadingMessage('Chuẩn bị thanh toán...');
         // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         setFormData(updatedFormData);
         sessionStorage.setItem('formData', JSON.stringify(updatedFormData));
@@ -1046,11 +1010,19 @@ const Application = () => {
             window.location.href = paymentUrl;
         } catch (error) {
             toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div>
+            {isLoading && (
+                <div className="loading-overlay">
+                    <div className="spinner-border text-orange" role="status"></div>
+                    <p>{loadingMessage}</p>
+                </div>
+            )}
             <ToastContainer position="top-right" autoClose={3000} />
             <div className="background-overlay">
                 <div className="overlay"></div>
@@ -1355,7 +1327,7 @@ const Application = () => {
                                         <Col md={3}>
                                             <Form.Group controlId="subjectSelection1" className='mb-2'>
                                                 <Form.Control as="select"
-                                                    value={selectedGroupData1.subjectGroup !== null && selectedGroupData1.subjectGroup !== undefined ? selectedGroupData1.subjectGroup : ''}
+                                                    value={selectedGroupData1?.subjectGroup || ''}
                                                     onChange={handleSubjectGroupChange1}
                                                 >
                                                     <option value="">Chọn khối</option>
@@ -1453,7 +1425,7 @@ const Application = () => {
                                         <Col md={3}>
                                             <Form.Group controlId="subjectSelection2" className='mb-2'>
                                                 <Form.Control as="select"
-                                                    value={selectedGroupData2.subjectGroup !== null && selectedGroupData2.subjectGroup !== undefined ? selectedGroupData2.subjectGroup : ''}
+                                                    value={selectedGroupData2?.subjectGroup || ''}
                                                     onChange={handleSubjectGroupChange2}
                                                 >
                                                     <option value="">Chọn khối</option>

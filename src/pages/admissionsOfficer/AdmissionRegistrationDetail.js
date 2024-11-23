@@ -1,13 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Container, Form, Button, Row, Col, Card, Breadcrumb } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../apiService';
+import axios from 'axios';
+import { Download } from 'react-bootstrap-icons';
 
 const AdmissionRegistrationDetail = () => {
-   
+    const navigate = useNavigate();
+    const { spId } = useParams();
     const [applicationData, setApplicationData] = useState(null);
+    const [address, setAddress] = useState('');
+
+    useEffect(() => {
+        const fetchApplicationData = async () => {
+            try {
+                const response = await api.get(
+                    `/admin-officer/RegisterAdmission/get-register-admission/${spId}`
+                );
+                setApplicationData(response.data);
+            } catch (error) {
+                console.error("Lỗi lấy dữ liệu ứng tuyển:", error);
+            }
+        };
+
+        fetchApplicationData();
+    }, [spId]);
 
     useEffect(() => {
         const fetchAddress = async () => {
@@ -42,28 +61,10 @@ const AdmissionRegistrationDetail = () => {
         }
     }, [applicationData]); // Chạy lại khi applicationData thay đổi
 
-    useEffect(() => {
-        const fetchMajors = async () => {
-            try {
-                const [major1Response, major2Response] = await Promise.all([
-                    api.get(`/Major/get-major-details?MajorId=${applicationData.major1}`),
-                    api.get(`/Major/get-major-details?MajorId=${applicationData.major2}`)
-                ]);
-                setMajorName1(major1Response.data.majorName);
-                setMajorName2(major2Response.data.majorName);
-            } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu ngành học:", error);
-            }
-        };
-
-        if (applicationData && applicationData.major1 && applicationData.major2) {
-            fetchMajors();
-        }
-    }, [applicationData]); // Chạy lại khi applicationData thay đổi
-
     return (
         <Container className="my-3">
             <ToastContainer position="top-right" autoClose={3000} />
+            <h2 className="text-center text-orange fw-bold">Chi tiết hồ sơ đăng ký</h2>
             {applicationData && (
                 <div>
                     <Card className="mt-4 px-md-5 px-3">
@@ -166,13 +167,22 @@ const AdmissionRegistrationDetail = () => {
                                             <p className="image-title text-center mt-2">Bằng xét NV2</p>
                                         </Col>
                                     )}
-
                                     {applicationData.imgAcademicTranscript1 && (
                                         <Col xs={6} sm={4} md={3} className="mb-2">
                                             <div className="image-container">
-                                                <img src={applicationData.imgAcademicTranscript1} alt="Ảnh học bạ HKI lớp 10" className="img-fluid" />
+                                                <img
+                                                    src={applicationData.imgAcademicTranscript1}
+                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                        ? "Bảng điểm"
+                                                        : "Ảnh học bạ HKI lớp 10"}
+                                                    className="img-fluid"
+                                                />
                                             </div>
-                                            <p className="image-title text-center mt-2">Ảnh học bạ HKI - Lớp 10</p>
+                                            <p className="image-title text-center mt-2">
+                                                {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                    ? "Bảng điểm"
+                                                    : "Ảnh học bạ HKI - Lớp 10"}
+                                            </p>
                                         </Col>
                                     )}
 
@@ -252,7 +262,7 @@ const AdmissionRegistrationDetail = () => {
                                 </Col>
                                 {applicationData.priorityDetailPriorityID > 0 && applicationData.imgpriority && (
                                     <Col xs={12} md={6}>
-                                        <div className="info-item">
+                                        <div>
                                             <span className="label">Giấy tờ ưu tiên</span>
                                             <div>
                                                 <img
@@ -292,34 +302,98 @@ const AdmissionRegistrationDetail = () => {
                                 <Col xs={12} md={6}>
                                     <div className="info-item">
                                         <span className="label">Nguyện vọng 1</span>
-                                        <span className="value">{majorName1}</span>
+                                        <span className="value">{applicationData.majorName1}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Nguyện vọng 2</span>
-                                        <span className="value">{majorName2}</span>
+                                        <span className="value">{applicationData.majorName2}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Trạng thái hồ sơ</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusProfile === null ? "Chờ xét duyệt" : applicationData.typeofStatusProfile}
+                                            {applicationData.typeofStatusProfile === null
+                                                ? "Chờ xét duyệt"
+                                                : applicationData.typeofStatusProfile === 0
+                                                    ? "Đăng ký hồ sơ thành công"
+                                                    : applicationData.typeofStatusProfile === 1
+                                                        ? "Xác nhận đăng ký hồ sơ thành công"
+                                                        : applicationData.typeofStatusProfile === 2
+                                                            ? "Hồ sơ nhập học thành công"
+                                                            : applicationData.typeofStatusProfile === 3
+                                                                ? "Xác nhận hồ sơ nhập học thành công"
+                                                                : applicationData.typeofStatusProfile === 4
+                                                                    ? "Chờ thanh toán phí nhập học"
+                                                                    : applicationData.typeofStatusProfile === 5
+                                                                        ? "Đang xử lý nhập học"
+                                                                        : applicationData.typeofStatusProfile === 6
+                                                                            ? "Hoàn thành"
+                                                                            : ""}
                                         </span>
                                     </div>
                                 </Col>
                                 <Col xs={12} md={6}>
                                     <div className="info-item">
-                                        <span className="label">Trạng thái xét duyệt</span>
+                                        <span className="label me-3 text-nowrap">Trạng thái xét duyệt NV1</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusMajor1 === null ? "Chờ xét duyệt" : applicationData.typeofStatusMajor1}
+                                            {applicationData.typeofStatusMajor1 === null
+                                                ? "Chờ xét duyệt"
+                                                : applicationData.typeofStatusMajor1 === 0
+                                                    ? "Không đạt"
+                                                    : applicationData.typeofStatusMajor1 === 1
+                                                        ? "Đạt"
+                                                        : applicationData.typeofStatusMajor1 === 2
+                                                            ? "Đang xử lý"
+                                                            : ""}
                                         </span>
                                     </div>
                                     <div className="info-item">
-                                        <span className="label">Trạng thái xét duyệt</span>
+                                        <span className="label me-3 text-nowrap">Trạng thái xét duyệt NV2</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusMajor2 === null ? "Chờ xét duyệt" : applicationData.typeofStatusMajor2}
+                                            {applicationData.typeofStatusMajor2 === null
+                                                ? "Chờ xét duyệt"
+                                                : applicationData.typeofStatusMajor2 === 0
+                                                    ? "Không đạt"
+                                                    : applicationData.typeofStatusMajor2 === 1
+                                                        ? "Đạt"
+                                                        : applicationData.typeofStatusMajor2 === 2
+                                                            ? "Đang xử lý"
+                                                            : "N/A"}
                                         </span>
                                     </div>
                                 </Col>
-
+                                <h4 className='text-orange mb-2'>Hồ sơ nhập học</h4>
+                                <Col md={6}>
+                                    {applicationData.admissionForm ? (
+                                        <div className="mb-3 d-flex align-items-center">
+                                            <p className="mb-0 me-2"><strong>Đơn nhập học:</strong></p>
+                                            <a href={applicationData.admissionForm} target="_blank" rel="noopener noreferrer">
+                                                Tải xuống Đơn nhập học
+                                                <Download className="ms-2" />
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <p>Chưa có thông tin Đơn nhập học.</p>
+                                    )}
+                                </Col>
+                                <Col md={6}>
+                                    {applicationData.birthCertificate ? (
+                                        <div className="mb-3">
+                                            <p><strong>Giấy khai sinh:</strong></p>
+                                            <img
+                                                src={applicationData.birthCertificate}
+                                                alt="Giấy khai sinh"
+                                                className="img-fluid"
+                                                style={{
+                                                    maxWidth: "300px",
+                                                    maxHeight: "300px",
+                                                    border: "1px solid #ccc"
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <p>Chưa có thông tin Giấy khai sinh.</p>
+                                    )}
+                                </Col>
                             </Row>
                             <Col className="d-flex justify-content-end">
                                 <Button

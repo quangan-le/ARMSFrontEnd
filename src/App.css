@@ -550,11 +550,26 @@ footer {
 }
 
 /* Application.js */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  color: white;
+  font-size: 18px;
+}
 .error {
-  color: red; 
-  font-size: 14px; 
+  color: red;
+  font-size: 14px;
   margin-top: 5px;
-  font-style: italic; 
+  font-style: italic;
 }
 .image-preview-container {
   width: 100%;
@@ -778,7 +793,7 @@ footer {
 
 .active-link {
   font-weight: bold !important;
-  color: #f90 !important; 
+  color: #f90 !important;
   border-bottom: 2px solid #f90 !important;
 }
 

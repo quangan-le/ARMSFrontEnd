@@ -76,7 +76,7 @@ const Information = () => {
     }, [selectedCampus]);
 
     return (
-        <Container className="my-3">
+        <Container className="my-5">
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Thông tin tuyển sinh</h1>
             <Breadcrumb>
                 <Breadcrumb.Item>

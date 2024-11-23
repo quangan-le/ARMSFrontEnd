@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row } from 'react-bootstrap';
 import { Download } from 'react-bootstrap-icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../apiService';
@@ -38,71 +38,7 @@ const ApplicationSearch = () => {
         }
     }, []);
 
-    // const location = useLocation();
-
-    // //Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
-    // function formatVNPayDate(vnpDate) {
-    //     if (!vnpDate || vnpDate.length !== 14) return null;
-
-    //     // Chuyển thành định dạng `YYYY-MM-DDTHH:MM:SS`
-    //     const formattedDate = `${vnpDate.slice(0, 4)}-${vnpDate.slice(4, 6)}-${vnpDate.slice(6, 8)}T${vnpDate.slice(8, 10)}:${vnpDate.slice(10, 12)}:${vnpDate.slice(12, 14)}`;
-    //     return formattedDate;
-    // }
-    // // Xử lý thanh toán
-    // useEffect(() => {
-    //     // Lấy dữ liệu data từ sessionStorage
-    //     const storedFormData = JSON.parse(sessionStorage.getItem('data'));
-    //     if (!storedFormData) return;
-    //     // Lấy dữ liệu trả về từ VNPAY trong query params
-    //     const queryParams = new URLSearchParams(location.search);
-    //     const payFeeAdmission = {
-    //         txnRef: queryParams.get('vnp_TxnRef'),
-    //         amount: queryParams.get('vnp_Amount'),
-    //         bankCode: queryParams.get('vnp_BankCode'),
-    //         bankTranNo: queryParams.get('vnp_BankTranNo'),
-    //         cardType: queryParams.get('vnp_CardType'),
-    //         orderInfo: queryParams.get('vnp_OrderInfo'),
-    //         payDate: formatVNPayDate(queryParams.get('vnp_PayDate')), // Chuyển định dạng
-    //         responseCode: queryParams.get('vnp_ResponseCode'),
-    //         tmnCode: queryParams.get('vnp_TmnCode'),
-    //         transactionNo: queryParams.get('vnp_TransactionNo'),
-    //         transactionStatus: queryParams.get('vnp_TransactionStatus'),
-    //         secureHash: queryParams.get('vnp_SecureHash'),
-    //         isFeeRegister: true,
-    //     };
-
-    //     // Kết hợp dữ liệu formData và payFeeAdmission
-    //     const updatedFormData = {
-    //         ...storedFormData,
-    //         payFeeAdmission
-    //     };
-    //     // Gọi API
-    //     const submitApplication = async () => {
-    //         try {
-    //             console.log('updatedFormData', updatedFormData);
-
-    //             const response = await api.put('/RegisterAdmission/done-profile-admission', updatedFormData);
-
-    //             // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
-    //             sessionStorage.setItem('doneSuccess', 'true');
-
-    //             // Xóa formData sau khi gửi và chuyển hướng
-    //             sessionStorage.removeItem('data');
-    //             // Xóa query string và tải lại trang
-    //             window.history.replaceState({}, document.title, '/tra-cuu-ho-so');
-    //             window.location.reload();
-    //         } catch (error) {
-    //             console.error('Lỗi khi gửi đơn:', error);
-    //             //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
-    //         }
-    //     };
-
-    //     // Chỉ gọi submitApplication nếu thanh toán thành công
-    //     if (queryParams.get('vnp_ResponseCode') === '00') {
-    //         submitApplication();
-    //     }
-    // }, [location, navigate]);
-
+    const { selectedCampus } = useOutletContext();
     const [cccd, setCccd] = useState('');
     const [otp, setOtp] = useState('');
     const [applicationData, setApplicationData] = useState(null);
@@ -158,7 +94,6 @@ const ApplicationSearch = () => {
                 }
             });
             const token = response.data?.token;
-            //console.log('token',token);
             if (!token) {
                 toast.error('Token không tồn tại trong phản hồi.');
                 return;
@@ -230,24 +165,19 @@ const ApplicationSearch = () => {
         }
     }, [applicationData]); // Chạy lại khi applicationData thay đổi
 
-    // useEffect(() => {
-    //     const fetchMajors = async () => {
-    //         try {
-    //             const [major1Response, major2Response] = await Promise.all([
-    //                 api.get(`/Major/get-major-details?MajorId=${applicationData.major1}`),
-    //                 api.get(`/Major/get-major-details?MajorId=${applicationData.major2}`)
-    //             ]);
-    //             setMajorName1(major1Response.data.majorName);
-    //             setMajorName2(major2Response.data.majorName);
-    //         } catch (error) {
-    //             console.error("Lỗi khi lấy dữ liệu ngành học:", error);
-    //         }
-    //     };
-
-    //     if (applicationData && applicationData.major1 && applicationData.major2) {
-    //         fetchMajors();
-    //     }
-    // }, [applicationData]); // Chạy lại khi applicationData thay đổi
+    // Cơ sở
+    const [campuses, setCampuses] = useState([]);
+    useEffect(() => {
+        const fetchCampuses = async () => {
+            try {
+                const response = await api.get('/Campus/get-campuses');
+                setCampuses(response.data);
+            } catch (error) {
+                console.error('Error fetching campuses:', error);
+            }
+        };
+        fetchCampuses();
+    }, []);
 
     // Nhập học
     const [selectedEnrollmentForm, setSelectedEnrollmentForm] = useState(null); // File đơn nhập học
@@ -311,16 +241,39 @@ const ApplicationSearch = () => {
             sessionStorage.removeItem('data');
         }
     };
+
+    // Thông báo gửi hồ sơ bản cứng
+    const [admissionInfo, setAdmissionInfo] = useState(null);
+    const [campusDetail, setCampusDetail] = useState(null);
+
+    useEffect(() => {
+        if (maxStep === 4) {
+            const fetchCampuses = async () => {
+                try {
+                    const response = await api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`);
+                    setAdmissionInfo(response.data);
+                    const responseCampus = await api.get(`/Campus/get-campus?campusid=${selectedCampus.id}`);
+                    setCampusDetail(responseCampus.data.address);
+                } catch (error) {
+                    console.error('Lỗi lấy thông tin tuyển sinh: ', error);
+                }
+            };
+            fetchCampuses();
+        }
+    }, [maxStep, selectedCampus.id]);
+
+
     return (
-        <Container className="my-3">
+        <Container className="my-5">
             <ToastContainer position="top-right" autoClose={3000} />
-            <Form className="my-4 mx-3">
-                <Breadcrumb>
-                    <Breadcrumb.Item>
-                        <Link to="/">Trang chủ</Link>
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
-                </Breadcrumb>
+            <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Tra cứu hồ sơ</h1>
+            <Breadcrumb>
+                <Breadcrumb.Item>
+                    <Link to="/">Trang chủ</Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active className="text-orange">Tra cứu hồ sơ</Breadcrumb.Item>
+            </Breadcrumb>
+            <Form className="my-4 mx-3" onSubmit={(e) => { e.preventDefault(); handleSendOtp(); }}>
                 <Row className="align-items-center">
                     <Col xs="auto">
                         <Form.Label className="me-2 mb-0">Nhập CCCD/CMND:</Form.Label>
@@ -332,22 +285,25 @@ const ApplicationSearch = () => {
                             value={cccd}
                             onChange={(e) => setCccd(e.target.value)}
                             className="flex-grow-1"
+                            disabled={!!applicationData}
                         />
                     </Col>
                     <Col xs={4} md={3} lg={2}>
-                        <Button variant="light" onClick={handleSendOtp} className="w-100 bg-orange text-white">
+                        <Button variant="light" onClick={handleSendOtp}
+                            className="w-100 bg-orange text-white"
+                            disabled={!!applicationData}
+                        >
                             Gửi OTP
                         </Button>
                     </Col>
                 </Row>
             </Form>
-
             <Modal show={showModal} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Xác thực OTP</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form className="my-4 mx-5">
+                    <Form className="my-4 mx-5" onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }}>
                         <Row>
                             <Col md={12} className="mb-3">
                                 <div className="text-muted">
@@ -520,12 +476,21 @@ const ApplicationSearch = () => {
                                         {applicationData.imgAcademicTranscript1 && (
                                             <Col xs={6} sm={4} md={3} className="mb-2">
                                                 <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript1} alt="Ảnh học bạ HKI lớp 10" className="img-fluid" />
+                                                    <img
+                                                        src={applicationData.imgAcademicTranscript1}
+                                                        alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                            ? "Bảng điểm"
+                                                            : "Ảnh học bạ HKI lớp 10"}
+                                                        className="img-fluid"
+                                                    />
                                                 </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ HKI - Lớp 10</p>
+                                                <p className="image-title text-center mt-2">
+                                                    {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                        ? "Bảng điểm"
+                                                        : "Ảnh học bạ HKI - Lớp 10"}
+                                                </p>
                                             </Col>
                                         )}
-
                                         {applicationData.imgAcademicTranscript2 && (
                                             <Col xs={6} sm={4} md={3} className="mb-2">
                                                 <div className="image-container">
@@ -602,7 +567,7 @@ const ApplicationSearch = () => {
                                     </Col>
                                     {applicationData.priorityDetailPriorityID > 0 && applicationData.imgpriority && (
                                         <Col xs={12} md={6}>
-                                            <div className="info-item">
+                                            <div>
                                                 <span className="label">Giấy tờ ưu tiên</span>
                                                 <div>
                                                     <img
@@ -637,16 +602,20 @@ const ApplicationSearch = () => {
                                     <h4 className='text-orange mt-2'>Thông tin xét tuyển</h4>
                                     <div className="info-item">
                                         <span className="label2">Cơ sở nhập học</span>
-                                        <span className="value">{applicationData.campusName}</span>
+                                        <span className="value">
+                                            {
+                                                campuses.find(campus => campus.campusId === applicationData.campusId)?.campusName || "Tên cơ sở không có sẵn"
+                                            }
+                                        </span>
                                     </div>
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
                                             <span className="label">Nguyện vọng 1</span>
-                                            <span className="value">{majorName1}</span>
+                                            <span className="value">{applicationData.majorName1}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Nguyện vọng 2</span>
-                                            <span className="value">{majorName2}</span>
+                                            <span className="value">{applicationData.majorName2}</span>
                                         </div>
                                     </Col>
                                 </Row>
@@ -668,11 +637,11 @@ const ApplicationSearch = () => {
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
                                             <span className="label">Nguyện vọng 1</span>
-                                            <span className="value">{majorName1}</span>
+                                            <span className="value">{applicationData.majorName1}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Nguyện vọng 2</span>
-                                            <span className="value">{majorName2}</span>
+                                            <span className="value">{applicationData.majorName2}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Trạng thái hồ sơ</span>
@@ -824,6 +793,33 @@ const ApplicationSearch = () => {
                                             <p>Không tìm thấy Giấy khai sinh.</p>
                                         )}
                                     </Col>
+
+                                    {admissionInfo ? (
+                                        <div className="mb-3">
+                                            <p><strong>Vui lòng gửi hồ sơ bản cứng bao gồm các giấy tờ sau:</strong></p>
+                                            {admissionInfo.admissionProfileDescription
+                                                .split('\r\n')
+                                                .filter(item => item.trim() !== '')
+                                                .map((item, index) => (
+                                                    <li key={index}>{item}</li>
+                                                ))
+                                            }
+                                        </div>
+                                    ) : (
+                                        <p>Không tìm thấy Thông tin yêu cầu hồ sơ bản cứng.</p>
+                                    )}
+                                    {campusDetail ? (
+                                        <div className="mb-3 d-flex">
+                                            <p>
+                                                <strong>Địa chỉ gửi hồ sơ: </strong>
+                                                <span>
+                                                    {campusDetail}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <p>Không tìm thấy Thông tin yêu cầu hồ sơ bản cứng.</p>
+                                    )}
                                 </Row>
                             </div>
                         )}

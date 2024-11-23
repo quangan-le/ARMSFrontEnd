@@ -76,14 +76,7 @@ const Sidebar = ({ role }) => {
               >
                 <FileEarmarkText className="me-2" /> Danh sách tin tức
               </NavLink>
-              <NavLink
-                to="/school-service/danh-sach-dang-ky-tuyen-sinh"
-                className={({ isActive }) =>
-                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
-                }
-              >
-                <Calendar className="me-2" /> Yêu cầu đăng ký tuyển sinh
-              </NavLink>
+
               <NavLink
                 to="/school-service/danh-sach-yeu-cau-chuyen-nganh"
                 className={({ isActive }) =>
@@ -119,6 +112,14 @@ const Sidebar = ({ role }) => {
                 }
               >
                 <House className="me-2" /> Trang chủ
+              </NavLink>
+              <NavLink
+                to="/admissions-officer/danh-sach-dang-ky-tuyen-sinh"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
+                <Calendar className="me-2" /> Yêu cầu đăng ký tuyển sinh
               </NavLink>
               <NavLink
                 to="/admissions-officer/danh-sach-nganh-tuyen-sinh"

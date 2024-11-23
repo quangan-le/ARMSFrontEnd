@@ -39,6 +39,7 @@ import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
 import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
+import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
 import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
 import SendNotification from "./pages/schoolService/SendNotification.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
@@ -78,7 +79,6 @@ function App() {
         <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
         <Route path="/school-service/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
         <Route path="/school-service/danh-sach-tin-tuc" element={<NewsList />} />
-        <Route path="/school-service/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
         <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
         <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
         <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
@@ -92,6 +92,9 @@ function App() {
         <Route path="/admissions-officer/dashboard" element={<Dashboard />} />
         <Route path="/admissions-officer/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAO />} />
         <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={<StudentConsultationList />} />
+        <Route path="/admissions-officer/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
+        <Route path="/admissions-officer/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetail />} />
+
       </Route>
     </Routes>
   }

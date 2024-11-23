@@ -101,11 +101,11 @@ const IntermediateApplication = () => {
         imgCitizenIdentification2: "",
         imgpriority: "",
         imgAcademicTranscript1: "",
-        priorityDetailPriorityID: 0,
+        priorityDetailPriorityID: null,
         campusName: "",
         studentCode: "",
     });
-    
+
     // Lưu trữ ảnh tạm thời
     const [tempImages, setTempImages] = useState({
         imgpriority: null,
@@ -358,9 +358,13 @@ const IntermediateApplication = () => {
         }
     };
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
     // Gửi dữ liệu và upload ảnh
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true); // Bắt đầu trạng thái loading
+        setLoadingMessage('Đang lưu hồ sơ...');
         const currentTime = new Date();
         // Kiểm tra nếu thời gian hiện tại không nằm trong bất kỳ khoảng nào
         const isWithinTime = admissionTimes.some((admission) => {
@@ -369,11 +373,13 @@ const IntermediateApplication = () => {
             return currentTime >= start && currentTime <= end;
         });
 
+
         if (!isWithinTime) {
             toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
             setTimeout(() => {
                 window.location.reload();
-            }, 3000); // Chờ 3 giây để người dùng thấy thông báo
+            }, 3000);
+            setIsLoading(false);
             return;
         }
 
@@ -392,7 +398,8 @@ const IntermediateApplication = () => {
                 }
             }
         }
-        console.log(formData);
+
+        setLoadingMessage('Chuẩn bị thanh toán...');
         //Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         sessionStorage.setItem('formData', JSON.stringify(formData));
 
@@ -412,12 +419,20 @@ const IntermediateApplication = () => {
             window.location.href = paymentUrl;
         } catch (error) {
             toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+        } finally {
+            setIsLoading(false);
         }
     };
 
 
     return (
         <div>
+            {isLoading && (
+                <div className="loading-overlay">
+                    <div className="spinner-border text-orange" role="status"></div>
+                    <p>{loadingMessage}</p>
+                </div>
+            )}
             <ToastContainer position="top-right" autoClose={3000} />
             <div className=" background-overlay">
                 <div className="overlay"></div>

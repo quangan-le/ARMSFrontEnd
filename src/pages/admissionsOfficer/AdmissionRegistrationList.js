@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
 const AdmissionRegistrationList = () => {
     const { campusId } = useOutletContext();
+    // Tìm kiếm
     const [search, setSearchTerm] = useState('');
+    const [selectedTypeofStatus, setSelectedTypeofStatus] = useState('');
     const [registerAdmissions, setRegisterAdmissions] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -19,9 +21,9 @@ const AdmissionRegistrationList = () => {
                     campusId: campusId,
                     search: search,
                     currentPage: currentPage,
+                    typeofStatus: selectedTypeofStatus
                 },
             });
-            console.log(response.data);
             setRegisterAdmissions(response.data.item);
             setTotalPages(response.data.pageCount);
             setTotalItems(response.data.totalItems);
@@ -32,24 +34,43 @@ const AdmissionRegistrationList = () => {
 
     useEffect(() => {
         fetchRegisterAdmissions();
-    }, [campusId, search, currentPage]);
+    }, [campusId, search, currentPage, selectedTypeofStatus]);
 
     const startItem = (currentPage - 1) * registerAdmissionsPerPage + 1;
     const endItem = Math.min(currentPage * registerAdmissionsPerPage, totalItems);
 
     return (
-        <Container>
+        <Container className="my-3">
             <h2 className="text-center text-orange fw-bold">Danh sách hồ sơ đăng ký</h2>
             <p className="text-center mb-4 text-orange fw-bold">Quản lý hồ sơ đăng ký thuộc campus</p>
             <Row className="mb-3">
-                <Col xs={12} md={6} className="d-flex">
+                <Col xs={12} md={8} className="d-flex">
                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
                         <Form.Control
                             type="text"
-                            placeholder="Nhập tên sinh viên"
+                            placeholder="Nhập từ khóa tìm kiếm"
                             value={search}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                    </Form.Group>
+                </Col>
+                <Col xs={12} md={4}>
+                    <Form.Group controlId="typeOfStatusSelect" className="d-flex align-items-center">
+                        <Form.Label className="me-2 mb-0" style={{ whiteSpace: 'nowrap' }}>Trạng thái hồ sơ:</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={selectedTypeofStatus}
+                            onChange={(e) => setSelectedTypeofStatus(e.target.value)}
+                        >
+                            <option value="">Tất cả</option>
+                            <option value="0">Đăng ký hồ sơ thành công</option>
+                            <option value="1">Xác nhận hồ sơ đăng ký thành công</option>
+                            <option value="2">Hồ sơ nhập học thành công</option>
+                            <option value="3">Xác nhận hồ sơ nhập học thành công</option>
+                            <option value="4">Chờ thanh toán phí nhập học</option>
+                            <option value="5">Đang xử lý nhập học</option>
+                            <option value="6">Hoàn thành</option>
+                        </Form.Control>
                     </Form.Group>
                 </Col>
             </Row>
@@ -62,6 +83,9 @@ const AdmissionRegistrationList = () => {
                         <th>Giới tính</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
+                        <th>Thời gian gửi</th>
+                        <th>Loại xét tuyển</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,11 +98,22 @@ const AdmissionRegistrationList = () => {
                                 <td>{item.gender ? "Nam" : "Nữ"}</td>
                                 <td>{item.emailStudent}</td>
                                 <td>{item.phoneStudent}</td>
+                                <td>{new Date(item.timeRegister).toLocaleDateString()}</td>
+                                <td>
+                                    {(item.typeOfDiplomaMajor1 === 4 || item.typeOfDiplomaMajor2 === 4) ? "Liên thông" : ""}
+                                </td>
+                                <td className="text-center">
+                                    <Link to={`/admissions-officer/chi-tiet-dang-ky-tuyen-sinh/${item.spId}`}>
+                                        <Button variant="warning" className="text-white">
+                                            Chi tiết
+                                        </Button>
+                                    </Link>
+                                </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="7" className="text-center">
+                            <td colSpan="9" className="text-center">
                                 Không có hồ sơ đăng ký nào
                             </td>
                         </tr>

@@ -34,7 +34,7 @@ const ProgramDetail = () => {
     }
 
     return (
-        <Container className="my-3">
+        <Container className="my-5">
             <h1 className="page-title mb-0" style={{ color: 'orange', textAlign: 'center' }}>Chi tiết ngành học</h1>
             <h4 className="mb-0" style={{ color: 'orange', textAlign: 'center' }}>Ngành {majorInfo.majorName}</h4>
             <Breadcrumb>

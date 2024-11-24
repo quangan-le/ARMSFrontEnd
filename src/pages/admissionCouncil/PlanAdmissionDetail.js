@@ -82,6 +82,7 @@ const PlanAdmissionDetail = () => {
                 return;
             }
         }
+        console.log(editFormData);
         try {
             if (currentSection === 'I') {
                 await api.put('/admission-council/AdmissionInformation/update-admission-information', editFormData);
@@ -125,10 +126,15 @@ const PlanAdmissionDetail = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const formDataWithCampusId = { 
+            ...formData, 
+            campusId: campusId 
+        };
+    
         try {
             const response = await api.post(
                 "/admission-council/AdmissionTime/add-admission-time",
-                formData
+                formDataWithCampusId
             );
             toast.success("Thêm đợt tuyển sinh thành công!");
             handleCloseModalCreate();
@@ -275,18 +281,6 @@ const PlanAdmissionDetail = () => {
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Năm</Form.Label>
-                            <Form.Control
-                                type="number"
-                                name="year"
-                                value={formData.year}
-                                onChange={handleCreateChange}
-                                required
-                            />
-                        </Form.Group>
-
                         <Form.Group className="mb-3">
                             <Form.Label>Thời gian bắt đầu tuyển</Form.Label>
                             <Form.Control

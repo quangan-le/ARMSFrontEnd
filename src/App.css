@@ -63,7 +63,7 @@ footer {
 /* CustomNavbar.css */
 /* Header.js*/
 .navbar {
-  background-color: orange !important;
+  background-color: orange;
 }
 
 .navbar .nav-link {

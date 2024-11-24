@@ -31,19 +31,11 @@ import IntermediateApplication from "./pages/records/IntermediateApplication.js"
 
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
-import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
-import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
-import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
-import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
-import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
-import Payment from "./pages/records/Payment.js";
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
 import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
 import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdrawalList.js";
-import SendNotification from "./pages/schoolService/SendNotification.js";
 import StudentConsultation from "./pages/schoolService/StudentConsultationList.js";
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
@@ -118,7 +110,7 @@ function App() {
     return <Routes>
       <Route element={<ManagerLayout role="Admin" />}>
         <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/danh-sach-snguoi-dung" element={<UserList />} />
+        <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
         <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
         <Route path="/admin/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
         <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />

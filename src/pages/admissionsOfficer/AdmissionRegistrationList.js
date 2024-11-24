@@ -56,13 +56,12 @@ const AdmissionRegistrationList = () => {
                 </Col>
                 <Col xs={12} md={4}>
                     <Form.Group controlId="typeOfStatusSelect" className="d-flex align-items-center">
-                        <Form.Label className="me-2 mb-0" style={{ whiteSpace: 'nowrap' }}>Trạng thái hồ sơ:</Form.Label>
                         <Form.Control
                             as="select"
                             value={selectedTypeofStatus}
                             onChange={(e) => setSelectedTypeofStatus(e.target.value)}
                         >
-                            <option value="">Tất cả</option>
+                            <option value="">Trạng thái hồ sơ</option>
                             <option value="0">Đăng ký hồ sơ thành công</option>
                             <option value="1">Xác nhận hồ sơ đăng ký thành công</option>
                             <option value="2">Hồ sơ nhập học thành công</option>

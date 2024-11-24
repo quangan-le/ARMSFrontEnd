@@ -31,14 +31,14 @@ const Sidebar = ({ role }) => {
               >
                 <Person className="me-2" /> Quản lý người dùng
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan"
                 className={({ isActive }) =>
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
                 <ShieldLock className="me-2" /> Phê duyệt tài khoản
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/admin/danh-sach-nganh-hoc"
                 className={({ isActive }) =>
@@ -174,14 +174,14 @@ const Sidebar = ({ role }) => {
               >
                 <Calendar className="me-2" /> Kế hoạch tuyển sinh
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/admissions-council/thong-tin-tuyen-sinh"
                 className={({ isActive }) =>
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
                 <InfoCircle className="me-2" /> Thông tin tuyển sinh
-              </NavLink>
+              </NavLink> */}
             </>
           )}
         </Nav>

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Breadcrumb, Spinner } from 'react-bootstrap';
-import api from '../../apiService';
+import { Breadcrumb, Container, Spinner } from 'react-bootstrap';
 import { Link, useOutletContext } from 'react-router-dom';
-
+import api from '../../apiService';
 const History = () => {
     const { selectedCampus } = useOutletContext();
     const [historyData, setHistoryData] = useState(null);
@@ -25,6 +24,7 @@ const History = () => {
             fetchHistory();
         }
     }, [selectedCampus]);
+
 
     return (
         <div>

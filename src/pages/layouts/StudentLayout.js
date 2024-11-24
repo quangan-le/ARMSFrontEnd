@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import Header from "../header/Header";
-import Footer from "../footer/Footer";
+import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from '../../contexts/authContext';
+import Footer from "../footer/Footer";
+import Header from "../header/Header";
 import { useState } from '../hooks/Hooks.js';
-import { useAuth } from '../../contexts/authContext'
 
 const StudentLayout = () => {
   const { currentUser, userLoggedIn } = useAuth();

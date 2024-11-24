@@ -8,7 +8,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import api from "../../apiService.js";
-import SubizChat from "../../subiz/SubizChat.js";
 import SliderBanner from "./SilderBanner";
 
 const Homepage = () => {
@@ -304,9 +303,9 @@ const Homepage = () => {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
+  
   return (
     <div>
-      <SubizChat/>
       {loading ? (
         <div className="banner-placeholder">
           <span className="loading-text">Đang tải...</span>
@@ -325,7 +324,7 @@ const Homepage = () => {
             { icon: "bi-briefcase", value: "90%", label: "Cơ hội việc làm" },
             { icon: "bi-people", value: "1000+", label: "Đối tác" },
             { icon: "bi-award", value: "1000+", label: "Học sinh & Cựu HS" },
-            { icon: "bi-buildings", value: "4 Cơ sở", label: "Cơ sở" },
+            { icon: "bi-buildings", value: "4 Cơ ssở", label: "Cơ sở" },
           ].map((item, index) => (
             <Col xs={6} md={3} className="d-flex align-items-center justify-content-center background-content" key={index}>
               <i className={`bi ${item.icon} display-4`}></i>

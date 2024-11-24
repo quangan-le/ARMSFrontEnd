@@ -5,10 +5,10 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from "../../apiService.js";
+import { useAuth } from "../../contexts/authContext";
 import { doSignInWithGoogle } from '../../firebase/auth';
 import { useAuthStore } from '../../stores/useAuthStore.js';
 import { useState } from '../hooks/Hooks.js';
-import { useAuth } from "../../contexts/authContext"; 
 
 const Login = () => {
     const { addUser } = useAuthStore();
@@ -104,6 +104,7 @@ const Login = () => {
     }
     return (
         <Container className="my-5">
+            <div id="chatbox"></div>
             <ToastContainer position="top-right" autoClose={3000} />
             {userLoggedIn && (<Navigate to={'/'} replace={true} />)}
             <Row className="justify-content-center">

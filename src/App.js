@@ -1,7 +1,6 @@
 import {
-  Navigate,
   Route,
-  Routes,
+  Routes
 } from "react-router-dom";
 import "./App.css";
 import { useAuth } from "./contexts/authContext/index.js";
@@ -30,24 +29,25 @@ import ApplicationSearch from "./pages/records/ApplicationSearch.js";
 import ApplicationUpdate from "./pages/records/ApplicationUpdate.js";
 import IntermediateApplication from "./pages/records/IntermediateApplication.js";
 
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
+import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
+import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
+import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
+import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
+import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
+import Payment from "./pages/records/Payment.js";
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
 import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
 import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdrawalList.js";
+import SendNotification from "./pages/schoolService/SendNotification.js";
+import StudentConsultation from "./pages/schoolService/StudentConsultationList.js";
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
-import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
-import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
-import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
-import SendNotification from "./pages/schoolService/SendNotification.js";
-import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
-import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
-import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
-import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
-import Payment from "./pages/records/Payment.js";
-
 
 function App() {
   const { userLoggedIn, currentUser } = useAuth();
@@ -60,11 +60,53 @@ function App() {
     return currentUser && currentUser.role === role;
   };
 
+  const location = useLocation();
+
+  useEffect(() => {
+    const chatboxDiv = document.getElementById('cpsdzukzsfckmjsftnaqh');
+    const hiddenDiv = document.getElementById('hidden-cpsdzukzsfckmjsftnaqh');
+    const chatboxDivId = 'cpsdzukzsfckmjsftnaqh';
+    const hiddenDivId = 'hidden-cpsdzukzsfckmjsftnaqh';
+
+    if (location.pathname === '/dang-nhap') {
+
+      if (chatboxDiv) {
+        chatboxDiv.id = hiddenDivId;
+        chatboxDiv.style.display = 'none';
+      }
+    }else if (
+      !location.pathname.includes('/admissions-council') &&
+      !location.pathname.includes('/admissions-officer') &&
+      !location.pathname.includes('/school-service') &&
+      !location.pathname.includes('/admin')
+    ){
+      if(hiddenDiv!==null){
+
+        hiddenDiv.id = chatboxDivId;
+        hiddenDiv.style.display = 'block';
+      }
+        const script = document.createElement('script');
+        script.innerHTML = `!function(s,u,b,i,z){
+          var o,t,r,y;s
+          s[i]||(s._sbzaccid=z,s[i]=function(){s[i].q.push(arguments)},s[i].q=[],s[i]("setAccount",z),
+          r=["widget.subiz.net","storage.googleapis"+(t=".com"),"app.sbz.workers.dev",i+"a"+
+          (o=function(k,t){var n=t<=6?5:o(k,t-1)+o(k,t-3);return k!==t?n:n.toString(32)})(20,20)+t,
+          i+"b"+o(30,30)+t,i+"c"+o(40,40)+t],(y=function(k){
+            var t,n;
+            s._subiz_init_2094850928430||r[k]&&(t=u.createElement(b),n=u.getElementsByTagName(b)[0],
+            t.async=1,t.src="https://"+r[k]+"/sbz/app.js?accid="+z,n.parentNode.insertBefore(t,n),
+            setTimeout(y,2e3,k+1))})(0))}(window,document,"script","subiz","acsdzucyfyshkppajwex");`;
+
+        script.async = true;
+        document.body.appendChild(script);
+  }
+  }, [location.pathname]);
+
   if (customLoginUser && checkRole("Admin")) {
     return <Routes>
       <Route element={<ManagerLayout role="Admin" />}>
         <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
+        <Route path="/admin/danh-sach-snguoi-dung" element={<UserList />} />
         <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
         <Route path="/admin/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
         <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
@@ -82,6 +124,7 @@ function App() {
         <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
         <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
         <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
+        <Route path="/school-service/danh-sach-dang-ky-tu-van" element={<StudentConsultation />} />
       </Route>
     </Routes>
   }
@@ -111,7 +154,9 @@ function App() {
 
   return (
     <Routes>
+      
       <Route element={<StudentLayout />}>
+      
         <Route path="/" element={<HomePage />} />
         <Route path="/dang-nhap" element={<Login />} />
         <Route path="/lich-su-thanh-lap" element={<History />} />

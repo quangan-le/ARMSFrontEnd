@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Table } from "react-bootstrap";
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
 const PlanAdmission = () => {
@@ -19,7 +19,7 @@ const PlanAdmission = () => {
                         CampusId: campusId
                     },
                 });
-                 setAdmissionInformations(response.data);
+                setAdmissionInformations(response.data);
             }
         } catch (error) {
             console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
@@ -33,13 +33,13 @@ const PlanAdmission = () => {
     };
     const handleShowModal = async (major) => {
         try {
-            
+
             const response = await api.get(`/school-service/Major/get-major-details?MajorId=${major.majorID}`);
             const majorData = response.data;
-            
+
             setSelectedMajors(majorData);
             setShowModal(true);
-            
+
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu bài viết:', error);
         }
@@ -61,7 +61,7 @@ const PlanAdmission = () => {
                 >
                     Thêm mới
                 </Button>
-                </Col>
+            </Col>
             <Table striped bordered hover>
                 <thead>
                     <tr>
@@ -76,43 +76,44 @@ const PlanAdmission = () => {
                     </tr>
                 </thead>
                 <tbody>
-                {admissionInformations && admissionInformations.length > 0 ? (
+                    {admissionInformations && admissionInformations.length > 0 ? (
                         admissionInformations.map((admissionInformation, index) => (
-                            <tr key={admissionInformation.majorID}>
-                                <td className="text-center fw-bold">{index+1}</td>
+                            <tr key={admissionInformation.admissionInformationID}>
+                                <td className="text-center fw-bold">{index + 1}</td>
                                 <td>{admissionInformation.year}</td>
                                 <td>{new Date(admissionInformation.startAdmission).toLocaleDateString('en-GB')}</td>
                                 <td>{new Date(admissionInformation.endAdmission).toLocaleDateString('en-GB')}</td>
                                 <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(admissionInformation.feeRegister)}</td>
                                 <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(admissionInformation.feeAdmission)}</td>
                                 <td
-                                style={{
-                                    color: admissionInformation.status === 1
-                                    ? "green"
-                                    : admissionInformation.status === 0
-                                    ? "red"  
-                                    : admissionInformation.status === 2
-                                    ? "blue" 
-                                    : "black"
-                                }}
+                                    style={{
+                                        color: admissionInformation.status === 1
+                                            ? "green"
+                                            : admissionInformation.status === 0
+                                                ? "red"
+                                                : admissionInformation.status === 2
+                                                    ? "blue"
+                                                    : "black"
+                                    }}
                                 >
-                                {admissionInformation.status === 1
-                                    ? "Đang tuyển"
-                                    : admissionInformation.status === 0
-                                    ? "Ngưng tuyển"
-                                    : admissionInformation.status === 2
-                                    ? "Chưa tuyển"
-                                    : "Trạng thái không xác định"}
+                                    {admissionInformation.status === 1
+                                        ? "Đang tuyển"
+                                        : admissionInformation.status === 0
+                                            ? "Ngưng tuyển"
+                                            : admissionInformation.status === 2
+                                                ? "Chưa tuyển"
+                                                : "Trạng thái không xác định"}
                                 </td>
                                 <td>
-                                <td>
-                                    <Button
-                                        variant="orange"
-                                        className="text-white"
-                                        style={{ whiteSpace: 'nowrap', marginRight: '10px' }}
-                                    >
-                                        Xem chi tiết
-                                    </Button>
+                                    <Link to={`/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/${admissionInformation.admissionInformationID}`}>
+                                        <Button
+                                            variant="orange"
+                                            className="text-white"
+                                            style={{ whiteSpace: 'nowrap', marginRight: '10px' }}
+                                        >
+                                            Xem chi tiết
+                                        </Button>
+                                    </Link>
                                     <Button
                                         variant="orange"
                                         className="text-white"
@@ -120,7 +121,6 @@ const PlanAdmission = () => {
                                     >
                                         Chỉnh sửa
                                     </Button>
-                                    </td>
 
                                 </td>
                             </tr>
@@ -134,7 +134,7 @@ const PlanAdmission = () => {
                     )}
                 </tbody>
             </Table>
-           
+
 
         </Container>
     );

@@ -3,7 +3,7 @@ import { Button, Col, Container, Form, Modal, Pagination, Row, Table } from "rea
 import { Link, useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 
-const AdmissionRegistrationList = () => {
+const AdmissionRegistrationListAC = () => {
     const { campusId } = useOutletContext();
     // Tìm kiếm
     const [search, setSearchTerm] = useState('');
@@ -16,7 +16,7 @@ const AdmissionRegistrationList = () => {
 
     const fetchRegisterAdmissions = async () => {
         try {
-            const response = await api.get(`/admin-officer/RegisterAdmission/list-register-admission`, {
+            const response = await api.get(`/admin-council/RegisterAdmission/list-register-admission`, {
                 params: {
                     campusId: campusId,
                     search: search,
@@ -122,7 +122,7 @@ const AdmissionRegistrationList = () => {
                                                                 : ""}
                                 </td>
                                 <td className="text-center">
-                                    <Link to={`/admissions-officer/chi-tiet-dang-ky-tuyen-sinh/${item.spId}`}>
+                                    <Link to={`/admissions-council/chi-tiet-dang-ky-tuyen-sinh/${item.spId}`}>
                                         <Button variant="warning" className="text-white">
                                             Chi tiết
                                         </Button>
@@ -132,7 +132,7 @@ const AdmissionRegistrationList = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="9" className="text-center">
+                            <td colSpan="10" className="text-center">
                                 Không có hồ sơ đăng ký nào
                             </td>
                         </tr>
@@ -169,4 +169,4 @@ const AdmissionRegistrationList = () => {
     );
 };
 
-export default AdmissionRegistrationList;
+export default AdmissionRegistrationListAC;

@@ -47,6 +47,8 @@ import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
 import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
 import Payment from "./pages/records/Payment.js";
+import AdmissionRegistrationListAC from "./pages/admissionCouncil/AdmissionRegistrationListAC.js";
+import AdmissionRegistrationDetailAC from "./pages/admissionCouncil/AdmissionRegistrationDetailAC.js";
 
 
 function App() {
@@ -104,7 +106,9 @@ function App() {
         <Route path="/admissions-council/dashboard" element={<Dashboard />} />
         <Route path="/admissions-council/danh-sach-nganh-tuyen-sinh" element={<MajorsListViewAC />} />
         <Route path="/admissions-council/ke-hoach-tuyen-sinh" element={<PlanAdmission />} />
-        <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh" element={<PlanAdmissionDetail />} />
+        <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/:admissionInformationID" element={<PlanAdmissionDetail />} />
+        <Route path="/admissions-council/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationListAC />} />
+        <Route path="/admissions-council/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetailAC />} />
       </Route>
     </Routes>
   }

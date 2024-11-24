@@ -108,6 +108,7 @@ const ApplicationSearch = () => {
                     }
                 }
             );
+            console.log(dataResponse.data);
             setApplicationData(dataResponse.data);
             setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor1, dataResponse.data.typeofStatusMajor2));
             handleClose(dataResponse.data);
@@ -178,6 +179,73 @@ const ApplicationSearch = () => {
         };
         fetchCampuses();
     }, []);
+
+    // Hiển thị điểm
+    const fieldMapping = {
+        0: ["CN12"], // Xét học bạ lớp 12
+        1: ["CN10", "CN11", "CN12"], // Xét học bạ 3 năm
+        2: ["CN10", "CN11", "HK1-12"], // Xét học bạ lớp 10, lớp 11, HK1 lớp 12
+        3: ["HK1-10", "HK2-10", "HK1-11", "HK2-11", "HK1-12"], // Xét học bạ 5 kỳ
+        4: ["HK1-11", "HK2-11", "HK1-12"], // Xét học bạ 3 kỳ
+    };
+
+    // const indexMap = [
+    //     [0, 3, 6, 9, 12],
+    //     [1, 4, 7, 10, 13],
+    //     [2, 5, 8, 11, 14],
+    // ];
+
+    // const getSubjects = (majorTranscripts) => {
+    //     if (!majorTranscripts) {
+    //         return [];
+    //     }
+
+    //     return majorTranscripts
+    //         .filter((item) => item.typeOfAcademicTranscript < 3) // Lấy 3 môn đầu tiên
+    //         .map((item) => ({
+    //             name: item.subjectName,
+    //             baseIndex: item.typeOfAcademicTranscript,
+    //         }));
+    // };
+
+    // const renderTable = (majorTranscripts, typeOfTranscriptMajor) => {
+    //     if (!majorTranscripts || !Array.isArray(majorTranscripts) || majorTranscripts.length === 0) {
+    //         return <p>Không có dữ liệu điểm cho ngành này</p>;
+    //     }
+    //     // Lấy danh sách môn học
+    //     const subjects = getSubjects(majorTranscripts);
+
+    //     // Lấy danh sách kỳ từ fieldMapping
+    //     const periods = fieldMapping[typeOfTranscriptMajor];
+
+    //     return (
+    //         <table className="table table-bordered">
+    //             <thead>
+    //                 <tr>
+    //                     <th>Môn học</th>
+    //                     {periods.map((period, index) => (
+    //                         <th key={index}>{period}</th>
+    //                     ))}
+    //                 </tr>
+    //             </thead>
+    //             <tbody>
+    //                 {subjects.map((subject, subjectIndex) => (
+    //                     <tr key={subjectIndex}>
+    //                         <td>{subject.name}</td>
+    //                         {periods.map((_, periodIndex) => {
+    //                             const index = indexMap[subject.baseIndex][periodIndex];
+    //                             const transcript = majorTranscripts.find(
+    //                                 (item) => item.typeOfAcademicTranscript === index
+    //                             );
+    //                             return <td key={periodIndex}>{transcript ? transcript.subjectPoint : "-"}</td>;
+    //                         })}
+    //                     </tr>
+    //                 ))}
+    //             </tbody>
+    //         </table>
+    //     );
+    // };
+
 
     // Nhập học
     const [selectedEnrollmentForm, setSelectedEnrollmentForm] = useState(null); // File đơn nhập học
@@ -436,9 +504,24 @@ const ApplicationSearch = () => {
                                             <span className="label">Trường tốt nghiệp</span>
                                             <span className="value">{applicationData.schoolName}</span>
                                         </div>
-
+                                    </Col>
+                                    {/* <Col xs={12} md={6}>
+                                        <h5>Nguyện vọng 1</h5>
+                                        {applicationData.academicTranscriptsMajor1 ? (
+                                            renderTable(applicationData.academicTranscriptsMajor1, applicationData.typeOfTranscriptMajor1)
+                                        ) : (
+                                            <p>Không có dữ liệu điểm cho ngành 1</p>
+                                        )}
                                     </Col>
 
+                                    <Col xs={12} md={6}>
+                                        <h5>Nguyện vọng 2</h5>
+                                        {applicationData.academicTranscriptsMajor2 ? (
+                                            renderTable(applicationData.academicTranscriptsMajor2, applicationData.typeOfTranscriptMajor2)
+                                        ) : (
+                                            <p>Không có dữ liệu điểm cho ngành 2</p>
+                                        )}
+                                    </Col> */}
                                     <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                     <Row>
                                         <Col xs={6} sm={4} md={3} className="mb-2">

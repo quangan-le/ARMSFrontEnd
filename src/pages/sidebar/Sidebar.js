@@ -151,6 +151,14 @@ const Sidebar = ({ role }) => {
                 <House className="me-2" /> Trang chủ
               </NavLink>
               <NavLink
+                to="/admissions-council/danh-sach-dang-ky-tuyen-sinh"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
+                <Calendar className="me-2" /> Yêu cầu đăng ký tuyển sinh
+              </NavLink>
+              <NavLink
                 to="/admissions-council/danh-sach-nganh-tuyen-sinh"
                 className={({ isActive }) =>
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`

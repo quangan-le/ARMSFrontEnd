@@ -95,7 +95,7 @@ const Header = ({ onCampusChange }) => {
   // Đăng xuất
   const handleLogout = async () => {
     try {
-      removeUser()
+      removeUser();
       await doSignOut();
       navigate('/dang-nhap');
     } catch (error) {

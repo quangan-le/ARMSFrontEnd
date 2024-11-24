@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Form, Pagination, Row, Table, Modal } from "react-bootstrap";
+import { Button, Col, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
-import api from "../../apiService.js";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from "../../apiService.js";
 
 const StudentConsultationList = () => {
     const [studentConsultation, setStudentConsultation] = useState([]);
@@ -15,6 +15,7 @@ const StudentConsultationList = () => {
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
     const [selectedType, setSelectedType] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
     const { campusId } = useOutletContext();
 
     // Major data
@@ -26,7 +27,8 @@ const StudentConsultationList = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedConsultation, setSelectedConsultation] = useState(null);
     const [consultationDetails, setConsultationDetails] = useState({});
-
+    // Enum theo các giá trị của trạng thái
+    
     const fetchStudentConsultations = async () => {
         try {
             if (campusId) {
@@ -35,11 +37,12 @@ const StudentConsultationList = () => {
                         CampusId: campusId,
                         Search: searchTerm,
                         CurrentPage: currentPage,
-                        Status: selectedType || null,
+                        isVocationalSchool: selectedType || null,
+                        Status: selectedStatus || null,
                     },
                 });
                 console.log(response.data);
-                setStudentConsultation(response.data);
+                setStudentConsultation(response.data.item);
                 setTotalPages(response.data.pageCount);
                 setTotalItems(response.data.totalItems);
             }
@@ -70,7 +73,7 @@ const StudentConsultationList = () => {
 
     useEffect(() => {
         fetchStudentConsultations();
-    }, [currentPage, campusId, selectedType, searchTerm]);
+    }, [currentPage, campusId, selectedType, searchTerm, selectedStatus]);
 
     const handleShowDetailModal = (consultation) => {
         setSelectedConsultation(consultation);
@@ -94,11 +97,26 @@ const StudentConsultationList = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setConsultationDetails((prevDetails) => ({
-            ...prevDetails,
-            [name]: value,
-        }));
+    
+        // Kiểm tra xem nếu name là 'status', chuyển đổi giá trị thành enum
+        if (name === 'status') {
+            // Chuyển đổi giá trị chuỗi thành enum (giá trị số)
+            const statusEnumValue = Number(value);
+    
+            // Cập nhật trạng thái với giá trị enum
+            setConsultationDetails((prevDetails) => ({
+                ...prevDetails,
+                [name]: statusEnumValue,
+            }));
+        } else {
+            // Nếu không phải là 'status', chỉ cần cập nhật bình thường
+            setConsultationDetails((prevDetails) => ({
+                ...prevDetails,
+                [name]: value,
+            }));
+        }
     };
+    
 
     const handleSaveChanges = async () => {
         try {
@@ -115,7 +133,15 @@ const StudentConsultationList = () => {
             toast.error("Cập nhật không thành công, vui lòng thử lại.");
         }
     };
-
+    const StatusEnum = {
+        0: "Tiếp nhận",
+        1: "Quan tâm",
+        2: "Không quan tâm",
+        3: "Không liên lạc được lần 1",
+        4: "Không liên lạc được lần 2",
+        5: "Không liên lạc được lần 3",
+        6: "Gọi lại sau"
+    };
     return (
         <div className="me-3">
             <ToastContainer position="top-right" autoClose={3000} />
@@ -134,6 +160,25 @@ const StudentConsultationList = () => {
                 </Col>
                 <Col xs={12} md={6} className="d-flex justify-content-end">
                     <Form.Select
+                        aria-label="Chọn trạng thái"
+                        value={selectedStatus !== null ? selectedStatus : ''}
+                        onChange={({ target: { value } }) => {
+                            setSelectedStatus(value === "" ? null : value);
+                            setCurrentPage(1);
+                        }}
+                        className="me-2"
+                        style={{ width: '200px' }}
+                    >
+                        <option value="">Trạng thái</option>
+                        <option value="0">Tiếp nhận</option>
+                        <option value="1">Quan tâm</option>
+                        <option value="2">Không quan tâm</option>
+                        <option value="3">Không liên lạc được lần 1</option>
+                        <option value="4">Không liên lạc được lần 2</option>
+                        <option value="5">Không liên lạc được lần 3</option>
+                        <option value="6">Gọi lại sau</option>
+                    </Form.Select>
+                    <Form.Select
                         aria-label="Chọn loại"
                         value={selectedType !== null ? selectedType : ''}
                         onChange={({ target: { value } }) => {
@@ -143,7 +188,7 @@ const StudentConsultationList = () => {
                         className="me-2"
                         style={{ width: '200px' }}
                     >
-                        <option value="">Tất cả</option>
+                        <option value="">Hệ đào tạo</option>
                         <option value={true}>Trung cấp</option>
                         <option value={false}>Cao đẳng</option>
                     </Form.Select>
@@ -158,6 +203,8 @@ const StudentConsultationList = () => {
                         <th>Số điện thoại</th>
                         <th>Email</th>
                         <th>Ngành học</th>
+                        <th>Ngày gửi yêu cầu</th>
+                        <th>Trạng thái yêu cầu</th>
                         <th>Xử lý yêu cầu</th>
                     </tr>
                 </thead>
@@ -176,13 +223,41 @@ const StudentConsultationList = () => {
                                 <td>{consultation.phoneNumber}</td>
                                 <td>{consultation.email}</td>
                                 <td>{consultation.majorName}</td>
-                                <td>
+                                <td>{consultation.dateReceive}</td>
+                                <td
+                                    style={{
+                                        color: 
+                                        consultation.status === 0
+                                            ? "gray"
+                                            : consultation.status === 1
+                                            ? "green"
+                                            : consultation.status === 2
+                                            ? "red"
+                                            : consultation.status === 3
+                                            ? "orange"
+                                            : consultation.status === 4
+                                            ? "orange"
+                                            : consultation.status === 5
+                                            ? "orange"
+                                            : consultation.status === 6
+                                            ? "blue"
+                                            : "black",
+                                    }}
+                                    >
+                                    {StatusEnum[consultation.status]}
+                                    </td>
+
+                                <td style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
                                     <Button
-                                        variant="orange"
+                                        variant="secondary"
                                         className="text-white"
                                         onClick={() => handleShowDetailModal(consultation)}
                                     >
                                         Chi tiết
+                                    </Button>
+                                    <Button variant="orange"
+                                        className="text-white" onClick={handleShowEditModal}>
+                                        Chỉnh sửa
                                     </Button>
                                 </td>
                             </tr>
@@ -230,6 +305,28 @@ const StudentConsultationList = () => {
                     <p><strong>Facebook:</strong> {consultationDetails.linkFB}</p>
                     <p><strong>Ngày nhận:</strong> {consultationDetails.dateReceive}</p>
                     <p><strong>Ngành học:</strong> {consultationDetails.majorName}</p>
+                    <p><strong>Trạng thái:</strong><span
+                                        style={{
+                                            color: 
+                                            consultationDetails.status === 0
+                                            ? "gray"
+                                            : consultationDetails.status === 1
+                                            ? "green"
+                                            : consultationDetails.status === 2
+                                            ? "red"
+                                            : consultationDetails.status === 3
+                                            ? "orange"
+                                            : consultationDetails.status === 4
+                                            ? "orange"
+                                            : consultationDetails.status === 5
+                                            ? "orange"
+                                            : consultationDetails.status === 6
+                                            ? "blue"
+                                            : "black",
+                                        }}
+                                        > {StatusEnum[consultationDetails.status]}
+                                        </span>
+                                        </p>
                     <p><strong>Ghi chú:</strong> {consultationDetails.notes}</p>
                 </Modal.Body>
                 <Modal.Footer>
@@ -329,8 +426,13 @@ const StudentConsultationList = () => {
                                 value={consultationDetails.status}
                                 onChange={handleInputChange}
                             >
-                                <option value="0">Pending</option>
-                                <option value="1">Completed</option>
+                                <option value="0">Tiếp nhận</option>
+                                <option value="1">Quan tâm</option>
+                                <option value="2">Không quan tâm</option>
+                                <option value="3">Không liên lạc được lần 1</option>
+                                <option value="4">Không liên lạc được lần 2</option>
+                                <option value="5">Không liên lạc được lần 3</option>
+                                <option value="6">Gọi lại sau</option>
                             </Form.Select>
                         </Form.Group>
                         <Form.Group controlId="formNotes">

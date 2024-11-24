@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Breadcrumb, ListGroup, Button } from 'react-bootstrap';
-import { Link, useOutletContext } from 'react-router-dom';
+import { Breadcrumb, Col, Container, ListGroup, Row } from 'react-bootstrap';
+import { Link, useOutletContext, useParams } from 'react-router-dom';
 import api from '../../apiService';
 
 const BlogDetail = () => {

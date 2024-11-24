@@ -1,7 +1,7 @@
 // src/pages/Homepage.js
 import React, { useEffect, useState } from "react";
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { Link, useOutletContext, useLocation } from 'react-router-dom';
+import { Link, useLocation, useOutletContext } from 'react-router-dom';
 import Slider from "react-slick";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,7 +9,6 @@ import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import api from "../../apiService.js";
 import SliderBanner from "./SilderBanner";
-import { useAuth } from '../../contexts/authContext/index.js'
 
 const Homepage = () => {
   const location = useLocation();
@@ -304,6 +303,7 @@ const Homepage = () => {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
+  
   return (
     <div>
       {loading ? (
@@ -324,7 +324,7 @@ const Homepage = () => {
             { icon: "bi-briefcase", value: "90%", label: "Cơ hội việc làm" },
             { icon: "bi-people", value: "1000+", label: "Đối tác" },
             { icon: "bi-award", value: "1000+", label: "Học sinh & Cựu HS" },
-            { icon: "bi-buildings", value: "4 Cơ sở", label: "Cơ sở" },
+            { icon: "bi-buildings", value: "4 Cơ ssở", label: "Cơ sở" },
           ].map((item, index) => (
             <Col xs={6} md={3} className="d-flex align-items-center justify-content-center background-content" key={index}>
               <i className={`bi ${item.icon} display-4`}></i>

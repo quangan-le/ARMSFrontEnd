@@ -1,8 +1,12 @@
 import React from "react";
 import { Nav } from "react-bootstrap";
 import {
-  BarChart, Bell, Book, Calendar, FileEarmarkText, InfoCircle,
-  FileText, House, People, FileLock, Person, ShieldLock, Chat
+  BarChart, Bell, Book, Calendar,
+  Chat,
+  FileEarmarkText,
+  FileLock,
+  FileText, House, People,
+  Person, ShieldLock
 } from 'react-bootstrap-icons';
 
 import { NavLink } from "react-router-dom";
@@ -100,6 +104,14 @@ const Sidebar = ({ role }) => {
                 }
               >
                 <Bell className="me-2" /> Quản lý thông báo
+              </NavLink>
+              <NavLink
+                to="/school-service/danh-sach-dang-ky-tu-van"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
+                <Chat className="me-2" /> Gửi yêu cầu đăng ký tư vấn
               </NavLink>
             </>
           )}

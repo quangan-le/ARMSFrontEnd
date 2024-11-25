@@ -7,7 +7,6 @@ import { useAuth } from "./contexts/authContext/index.js";
 import { useAuthStore } from "./stores/useAuthStore.js";
 
 import AccountList from "./pages/admin/AccountList.js";
-import MajorDetail from "./pages/admin/MajorDetail.js";
 import MajorsList from "./pages/admin/MajorsList.js";
 import UserList from "./pages/admin/UserList.js";
 import Blog from "./pages/blog/Blog.js";
@@ -112,7 +111,6 @@ function App() {
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
         <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
-        <Route path="/admin/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
         <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
       </Route>
     </Routes>
@@ -123,7 +121,6 @@ function App() {
       <Route element={<ManagerLayout role="SchoolService" />}>
         <Route path="/school-service/dashboard" element={<Dashboard />} />
         <Route path="/school-service/danh-sach-nganh-hoc" element={<MajorsListView />} />
-        <Route path="/school-service/chi-tiet-nganh-hoc/:majorID" element={<MajorDetail />} />
         <Route path="/school-service/danh-sach-tin-tuc" element={<NewsList />} />
         <Route path="/school-service/danh-sach-yeu-cau-chuyen-nganh" element={<RequestChangeMajorList />} />
         <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />

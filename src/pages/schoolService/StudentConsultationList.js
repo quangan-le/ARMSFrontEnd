@@ -1,7 +1,8 @@
+import FileSaver from 'file-saver';
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
+import { Button, Col, Form, Pagination, Row, Table } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from "../../apiService.js";
 
@@ -22,24 +23,22 @@ const StudentConsultation = () => {
     const [collegeMajors, setCollegeMajors] = useState([]);
 
     // Modal state
-    const [showDetailModal, setShowDetailModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
     const [selectedConsultation, setSelectedConsultation] = useState(null);
     const [consultationDetails, setConsultationDetails] = useState({});
 
     const fetchStudentConsultations = async () => {
         try {
             if (campusId) {
-                const response = await api.get(`/admin-officer/StudentConsultation/get-list-student-consultation`, {
+                const response = await api.get(`/SchoolService/StudentConsultation/get-list-student-consultation`, {
                     params: {
                         CampusId: campusId,
                         Search: searchTerm,
                         CurrentPage: currentPage,
-                        Status: selectedType || null,
+                        isVocationalSchool: selectedType || null,
                     },
                 });
                 console.log(response.data);
-                setStudentConsultation(response.data);
+                setStudentConsultation(response.data.item);
                 setTotalPages(response.data.pageCount);
                 setTotalItems(response.data.totalItems);
             }
@@ -48,78 +47,84 @@ const StudentConsultation = () => {
         }
     };
 
-    // Fetch vocational and college majors on campus selection
-    useEffect(() => {
-        const fetchData = async () => {
-            if (campusId) {
-                try {
-                    const [vocationalResponse, collegeResponse] = await Promise.all([
-                        api.get(`/Major/get-majors-vocational-school?campus=${campusId}`),
-                        api.get(`/Major/get-majors-college?campus=${campusId}`),
-                    ]);
-
-                    setVocationalMajors(vocationalResponse.data);
-                    setCollegeMajors(collegeResponse.data);
-                } catch (error) {
-                    console.error("Có lỗi khi lấy dữ liệu ngành:", error);
-                }
-            }
-        };
-        fetchData();
-    }, [campusId]);
-
     useEffect(() => {
         fetchStudentConsultations();
     }, [currentPage, campusId, selectedType, searchTerm]);
 
-    const handleShowDetailModal = (consultation) => {
-        setSelectedConsultation(consultation);
-        setConsultationDetails({
-            ...consultation,
-            dateReceive: consultation.dateReceive ? new Date(consultation.dateReceive).toISOString().split("T")[0] : ""
-        });
-        setShowDetailModal(true);
+    const StatusEnum = {
+        0: "Tiếp nhận",
+        1: "Quan tâm",
+        2: "Không quan tâm",
+        3: "Không liên lạc được lần 1",
+        4: "Không liên lạc được lần 2",
+        5: "Không liên lạc được lần 3",
+        6: "Gọi lại sau"
     };
-
-    const handleShowEditModal = () => {
-        setShowDetailModal(false);
-        setShowEditModal(true);
-    };
-
-    const handleCloseModals = () => {
-        setShowDetailModal(false);
-        setShowEditModal(false);
-        setSelectedConsultation(null);
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setConsultationDetails((prevDetails) => ({
-            ...prevDetails,
-            [name]: value,
-        }));
-    };
-
-    const handleSaveChanges = async () => {
+    const handleDownloadTemplate = async () => {
         try {
-            await api.put(`/admin-officer/StudentConsultation/update-student-consultation`, {
-                ...consultationDetails,
-                studentConsultationId: selectedConsultation.studentConsultationId,
-                campusId: campusId
+            const response = await api.get('/SchoolService/StudentConsultation/download-template', {
+                responseType: 'blob',
             });
-            toast.success("Thông tin tư vấn tuyển sinh đã được cập nhật thành công!");
-            fetchStudentConsultations();
-            handleCloseModals();
+            const contentDisposition = response.headers['content-disposition'];
+            const filename = contentDisposition
+                ? contentDisposition.split('filename=')[1]
+                : 'template.xlsx';
+
+            FileSaver.saveAs(response.data, filename);
         } catch (error) {
-            console.error("Có lỗi xảy ra khi cập nhật thông tin:", error);
-            toast.error("Cập nhật không thành công, vui lòng thử lại.");
+            console.error("Lỗi khi tải template:", error);
         }
     };
-
+    
+    const handleUploadFile = () => {
+        // Create a file input element dynamically
+        const inputFile = document.createElement('input');
+        inputFile.type = 'file';
+        inputFile.accept = '.xlsx, .xls'; // If you want to restrict to Excel files only
+    
+        // When a file is selected, handle the file upload
+        inputFile.onchange = async (event) => {
+            const file = event.target.files[0]; // Get the selected file
+    
+            if (file) {
+                try {
+                    // Create FormData to send the file
+                    const formData = new FormData();
+                    formData.append('file', file);
+    
+                    // Send the file to the server
+                    const response = await api.get('/SchoolService/StudentConsultation/upload-excel', formData);
+    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Handle success response
+                        console.log('File uploaded successfully:', result);
+                        alert('File uploaded successfully!');
+                    } else {
+                        // Handle error response
+                        console.error('Error uploading file:', result.errors);
+                        alert('Error uploading file');
+                    }
+                } catch (error) {
+                    // Handle network or unexpected errors
+                    console.error('Unexpected error:', error);
+                    alert('An unexpected error occurred during file upload');
+                }
+            } else {
+                alert('No file selected.');
+            }
+        };
+    
+        // Trigger the file input dialog
+        inputFile.click();
+    };
+    
     return (
         <div className="me-3">
             <ToastContainer position="top-right" autoClose={3000} />
-            <h2 className="text-center mb-4">Danh sách đăng ký tư vấn tuyển sinh</h2>
+            <h2 className="text-center text-orange fw-bold">Danh sách đăng ký tư vấn</h2>
+            <p className="text-center mb-4 text-orange fw-bold">Yêu cầu đăng ký tư vấn tuyển sinh cho học sinh </p>
             {/* Search and Filter */}
             <Row className="mb-3">
                 <Col xs={12} md={6}>
@@ -133,6 +138,20 @@ const StudentConsultation = () => {
                     </Form.Group>
                 </Col>
                 <Col xs={12} md={6} className="d-flex justify-content-end">
+                <Button
+                    variant="primary"
+                    className="text-white me-2"
+                    onClick={handleDownloadTemplate} // Hàm xử lý tải xuống
+                >
+                    Tải template
+                </Button>
+                <Button
+                    variant="orange"
+                    className="text-white me-2"
+                    onClick={handleUploadFile} // Hàm xử lý tải lên
+                >
+                    Tải lên file
+                </Button>
                     <Form.Select
                         aria-label="Chọn loại"
                         value={selectedType !== null ? selectedType : ''}
@@ -153,12 +172,13 @@ const StudentConsultation = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>STT</th>
+                    <th>STT</th>
                         <th>Họ và tên</th>
                         <th>Số điện thoại</th>
                         <th>Email</th>
                         <th>Ngành học</th>
-                        <th>Xử lý yêu cầu</th>
+                        <th>Ngày gửi yêu cầu</th>
+                        <th>Trạng thái yêu cầu</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,25 +186,35 @@ const StudentConsultation = () => {
                         studentConsultation.map((consultation, index) => (
                             <tr key={consultation.studentConsultationId}>
                                 <td className="text-center fw-bold">{index + 1}</td>
-                                <td
-                                    className="text-primary"
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => handleShowDetailModal(consultation)}
-                                >
+                                <td>
                                     {consultation.fullName}
                                 </td>
                                 <td>{consultation.phoneNumber}</td>
                                 <td>{consultation.email}</td>
                                 <td>{consultation.majorName}</td>
-                                <td>
-                                    <Button
-                                        variant="orange"
-                                        className="text-white"
-                                        onClick={() => handleShowDetailModal(consultation)}
+                                <td>{new Date(consultation?.dateReceive).toLocaleDateString()}</td>
+                                <td
+                                    style={{
+                                        color: 
+                                        consultation.status === 0
+                                            ? "gray"
+                                            : consultation.status === 1
+                                            ? "green"
+                                            : consultation.status === 2
+                                            ? "red"
+                                            : consultation.status === 3
+                                            ? "orange"
+                                            : consultation.status === 4
+                                            ? "orange"
+                                            : consultation.status === 5
+                                            ? "orange"
+                                            : consultation.status === 6
+                                            ? "blue"
+                                            : "black",
+                                    }}
                                     >
-                                        Chi tiết
-                                    </Button>
-                                </td>
+                                    {StatusEnum[consultation.status]}
+                                    </td>
                             </tr>
                         ))
                     ) : (
@@ -218,142 +248,6 @@ const StudentConsultation = () => {
                 )}
             </div>
 
-            {/* Detail Modal */}
-            <Modal show={showDetailModal} onHide={handleCloseModals} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Thông tin chi tiết tư vấn</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p><strong>Họ và tên:</strong> {consultationDetails.fullName}</p>
-                    <p><strong>Email:</strong> {consultationDetails.email}</p>
-                    <p><strong>Số điện thoại:</strong> {consultationDetails.phoneNumber}</p>
-                    <p><strong>Facebook:</strong> {consultationDetails.linkFB}</p>
-                    <p><strong>Ngày nhận:</strong> {consultationDetails.dateReceive}</p>
-                    <p><strong>Ngành học:</strong> {consultationDetails.majorName}</p>
-                    <p><strong>Ghi chú:</strong> {consultationDetails.notes}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModals}>
-                        Đóng
-                    </Button>
-                    <Button variant="primary" onClick={handleShowEditModal}>
-                        Chỉnh sửa
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            <Modal show={showEditModal} onHide={handleCloseModals} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Chỉnh sửa thông tin tư vấn</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formFullName">
-                            <Form.Label>Họ và tên</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="fullName"
-                                value={consultationDetails.fullName}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEmail">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                name="email"
-                                value={consultationDetails.email}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formPhoneNumber">
-                            <Form.Label>Số điện thoại</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="phoneNumber"
-                                value={consultationDetails.phoneNumber}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formLinkFB">
-                            <Form.Label>Link Facebook</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="linkFB"
-                                value={consultationDetails.linkFB}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formDateReceive">
-                            <Form.Label>Ngày nhận</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="dateReceive"
-                                value={consultationDetails.dateReceive}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formMajorID">
-                            <Form.Label>Ngành học</Form.Label>
-                            <Form.Select
-                                name="majorID"
-                                value={consultationDetails.majorID}
-                                onChange={handleInputChange}
-                            >
-                                <option value="">Chọn ngành</option>
-                                {collegeMajors.length > 0 && (
-                                    <optgroup label="Ngành học Cao đẳng">
-                                        {collegeMajors.map((major) => (
-                                            <option key={major.majorID} value={major.majorID}>
-                                                {major.majorName}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-
-                                {vocationalMajors.length > 0 && (
-                                    <optgroup label="Ngành học Trung cấp">
-                                        {vocationalMajors.map((major) => (
-                                            <option key={major.majorID} value={major.majorID}>
-                                                {major.majorName}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group controlId="formStatus">
-                            <Form.Label>Trạng thái</Form.Label>
-                            <Form.Select
-                                name="status"
-                                value={consultationDetails.status}
-                                onChange={handleInputChange}
-                            >
-                                <option value="0">Pending</option>
-                                <option value="1">Completed</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group controlId="formNotes">
-                            <Form.Label>Ghi chú</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                name="notes"
-                                rows={3}
-                                value={consultationDetails.notes}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModals}>
-                        Hủy
-                    </Button>
-                    <Button variant="primary" onClick={handleSaveChanges}>
-                        Lưu thay đổi
-                    </Button>
-                </Modal.Footer>
-            </Modal>
         </div>
     );
 };

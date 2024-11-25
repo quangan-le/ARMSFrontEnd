@@ -1,62 +1,197 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Col, Container, Form, Pagination, Row, Table } from "react-bootstrap";
+// import React, { useEffect, useState } from 'react';
+// import { Button, Col, Container, Form, Pagination, Row, Table } from "react-bootstrap";
+// import { useOutletContext } from 'react-router-dom';
+// import api from "../../apiService.js";
+
+// const AccountList = () => {
+//     const [searchTerm, setSearchTerm] = useState("");
+//     const [selectedMajor, setSelectedMajor] = useState("");
+//     const [selectedRole, setSelectedRole] = useState("");
+//     const [currentPage, setCurrentPage] = useState(1);
+//     const [totalMajors, setTotalMajors] = useState(120);
+//     const majorsPerPage = 10;
+
+//     const [accounts, setAccounts] = useState([]);
+//     const { campusId } = useOutletContext();
+// // Gọi API để lấy danh sách các accounts theo điều kiện tìm kiếm
+// const fetchAccounts = async () => {
+//     try {
+//         if (campusId) {
+//             const response = await api.get(`/Account/get-accounts`, {
+//                 params: {
+//                     CampusId: campusId,
+//                     // Search: search,
+//                     // CurrentPage: currentPage,
+//                     // College: selectedCollege || null,
+//                 },
+//             });
+//             setAccounts(response.data);
+//             //setTotalPages(response.data.pageCount);
+//             //setTotalItems(response.data.totalItems);
+//         }
+//     } catch (error) {
+//         console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
+//     }
+// };
+// useEffect(() => {
+//     fetchAccounts();
+// }, [campusId]);
+
+//     const majors = Array.from({ length: totalMajors }, (_, index) => ({
+//         id: index + 1,
+//         code: `M${index + 1}`,
+//         name: `Ngành học ${index + 1}`,
+//     }));
+
+//     const indexOfLastMajor = currentPage * majorsPerPage;
+//     const indexOfFirstMajor = indexOfLastMajor - majorsPerPage;
+//     const currentMajors = majors.slice(indexOfFirstMajor, indexOfLastMajor);
+
+//     const handlePageChange = (pageNumber) => {
+//         setCurrentPage(pageNumber);
+//     };
+
+//     return (
+//         <Container>
+//             <h2 className="text-center">Danh sách yêu cầu phê duyệt tài khoản</h2>
+//             <p className="text-center mb-4 fw-bold">Quản lý danh sách yêu cầu phê duyệt tài khoản thuộc campus</p>
+//             <Row className="mb-3">
+//                 <Col xs={12} md={6} className="d-flex">
+//                     <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
+//                         <Form.Control
+//                             type="text"
+//                             placeholder="Nhập tên người dùng"
+//                             value={searchTerm}
+//                             onChange={(e) => setSearchTerm(e.target.value)}
+//                         />
+//                     </Form.Group>
+//                 </Col>
+//                 <Col xs={12} md={6} className="d-flex justify-content-end">
+//                     <Form.Select
+//                         value={selectedRole}
+//                         onChange={(e) => setSelectedRole(e.target.value)}
+//                         className="me-2"
+//                         style={{ width: '200px' }} 
+//                     >
+//                         <option value="">Vai trò</option>
+//                         <option value="major1">Học sinh</option>
+//                         <option value="major2">Sinh viên</option>
+//                     </Form.Select>
+//                     </Col>
+//             </Row>
+//             <Table striped bordered hover>
+//                 <thead>
+//                     <tr>
+//                         <th>STT</th>
+//                         <th>Họ tên</th>
+//                         <th>Email</th>
+//                         <th>Số điện thoại</th>
+//                         <th>Cơ sở</th>
+//                         <th>Vai trò</th>
+//                         <th>Chuyên ngành</th>
+//                         <th>Trạng thái</th>
+//                         <th>Hành động</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody>
+//                     {accounts.map((account, index) => (
+//                         <tr key={index}>
+//                             <td>{index+1}</td>
+//                             <td>{account.fullname}</td>
+//                             <td>{account.email}</td>
+//                             <td>{account.phone}</td>
+//                             <td>{account.gender}</td>
+//                             <td>{account.dob}</td>
+//                             <td>{account.isAccountActive}</td>
+//                             <td>{account.roleName}</td>
+//                             <td>Đợi phê duyệt</td>
+//                             <td>
+//                                 <Button variant="warning" className="me-2">Phê duyệt</Button>
+//                             </td>
+//                         </tr>
+//                     ))}
+//                 </tbody>
+//             </Table>
+//             <div className="d-flex justify-content-between align-items-center">
+//                 <span>
+//                     Hiển thị từ {indexOfFirstMajor + 1} đến {Math.min(indexOfLastMajor, totalMajors)} trên tổng số {totalMajors} người dùng
+//                 </span>
+//                 <Pagination>
+//                     {Array.from({ length: Math.ceil(totalMajors / majorsPerPage) }, (_, index) => (
+//                         <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+//                             {index + 1}
+//                         </Pagination.Item>
+//                     ))}
+//                 </Pagination>
+//             </div>
+//         </Container>
+//     );
+// };
+
+// export default AccountList;
+
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Form, Table, Button, Pagination } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 const AccountList = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedMajor, setSelectedMajor] = useState("");
     const [selectedRole, setSelectedRole] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalMajors, setTotalMajors] = useState(120);
-    const majorsPerPage = 10;
-
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const [accounts, setAccounts] = useState([]);
     const { campusId } = useOutletContext();
-// Gọi API để lấy danh sách các accounts theo điều kiện tìm kiếm
-const fetchAccounts = async () => {
-    try {
-        if (campusId) {
-            const response = await api.get(`/Account/get-accounts`, {
-                params: {
-                    CampusId: campusId,
-                    // Search: search,
-                    // CurrentPage: currentPage,
-                    // College: selectedCollege || null,
-                },
-            });
-            setAccounts(response.data);
-            //setTotalPages(response.data.pageCount);
-            //setTotalItems(response.data.totalItems);
+
+    const accountsPerPage = 8;
+
+    // Gọi API để lấy danh sách tài khoản
+    const fetchAccounts = async () => {
+        try {
+            if (campusId) {
+                const response = await api.get(`/api/Account/get-accounts`, {
+                    params: {
+                        CampusId: campusId,
+                        Search: searchTerm || "",
+                        CurrentPage: currentPage,
+                        role: selectedRole || "",
+                    },
+                });
+
+                setAccounts(response.data.item || []);
+                setTotalPages(response.data.pageCount);
+                setTotalItems(response.data.totalItems);
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra khi lấy danh sách tài khoản:", error);
         }
-    } catch (error) {
-        console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
-    }
-};
-useEffect(() => {
-    fetchAccounts();
-}, [campusId]);
+    };
 
-    const majors = Array.from({ length: totalMajors }, (_, index) => ({
-        id: index + 1,
-        code: `M${index + 1}`,
-        name: `Ngành học ${index + 1}`,
-    }));
+    // Lấy dữ liệu khi các tham số thay đổi
+    useEffect(() => {
+        fetchAccounts();
+    }, [campusId, searchTerm, currentPage, selectedRole]);
 
-    const indexOfLastMajor = currentPage * majorsPerPage;
-    const indexOfFirstMajor = indexOfLastMajor - majorsPerPage;
-    const currentMajors = majors.slice(indexOfFirstMajor, indexOfLastMajor);
-
+    // Xử lý thay đổi trang
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
+    // Xử lý phê duyệt tài khoản
+    const handleApprove = (accountId) => {
+        console.log("Phê duyệt tài khoản:", accountId);
+        // Thực hiện logic phê duyệt tại đây
+    };
+
     return (
         <Container>
-            <h2 className="text-center">Danh sách yêu cầu phê duyệt tài khoản</h2>
-            <p className="text-center mb-4 fw-bold">Quản lý danh sách yêu cầu phê duyệt tài khoản thuộc campus</p>
+            <h2 className="text-center">Danh sách tài khoản</h2>
+            <p className="text-center mb-4 fw-bold">Quản lý danh sách tài khoản thuộc campus</p>
+
+            {/* Thanh tìm kiếm và bộ lọc */}
             <Row className="mb-3">
                 <Col xs={12} md={6} className="d-flex">
-                    <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
+                    <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1 }}>
                         <Form.Control
                             type="text"
                             placeholder="Nhập tên người dùng"
@@ -70,25 +205,17 @@ useEffect(() => {
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
                         className="me-2"
-                        style={{ width: '200px' }} 
+                        style={{ width: "200px" }}
                     >
-                        <option value="">Vai trò</option>
-                        <option value="major1">Học sinh</option>
-                        <option value="major2">Sinh viên</option>
+                        <option value="">Tất cả vai trò</option>
+                        <option value="student">Học sinh</option>
+                        <option value="teacher">Giáo viên</option>
+                        <option value="admin">Quản trị viên</option>
                     </Form.Select>
-                    <Form.Select
-                        value={selectedMajor}
-                        onChange={(e) => setSelectedMajor(e.target.value)}
-                        className="me-2"
-                        style={{ width: '200px' }} 
-                    >
-                        <option value="">Chọn ngành</option>
-                        <option value="major1">Ngành 1</option>
-                        <option value="major2">Ngành 2</option>
-                        <option value="major3">Ngành 3</option>
-                    </Form.Select>
-                    </Col>
+                </Col>
             </Row>
+
+            {/* Bảng dữ liệu */}
             <Table striped bordered hover>
                 <thead>
                     <tr>
@@ -96,7 +223,6 @@ useEffect(() => {
                         <th>Họ tên</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
-                        <th>Cơ sở</th>
                         <th>Vai trò</th>
                         <th>Chuyên ngành</th>
                         <th>Trạng thái</th>
@@ -104,31 +230,49 @@ useEffect(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    {accounts.map((account, index) => (
-                        <tr key={index}>
-                            <td>{index+1}</td>
-                            <td>{account.fullname}</td>
-                            <td>{account.email}</td>
-                            <td>{account.phone}</td>
-                            <td>{account.gender}</td>
-                            <td>{account.dob}</td>
-                            <td>{account.isAccountActive}</td>
-                            <td>{account.roleName}</td>
-                            <td>Đợi phê duyệt</td>
-                            <td>
-                                <Button variant="warning" className="me-2">Phê duyệt</Button>
-                            </td>
+                    {accounts && accounts.length > 0 ? (
+                        accounts.map((account, index) => (
+                            <tr key={account.id}>
+                                <td>{(currentPage - 1) * accountsPerPage + index + 1}</td>
+                                <td>{account.fullname}</td>
+                                <td>{account.email}</td>
+                                <td>{account.phone || "N/A"}</td>
+                                <td>{account.roleName}</td>
+                                <td>{account.majorName || "N/A"}</td>
+                                <td className={account.isAccountActive ? "text-success" : "text-danger"}>
+                                    {account.isAccountActive ? "Hoạt động" : "Khóa"}
+                                </td>
+                                <td>
+                                    <Button
+                                        variant="success"
+                                        onClick={() => handleApprove(account.id)}
+                                    >
+                                        Phê duyệt
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="8" className="text-center">Không có tài khoản nào</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </Table>
+
+            {/* Phân trang */}
             <div className="d-flex justify-content-between align-items-center">
                 <span>
-                    Hiển thị từ {indexOfFirstMajor + 1} đến {Math.min(indexOfLastMajor, totalMajors)} trên tổng số {totalMajors} người dùng
+                    Hiển thị từ {(currentPage - 1) * accountsPerPage + 1} đến{" "}
+                    {Math.min(currentPage * accountsPerPage, totalItems)} trên tổng số {totalItems} tài khoản
                 </span>
                 <Pagination>
-                    {Array.from({ length: Math.ceil(totalMajors / majorsPerPage) }, (_, index) => (
-                        <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <Pagination.Item
+                            key={index + 1}
+                            active={index + 1 === currentPage}
+                            onClick={() => handlePageChange(index + 1)}
+                        >
                             {index + 1}
                         </Pagination.Item>
                     ))}

@@ -31,14 +31,14 @@ const Sidebar = ({ role }) => {
               >
                 <Person className="me-2" /> Quản lý người dùng
               </NavLink>
-              {/* <NavLink
+              <NavLink
                 to="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan"
                 className={({ isActive }) =>
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
                 <ShieldLock className="me-2" /> Phê duyệt tài khoản
-              </NavLink> */}
+              </NavLink>
               <NavLink
                 to="/admin/danh-sach-nganh-hoc"
                 className={({ isActive }) =>

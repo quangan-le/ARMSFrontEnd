@@ -938,40 +938,40 @@ const Application = () => {
                     error = "Năm tốt nghiệp phải là số.";
                 }
                 break;
-            case "major1":
-                if (!value) {
-                    error = "Ngành học Nguyện vọng 1 không được để trống.";
-                }
-                break;
+            // case "major1":
+            //     if (!value) {
+            //         error = "Ngành học Nguyện vọng 1 không được để trống.";
+            //     }
+            //     break;
 
-            case "typeOfDiplomaMajor1":
-                if (!value) {
-                    error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
-                }
-                break;
-            case "typeOfTranscriptMajor1":
-                if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
-                    if (!value) {
-                        error = "Khối xét tuyển Nguyện vọng 1 không được để trống.";
-                    }
-                }
-                break;
-            case "academicTranscriptsMajor1":
-                if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
-                    displayedFields1.forEach(field => {
-                        const transcript = academicTranscriptsMajor1.find(
-                            item => item.name === field.name
-                        );
-                        const point = transcript?.subjectPoint;
+            // case "typeOfDiplomaMajor1":
+            //     if (!value) {
+            //         error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
+            //     }
+            //     break;
+            // case "typeOfTranscriptMajor1":
+            //     if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
+            //         if (!value) {
+            //             error = "Khối xét tuyển Nguyện vọng 1 không được để trống.";
+            //         }
+            //     }
+            //     break;
+            // case "academicTranscriptsMajor1":
+            //     if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
+            //         displayedFields1.forEach(field => {
+            //             const transcript = academicTranscriptsMajor1.find(
+            //                 item => item.name === field.name
+            //             );
+            //             const point = transcript?.subjectPoint;
 
-                        if (!point && point !== 0) {
-                            error = `Điểm của môn ${field.subject} không được để trống.`;
-                        } else if (isNaN(point) || point < 0 || point > 10) {
-                            error = `Điểm của môn ${field.subject} phải là số từ 0 đến 10.`;
-                        }
-                    });
-                }
-                break;
+            //             if (!point && point !== 0) {
+            //                 error = `Điểm của môn ${field.subject} không được để trống.`;
+            //             } else if (isNaN(point) || point < 0 || point > 10) {
+            //                 error = `Điểm của môn ${field.subject} phải là số từ 0 đến 10.`;
+            //             }
+            //         });
+            //     }
+            //     break;
 
 
             default:
@@ -1006,14 +1006,14 @@ const Application = () => {
             return currentTime >= start && currentTime <= end;
         });
 
-        // if (!isWithinTime) {
-        //     toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
-        //     setTimeout(() => {
-        //         window.location.reload();
-        //     }, 3000);
-        //     setIsLoading(false); // Kết thúc loading
-        //     return;
-        // }
+        if (!isWithinTime) {
+            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+            setIsLoading(false); // Kết thúc loading
+            return;
+        }
 
         // Validate dữ liệu trước khi submit
         if (!validateForm()) {

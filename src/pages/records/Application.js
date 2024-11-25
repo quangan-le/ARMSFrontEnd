@@ -13,6 +13,7 @@ const Application = () => {
     const { selectedCampus } = useOutletContext();
     const [isWithinAdmissionTime, setIsWithinAdmissionTime] = useState(false);
     const [admissionTimes, setAdmissionTimes] = useState([]); // Lưu toàn bộ dữ liệu thời gian tuyển sinh
+    const [formErrors, setFormErrors] = useState({});
 
     // Kiểm tra có trong thời gian tuyển sinh không
     const checkAdmissionTime = async () => {
@@ -114,9 +115,13 @@ const Application = () => {
             ward: ""
         }));
         setSelectedDistrict('');
-        // validateField("province", selected);
-        // validateField("district", ""); // Xóa lỗi khi district bị reset
-        // validateField("ward", ""); // Xóa lỗi khi ward bị reset
+        // Cập nhật lỗi
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            province: validateField("province", selected),
+            district: "",
+            ward: "",
+        }));
     };
 
     const handleDistrictChange = (e) => {
@@ -127,6 +132,13 @@ const Application = () => {
             district: selected,
             ward: ""
         }));
+
+        // Cập nhật lỗi
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            district: validateField("district", selected),
+            ward: "",
+        }));
     };
 
     const handleWardChange = (e) => {
@@ -134,6 +146,11 @@ const Application = () => {
         setFormData(prevState => ({
             ...prevState,
             ward: selected
+        }));
+        // Cập nhật lỗi
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            ward: validateField("ward", selected),
         }));
     };
 
@@ -822,8 +839,7 @@ const Application = () => {
     };
 
     // Validate
-    const [formErrors, setFormErrors] = useState({});
-    const validateField = (field, value) => {
+    const validateField = (field, value, formData) => {
         let error = "";
 
         switch (field) {
@@ -883,26 +899,81 @@ const Application = () => {
                     error = "Xã/Phường/Thị trấn không được để trống.";
                 }
                 break;
-
-
-
-
-            case "emailStudent":
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            case "specificAddress":
                 if (!value.trim()) {
-                    error = "Email không được để trống.";
-                } else if (!emailRegex.test(value)) {
-                    error = "Email không đúng định dạng.";
+                    error = "Địa chỉ cụ thể không được để trống.";
                 }
                 break;
             case "phoneStudent":
+            case "phoneParents":
                 const phoneRegex = /^[0-9]{10,11}$/;
                 if (!value.trim()) {
-                    error = "Số điện thoại không được để trống.";
+                    error = `Số điện thoại không được để trống.`;
                 } else if (!phoneRegex.test(value)) {
-                    error = "Số điện thoại không đúng định dạng.";
+                    error = `Số điện thoại phải có 10-11 chữ số.`;
                 }
                 break;
+            case "emailStudent":
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!value.trim()) {
+                    error = `Email không được để trống.`;
+                } else if (!emailRegex.test(value)) {
+                    error = `Email không đúng định dạng.`;
+                }
+                break;
+            case "fullnameParents":
+                if (!value.trim()) {
+                    error = "Họ và tên phụ huynh không được để trống.";
+                }
+                break;
+            case "schoolName":
+                if (!value.trim()) {
+                    error = "Trường học không được để trống.";
+                }
+                break;
+            case "yearOfGraduation":
+                if (!value.trim()) {
+                    error = "Năm tốt nghiệp không được để trống.";
+                } else if (!/^\d+$/.test(value)) {
+                    error = "Năm tốt nghiệp phải là số.";
+                }
+                break;
+            case "major1":
+                if (!value) {
+                    error = "Ngành học Nguyện vọng 1 không được để trống.";
+                }
+                break;
+
+            case "typeOfDiplomaMajor1":
+                if (!value) {
+                    error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
+                }
+                break;
+            case "typeOfTranscriptMajor1":
+                if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
+                    if (!value) {
+                        error = "Khối xét tuyển Nguyện vọng 1 không được để trống.";
+                    }
+                }
+                break;
+            case "academicTranscriptsMajor1":
+                if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
+                    displayedFields1.forEach(field => {
+                        const transcript = academicTranscriptsMajor1.find(
+                            item => item.name === field.name
+                        );
+                        const point = transcript?.subjectPoint;
+
+                        if (!point && point !== 0) {
+                            error = `Điểm của môn ${field.subject} không được để trống.`;
+                        } else if (isNaN(point) || point < 0 || point > 10) {
+                            error = `Điểm của môn ${field.subject} phải là số từ 0 đến 10.`;
+                        }
+                    });
+                }
+                break;
+
+
             default:
                 break;
         }
@@ -935,18 +1006,18 @@ const Application = () => {
             return currentTime >= start && currentTime <= end;
         });
 
-        if (!isWithinTime) {
-            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-            setIsLoading(false); // Kết thúc loading
-            return;
-        }
+        // if (!isWithinTime) {
+        //     toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+        //     setTimeout(() => {
+        //         window.location.reload();
+        //     }, 3000);
+        //     setIsLoading(false); // Kết thúc loading
+        //     return;
+        // }
 
         // Validate dữ liệu trước khi submit
         if (!validateForm()) {
-            toast.error("Vui lòng kiểm tra lại các trường bị lỗi.");
+            toast.error("Thông tin không hợp lệ. Vui lòng kiểm tra lại các trường bị lỗi!");
             setIsLoading(false);
             return;
         }
@@ -1043,7 +1114,7 @@ const Application = () => {
                     </div>
                 </Row>
             </div>
-            {isWithinAdmissionTime ? (
+            {!isWithinAdmissionTime ? (
                 <Container className="mt-5 mb-3 px-4">
                     <Form onSubmit={handleSubmit}>
                         <h4 className='text-orange'>Thông tin thí sinh</h4>
@@ -1199,6 +1270,7 @@ const Application = () => {
                                         value={formData.specificAddress}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.specificAddress && <p className="error">{formErrors.specificAddress}</p>}
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -1212,6 +1284,7 @@ const Application = () => {
                                         value={formData.phoneStudent}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.phoneStudent && <p className="error">{formErrors.phoneStudent}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -1223,6 +1296,7 @@ const Application = () => {
                                         value={formData.emailStudent}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.emailStudent && <p className="error">{formErrors.emailStudent}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -1234,6 +1308,7 @@ const Application = () => {
                                         value={formData.fullnameParents}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.fullnameParents && <p className="error">{formErrors.fullnameParents}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -1245,6 +1320,7 @@ const Application = () => {
                                         value={formData.phoneParents}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.phoneParents && <p className="error">{formErrors.phoneParents}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mt-2">
@@ -1256,6 +1332,7 @@ const Application = () => {
                                         value={formData.schoolName}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.schoolName && <p className="error">{formErrors.schoolName}</p>}
                                 </Form.Group>
                             </Col>
 
@@ -1268,6 +1345,7 @@ const Application = () => {
                                         value={formData.yearOfGraduation}
                                         onChange={handleChange}
                                     />
+                                    {formErrors.yearOfGraduation && <p className="error">{formErrors.yearOfGraduation}</p>}
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -1299,6 +1377,7 @@ const Application = () => {
                                                 </option>
                                             ))}
                                         </Form.Control>
+                                        {formErrors.major1 && <p className="error">{formErrors.major1}</p>}
                                     </Form.Group>
                                 </Col>
 
@@ -1398,6 +1477,7 @@ const Application = () => {
                                                 </option>
                                             ))}
                                         </Form.Control>
+                                        {formErrors.major2 && <p className="error">{formErrors.major2}</p>}
                                     </Form.Group>
                                 </Col>
 

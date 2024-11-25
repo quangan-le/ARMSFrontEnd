@@ -123,10 +123,26 @@ const UserList = () => {
             toast.error("Tạo tài khoản thất bại!");
         }
     };
-    // Chi tiết, chỉnh sửa
+
+    // Chi tiết
     const [showDetails, setShowDetails] = useState(false);
-    const [showEdit, setShowEdit] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState(null);
+    // Hàm mở modal chi tiết
+    const handleViewDetails = async (id) => {
+        try {
+            const response = await api.get(`/Account/get-account/${id}`);
+            setSelectedAccount(response.data);
+            setShowDetails(true);
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin tài khoản:", error);
+        }
+    };
+    const handleCloseDetails = () => {
+        setShowDetails(false);
+    };
+
+    // Chỉnh sửa
+    const [showEdit, setShowEdit] = useState(false);
     const [editUser, setEditUser] = useState({
         userName: "",
         fullname: "",
@@ -141,40 +157,35 @@ const UserList = () => {
         email: ""
     });
 
-    // Hàm mở modal chi tiết
-    const handleViewDetails = async (id) => {
+    // Hàm mở modal chỉnh sửa
+    const handleShowEdit = async (accountId) => {
         try {
-            const response = await api.get(`/Account/get-account/${id}`);
-            setSelectedAccount(response.data);
-            setShowDetails(true);
+            const response = await api.get(`/Account/get-account/${accountId}`);
+            const accountData = response.data;
+            setSelectedAccount(accountData);
+            setEditUser({
+                userName: accountData.userName,
+                fullname: accountData.fullname,
+                gender: accountData.gender,
+                phone: accountData.phone,
+                dob: accountData.dob,
+                campusId: accountData.campusId,
+                typeAccount: accountData.typeAccount,
+                roleName: accountData.roleName,
+                email: accountData.email
+            });
+
+            setShowEdit(true); // Mở modal chỉnh sửa
         } catch (error) {
             console.error("Lỗi khi lấy thông tin tài khoản:", error);
         }
     };
-    
-    // Hàm mở modal chỉnh sửa
-    const handleEditAccount = (account) => {
-        setSelectedAccount(account);
-        setNewUser({
-            userName: account.userName,
-            fullname: account.fullname,
-            gender: account.gender,
-            phone: account.phone,
-            dob: account.dob,
-            campusId: account.campusId,
-            typeAccount: account.typeAccount,
-            roleName: account.roleName,
-            email: account.email
-        });
-        setShowEdit(true);
-    };
-    
+
     // Hàm đóng modal
-    const handleCloseViewEdit = () => {
-        setShowDetails(false);
+    const handleCloseEdit = () => {
         setShowEdit(false);
     };
-    
+
     // Hàm submit chỉnh sửa
     const handleSubmitEdit = async () => {
         try {
@@ -229,7 +240,6 @@ const UserList = () => {
                         <th>Email</th>
                         <th>Số điện thoại</th>
                         <th>Vai trò</th>
-                        <th>Chuyên ngành</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
@@ -243,19 +253,19 @@ const UserList = () => {
                             <td>{account.email}</td>
                             <td>{account.phone || "N/A"}</td>
                             <td>{roleNames[account.roleName] || "N/A"}</td>
-                            <td>{account.majorName}</td>
                             <td style={{ color: account.isAccountActive ? 'green' : 'red' }}>
                                 {account.isAccountActive ? "Đang hoạt động" : "Ngưng hoạt động"}
                             </td>
 
                             <td>
                                 <td>
+                                    <Button variant="info" className="me-2" onClick={() => handleViewDetails(account.id)}>
+                                        Chi tiết
+                                    </Button>
                                     {account.roleName !== "Admin" && (
                                         <>
-                                            <Button variant="info" className="me-2" onClick={() => handleViewDetails(account.id)}>
-                                                Chi tiết
-                                            </Button>
-                                            <Button variant="warning" onClick={() => handleEditAccount(account.id)}>
+
+                                            <Button variant="warning" onClick={() => handleShowEdit(account.id)}>
                                                 Chỉnh sửa
                                             </Button>
                                         </>
@@ -423,7 +433,221 @@ const UserList = () => {
                         Tạo mới
                     </Button>
                 </Modal.Footer>
-            </Modal>;
+            </Modal>
+            <Modal show={showDetails} onHide={handleCloseDetails} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Chi tiết tài khoản</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Tên đăng nhập</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.userName || ""}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Vai trò</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={roleNames[selectedAccount?.roleName] || "N/A"}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Họ tên</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.fullname || ""}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Email</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.email || ""}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Giới tính</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.gender ? "Nam" : "Nữ"}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Ngày sinh</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.dob ? new Date(selectedAccount.dob).toLocaleDateString() : ""}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Số điện thoại</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.phone || ""}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                        {selectedAccount?.roleName === "Student" && (
+                            <>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Form.Label column sm={4}>Mã sinh viên</Form.Label>
+                                    <Col sm={8}>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedAccount?.studentCode || ""}
+                                            readOnly
+                                        />
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Form.Label column sm={4}>Chuyên ngành</Form.Label>
+                                    <Col sm={8}>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedAccount?.majorName || ""}
+                                            readOnly
+                                        />
+                                    </Col>
+                                </Form.Group>
+                            </>
+                        )}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Trạng thái</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    value={selectedAccount?.isAccountActive ? "Đang hoạt động" : "Ngưng hoạt động"}
+                                    readOnly
+                                />
+                            </Col>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDetails}>Đóng</Button>
+                    <Button variant="primary" onClick={() => { handleCloseDetails(); handleShowEdit(selectedAccount.id); }}>
+                        Chỉnh sửa
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showEdit} onHide={handleCloseEdit} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Chỉnh sửa tài khoản</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Tên đăng nhập</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    name="userName"
+                                    value={newUser.userName}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Vai trò</Form.Label>
+                            <Col sm={8}>
+                                <Form.Select
+                                    name="roleName"
+                                    value={newUser.roleName}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="AdmissionOfficer">Cán bộ tuyển sinh</option>
+                                    <option value="Admin">Quản trị</option>
+                                </Form.Select>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Họ tên</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    name="fullname"
+                                    value={newUser.fullname}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Email</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="email"
+                                    name="email"
+                                    value={newUser.email}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Giới tính</Form.Label>
+                            <Col sm={8}>
+                                <Form.Select
+                                    name="gender"
+                                    value={newUser.gender ? "true" : "false"}
+                                    onChange={(e) => handleInputChange({ target: { name: "gender", value: e.target.value === "true" } })}
+                                >
+                                    <option value="true">Nam</option>
+                                    <option value="false">Nữ</option>
+                                </Form.Select>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Ngày sinh</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="date"
+                                    name="dob"
+                                    value={newUser.dob ? new Date(newUser.dob).toISOString().split('T')[0] : ""}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Số điện thoại</Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    name="phone"
+                                    value={newUser.phone}
+                                    onChange={handleInputChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseEdit}>Đóng</Button>
+                    <Button className="btn-orange" onClick={handleSubmitEdit}>Cập nhật</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

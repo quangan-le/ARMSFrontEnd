@@ -2,9 +2,10 @@ import FileSaver from 'file-saver';
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Form, Pagination, Row, Table } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from "../../apiService.js";
+
 
 const StudentConsultation = () => {
     const [studentConsultation, setStudentConsultation] = useState([]);
@@ -72,53 +73,67 @@ const StudentConsultation = () => {
 
             FileSaver.saveAs(response.data, filename);
         } catch (error) {
-            console.error("Lỗi khi tải template:", error);
+            toast.error("Lỗi khi tải template!");
         }
     };
     
     const handleUploadFile = () => {
-        // Create a file input element dynamically
+        // Dynamically create a file input element
         const inputFile = document.createElement('input');
         inputFile.type = 'file';
-        inputFile.accept = '.xlsx, .xls'; // If you want to restrict to Excel files only
+        inputFile.accept = '.xlsx, .xls'; // Restrict file selection to Excel files
     
-        // When a file is selected, handle the file upload
+        // Handle the file selection and upload
         inputFile.onchange = async (event) => {
             const file = event.target.files[0]; // Get the selected file
     
             if (file) {
                 try {
-                    // Create FormData to send the file
+                    // Prepare the file for upload
                     const formData = new FormData();
                     formData.append('file', file);
     
-                    // Send the file to the server
-                    const response = await api.get('/SchoolService/StudentConsultation/upload-excel', formData);
+                    // Send the file using POST
+                    const response = await api.post('/SchoolService/StudentConsultation/upload-excel', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                        responseType: 'blob', // Expecting a file response
+                    });
     
-                    const result = await response.json();
-                    
-                    if (response.ok) {
-                        // Handle success response
-                        console.log('File uploaded successfully:', result);
-                        alert('File uploaded successfully!');
+                    // Check if the response is a file (blob) and download it
+                    if (response.status === 200 && response.data instanceof Blob) {
+                        // Create a URL for the blob and trigger download
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+    
+                        // Set filename from response headers or a default filename
+                        const contentDisposition = response.headers['content-disposition'];
+                        const fileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'errors.xlsx';
+                        link.setAttribute('download', fileName);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+    
+                        toast.warning(`Upload file hoàn thành! Vui lòng kiểm tra lại các dữ liệu gặp lỗi! `);
                     } else {
-                        // Handle error response
-                        console.error('Error uploading file:', result.errors);
-                        alert('Error uploading file');
+                        const result = response.data;
+                        toast.success(`Upload file hoàn thành! Thêm mới thành công: ${result.TotalProcessed}, Lỗi: ${result.TotalErrors} `);
                     }
                 } catch (error) {
-                    // Handle network or unexpected errors
-                    console.error('Unexpected error:', error);
-                    alert('An unexpected error occurred during file upload');
+                    toast.error("Đã sảy ra lỗi trong quá trình upload file!");
                 }
             } else {
-                alert('No file selected.');
+                toast.error("Vui lòng chọn file và thử lại!");
             }
         };
     
         // Trigger the file input dialog
         inputFile.click();
     };
+    
+    
     
     return (
         <div className="me-3">

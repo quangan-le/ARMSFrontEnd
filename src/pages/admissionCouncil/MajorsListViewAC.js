@@ -12,7 +12,7 @@ const MajorsListViewAC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const majorsPerPage = 10;
+    const [majorsPerPage, setMajorsPerPage] = useState(0);
     const { campusId } = useOutletContext();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
 
@@ -52,6 +52,7 @@ const MajorsListViewAC = () => {
                 setMajors(response.data.item);
                 setTotalPages(response.data.pageCount);
                 setTotalItems(response.data.totalItems);
+                setMajorsPerPage(response.data.pageSize);
             }
         } catch (error) {
             console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
@@ -192,7 +193,7 @@ const MajorsListViewAC = () => {
                         className="me-2"
                         style={{ width: '200px' }}
                     >
-                        <option value="">Tất cả</option>
+                        <option value="">Hệ đào tạo</option>
                         <option value="true">Cao Đẳng</option>
                         <option value="false">Trung Cấp</option>
                     </Form.Select>
@@ -219,7 +220,7 @@ const MajorsListViewAC = () => {
                     {majors && majors.length > 0 ? (
                         majors.map((major, index) => (
                             <tr key={major.majorID}>
-                                <td className="text-center fw-bold">{index + 1}</td>
+                                <td className="text-center fw-bold"> {(currentPage - 1) * majorsPerPage + index + 1}</td>
                                 <td>
                                     <div className="d-flex align-items-center">
 

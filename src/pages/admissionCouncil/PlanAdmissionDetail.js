@@ -88,8 +88,6 @@ const PlanAdmissionDetail = () => {
                 await api.put('/admission-council/AdmissionInformation/update-admission-information', editFormData);
             } else if (currentSection === 'II') {
                 await api.put('/admission-council/AdmissionTime/update-admission-time', editFormData);
-            } else if (currentSection === 'III') {
-                await api.put('/admission-council/AdmissionMajor/update-admission-major', editFormData);
             }
             await fetchAdmissionData();
             toast.success('Cập nhật thành công!');
@@ -112,7 +110,7 @@ const PlanAdmissionDetail = () => {
         startRegister: "",
         endRegister: "",
         startAdmission: "",
-        endAdmission: "",
+        endAdmission: ""
     });
     const handleShowModalCreate = () => setShowModalCreate(true);
     const handleCloseModalCreate = () => setShowModalCreate(false);
@@ -140,12 +138,12 @@ const PlanAdmissionDetail = () => {
             handleCloseModalCreate();
             fetchAdmissionData();
         } catch (error) {
-            if (error.response && error.response.data) {
-                const errorMessage = error.response.data.message || 'Đã xảy ra lỗi khi cập nhật!';
-                toast.error(errorMessage);
-            } else {
-                toast.error("Thêm đợt tuyển sinh thất bại!");
-            }
+            // if (error.response && error.response.data) {
+            //     const errorMessage = error.response.data.message || 'Đã xảy ra lỗi khi tạo mới!';
+            //     toast.error(errorMessage);
+            // } else {
+            //     toast.error("Thêm đợt tuyển sinh thất bại!");
+            // }
             console.error("Lỗi khi thêm đợt tuyển sinh:", error);
         }
     };
@@ -217,9 +215,9 @@ const PlanAdmissionDetail = () => {
             ) : (
                 <p>Đang tải dữ liệu...</p>
             )}
-            <Row>
+            <Row className='mt-3 mb-2'>
                 <Col md={10}>
-                    <h4 className='text-orange mt-4'>II. Đợt tuyển sinh</h4>
+                    <h4 className='text-orange'>II. Đợt tuyển sinh</h4>
                 </Col>
                 <Col md={2}>
                     <Button variant="warning" onClick={handleShowModalCreate}>
@@ -333,13 +331,13 @@ const PlanAdmissionDetail = () => {
                     <Button variant="warning" onClick={handleSubmit}>Lưu thay đổi</Button>
                 </Modal.Footer>
             </Modal>
-            <Row>
+            <Row className='mt-5 mb-2'>
                 <Col md={10}>
-                    <h4 className='text-orange mt-4'>III. Ngành tuyển</h4>
+                    <h4 className='text-orange'>III. Ngành tuyển</h4>
                 </Col>
                 <Col md={2}>
                     <Button variant="warning" onClick={handleShowModalCreateMajor}>
-                        Tạo mới
+                        Thêm mới
                     </Button>
                 </Col>
             </Row>
@@ -442,7 +440,6 @@ const PlanAdmissionDetail = () => {
                     <Modal.Title>
                         {currentSection === 'I' && 'Chỉnh sửa Thông tin'}
                         {currentSection === 'II' && 'Chỉnh sửa Đợt tuyển sinh'}
-                        {currentSection === 'III' && 'Chỉnh sửa Ngành tuyển'}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -555,53 +552,6 @@ const PlanAdmissionDetail = () => {
                                     name="endAdmission"
                                     value={editFormData.endAdmission || ''}
                                     onChange={handleChange}
-                                />
-                            </Form.Group>
-                        </Form>
-                    )}
-                    {currentSection === 'III' && (
-                        <Form>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Mã ngành</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="majorID"
-                                    value={editFormData.majorID}
-                                    onChange={handleChange}
-                                    disabled
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>Tên ngành</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="majorName"
-                                    value={editFormData.majorName}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>Số lượng tuyển</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    name="target"
-                                    value={editFormData.target}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label>Trạng thái</Form.Label>
-                                <Form.Check
-                                    type="checkbox"
-                                    name="status"
-                                    checked={editFormData.status}
-                                    onChange={handleChange}
-                                    label={editFormData.status ? "Đang tuyển" : "Ngưng tuyển"}
                                 />
                             </Form.Group>
                         </Form>

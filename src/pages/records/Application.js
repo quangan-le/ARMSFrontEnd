@@ -1114,7 +1114,7 @@ const Application = () => {
                     </div>
                 </Row>
             </div>
-            {!isWithinAdmissionTime ? (
+            {isWithinAdmissionTime ? (
                 <Container className="mt-5 mb-3 px-4">
                     <Form onSubmit={handleSubmit}>
                         <h4 className='text-orange'>Thông tin thí sinh</h4>

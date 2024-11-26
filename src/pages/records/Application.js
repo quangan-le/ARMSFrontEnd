@@ -743,12 +743,36 @@ const Application = () => {
 
     // Xử lý khi người dùng chọn đối tượng ưu tiên
     const handlePriorityChange = (e) => {
-        const selectedPriorityID = parseInt(e.target.value);
-        setSelectedPriority(selectedPriorityID);
-        setFormData(prevData => ({
-            ...prevData,
-            priorityDetailPriorityID: selectedPriorityID,
-        }));
+        const value = e.target.value;
+        if (value === "") {
+            // Nếu chọn "Chọn đối tượng", đặt lại các giá trị mặc định
+            setSelectedPriority(null);
+            setFormData((prevData) => ({
+                ...prevData,
+                priorityDetailPriorityID: null, // Giá trị mặc định khi không chọn
+            }));
+            setTempImages((prevImages) => ({
+                ...prevImages,
+                imgpriority: null, // Xóa ảnh liên quan
+            }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgpriority: "Vui lòng chọn đối tượng ưu tiên.",
+            }));
+        } else {
+            // Nếu chọn một đối tượng ưu tiên hợp lệ
+            const selectedPriorityID = parseInt(value, 10);
+            setSelectedPriority(selectedPriorityID);
+            setFormData((prevData) => ({
+                ...prevData,
+                priorityDetailPriorityID: selectedPriorityID,
+            }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgpriority: null, 
+            }));
+        }
+        console.log(formErrors);
     };
     const handleFileChangePriority = (e) => {
         const file = e.target.files[0];
@@ -758,7 +782,15 @@ const Application = () => {
                 ...prevErrors,
                 imgpriority: validateField("imgpriority", null, { ...tempImages, imgpriority: file }, formData),
             }));
+        } else {
+            // Nếu không có file (hủy chọn ảnh), reset lại tempImages và formErrors
+            setTempImages(prev => ({ ...prev, imgpriority: null }));
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                imgpriority: null, // Reset lỗi nếu ảnh không được chọn
+            }));
         }
+        console.log(formErrors);
     };
 
     // Xử lý CCCD và bằng

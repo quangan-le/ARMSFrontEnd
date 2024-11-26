@@ -1108,14 +1108,14 @@ const Application = () => {
             return currentTime >= start && currentTime <= end;
         });
 
-        // if (!isWithinTime) {
-        //     toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
-        //     setTimeout(() => {
-        //         window.location.reload();
-        //     }, 3000);
-        //     setIsLoading(false); // Kết thúc loading
-        //     return;
-        // }
+        if (!isWithinTime) {
+            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+            setIsLoading(false); // Kết thúc loading
+            return;
+        }
 
         // Validate dữ liệu trước khi submit
         if (!validateForm()) {

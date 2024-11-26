@@ -736,7 +736,7 @@ const UserList = () => {
                                             type="text"
                                             name="studentCode"
                                             value={editUser?.studentCode || ""}
-                                            onChange={handleEditChange}
+                                            readOnly
                                         />
                                     </Col>
                                 </Form.Group>

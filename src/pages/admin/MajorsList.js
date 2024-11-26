@@ -24,6 +24,7 @@ const MajorsList = () => {
             console.error("Có lỗi xảy ra khi lấy danh sách ngành học:", error);
         }
     };
+    // Chi tiết
     const [showModal, setShowModal] = useState(false);
     const [selectedMajors, setSelectedMajors] = useState(null);
     const handleCloseModal = () => {
@@ -69,12 +70,13 @@ const MajorsList = () => {
             {
                 subjectCode: "",
                 subjectName: "",
-                numberOfCredits: 0,
-                semesterNumber: 0,
+                numberOfCredits: null,
+                semesterNumber: null,
                 studyTime: "",
                 note: "",
             },
         ],
+        campusId: campusId
     });
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -99,29 +101,38 @@ const MajorsList = () => {
                 {
                     subjectCode: "",
                     subjectName: "",
-                    numberOfCredits: 0,
-                    semesterNumber: 0,
+                    numberOfCredits: null,
+                    semesterNumber: null,
                     studyTime: "",
                     note: "",
                 },
             ],
         });
     };
-
+    const handleDeleteSubject = (index) => {
+        const updatedSubjects = newMajor.subjects.filter((_, i) => i !== index);
+        setNewMajor({ ...newMajor, subjects: updatedSubjects });
+    };
     const handleSubmit = async () => {
         // Kiểm tra tất cả các trường bắt buộc
         if (!newMajor.majorName || !newMajor.majorCode || !newMajor.majorID || !newMajor.description || !newMajor.timeStudy) {
             toast.error("Vui lòng nhập đầy đủ thông tin ngành học!");
             return;
         }
-        // Kiểm tra khung chương trình: nếu có ít nhất 1 môn học, tất cả các trường của môn học phải được nhập
-        if (newMajor.subjects.some(subject => subject.subjectCode || subject.subjectName || subject.numberOfCredits || subject.semesterNumber || subject.studyTime)) {
-            for (let i = 0; i < newMajor.subjects.length; i++) {
-                const subject = newMajor.subjects[i];
-                if (!subject.subjectCode || !subject.subjectName || subject.numberOfCredits === 0 || !subject.semesterNumber || !subject.studyTime) {
-                    toast.error(`Vui lòng nhập đầy đủ thông tin cho môn học thứ ${i + 1}`);
-                    return;
-                }
+        // Kiểm tra từng môn học trong khung chương trình
+        for (let i = 0; i < newMajor.subjects.length; i++) {
+            const subject = newMajor.subjects[i];
+
+            // Nếu bất kỳ trường nào (ngoại trừ `note`) trống, báo lỗi
+            if (
+                !subject.subjectCode ||
+                !subject.subjectName ||
+                !subject.numberOfCredits ||
+                !subject.semesterNumber ||
+                !subject.studyTime
+            ) {
+                toast.error(`Vui lòng nhập đầy đủ thông tin cho môn học thứ ${i + 1}!`);
+                return;
             }
         }
 
@@ -130,6 +141,26 @@ const MajorsList = () => {
             toast.success("Tạo mới ngành học thành công!");
             fetchMajors();
             handleCloseModalCreate();
+            setNewMajor({
+                majorID: "",
+                majorCode: "",
+                majorName: "",
+                description: "",
+                tuition: 0,
+                timeStudy: "",
+                isVocationalSchool: true,
+                campusId: "",
+                subjects: [
+                    {
+                        subjectCode: "",
+                        subjectName: "",
+                        numberOfCredits: null,
+                        semesterNumber: null,
+                        studyTime: "",
+                        note: "",
+                    },
+                ],
+            });
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessage = error.response.data.message || 'Lỗi khi tạo mới ngành học!';
@@ -139,7 +170,89 @@ const MajorsList = () => {
             }
         }
     };
+    // Chỉnh sửa
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editMajor, setEditMajor] = useState(null);
 
+    const handleShowEditModal = async (majorID) => {
+        try {
+            const response = await api.get(`/admin/Major/get-major-details?MajorId=${majorID}`);
+            const majorData = response.data;
+
+            setEditMajor(majorData);
+            setShowEditModal(true);
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu ngành học:", error);
+            toast.error("Không thể lấy dữ liệu ngành học!");
+        }
+    };
+
+    const handleCloseEditModal = () => {
+        setShowEditModal(false);
+        setEditMajor(null);
+    };
+    const handleEditSubjectChange = (index, field, value) => {
+        const updatedSubjects = [...editMajor.subjects];
+        updatedSubjects[index][field] = value;
+        setEditMajor({ ...editMajor, subjects: updatedSubjects });
+    };
+    const handleDeleteEditSubject = (index) => {
+        const updatedSubjects = editMajor.subjects.filter((_, i) => i !== index);
+        setEditMajor({ ...editMajor, subjects: updatedSubjects });
+    };
+    const handleAddEditSubject = () => {
+        const newSubject = {
+            subjectCode: "",
+            subjectName: "",
+            numberOfCredits: null,
+            semesterNumber: null,
+            studyTime: "",
+            note: "",
+        };
+        setEditMajor({ ...editMajor, subjects: [...editMajor.subjects, newSubject] });
+    };
+    const handleSubmitEdit = async () => {
+        // Kiểm tra tất cả các trường bắt buộc
+        if (!editMajor.majorName || !editMajor.majorCode || !editMajor.majorID || !editMajor.description || !editMajor.timeStudy) {
+            toast.error("Vui lòng nhập đầy đủ thông tin ngành học!");
+            return;
+        }
+
+        // Kiểm tra từng môn học trong khung chương trình
+        for (let i = 0; i < editMajor.subjects.length; i++) {
+            const subject = editMajor.subjects[i];
+
+            // Nếu bất kỳ trường nào (ngoại trừ `note`) trống, báo lỗi
+            if (
+                !subject.subjectCode ||
+                !subject.subjectName ||
+                !subject.numberOfCredits ||
+                !subject.semesterNumber ||
+                !subject.studyTime
+            ) {
+                toast.error(`Vui lòng nhập đầy đủ thông tin cho môn học thứ ${i + 1}!`);
+                return;
+            }
+        }
+        const updatedEditMajor = {
+            ...editMajor,
+            campusId: campusId,
+        };
+
+        try {
+            await api.put(`/admin/Major/update-major`, updatedEditMajor);
+            toast.success("Cập nhật ngành học thành công!");
+            fetchMajors();
+            handleCloseEditModal();
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Lỗi khi cập nhật ngành học!';
+                toast.error(errorMessage);
+            } else {
+                toast.error("Lỗi khi cập nhật ngành học!");
+            }
+        }
+    };
     return (
         <Container>
             <ToastContainer position="top-right" autoClose={3000} />
@@ -190,8 +303,9 @@ const MajorsList = () => {
                                 <td>{major.timeStudy}</td>
                                 <td>{major.isVocationalSchool == true ? "Trung cấp" : "Cao đẳng"}</td>
                                 <td>
-                                    <Button className="btn-orange"
-                                    //onClick={handleShow}
+                                    <Button
+                                        className="btn-orange"
+                                        onClick={() => handleShowEditModal(major.majorID)}
                                     >
                                         Chỉnh sửa
                                     </Button>
@@ -308,62 +422,79 @@ const MajorsList = () => {
                                         <th>Kỳ học</th>
                                         <th>Thời gian học</th>
                                         <th>Ghi chú</th>
+                                        <th>Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {newMajor.subjects.map((subject, index) => (
-                                        <tr key={index}>
-                                            <td className="text-center fw-bold">{index + 1}</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="subjectCode"
-                                                    value={subject.subjectCode}
-                                                    onChange={(e) => handleSubjectChange(index, e)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="subjectName"
-                                                    value={subject.subjectName}
-                                                    onChange={(e) => handleSubjectChange(index, e)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="numberOfCredits"
-                                                    value={subject.numberOfCredits}
-                                                    onChange={(e) => handleSubjectChange(index, e)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="semesterNumber"
-                                                    value={subject.semesterNumber}
-                                                    onChange={(e) => handleSubjectChange(index, e)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="studyTime"
-                                                    value={subject.studyTime}
-                                                    onChange={(e) => handleSubjectChange(index, e)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="note"
-                                                    value={subject.note}
-                                                    onChange={(e) => handleSubjectChange(index, e)}
-                                                />
+                                    {newMajor.subjects.length > 0 ? (
+                                        newMajor.subjects.map((subject, index) => (
+                                            <tr key={index}>
+                                                <td className="text-center fw-bold">{index + 1}</td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        name="subjectCode"
+                                                        value={subject.subjectCode}
+                                                        onChange={(e) => handleSubjectChange(index, e)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        name="subjectName"
+                                                        value={subject.subjectName}
+                                                        onChange={(e) => handleSubjectChange(index, e)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        name="numberOfCredits"
+                                                        value={subject.numberOfCredits}
+                                                        onChange={(e) => handleSubjectChange(index, e)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        name="semesterNumber"
+                                                        value={subject.semesterNumber}
+                                                        onChange={(e) => handleSubjectChange(index, e)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        name="studyTime"
+                                                        value={subject.studyTime}
+                                                        onChange={(e) => handleSubjectChange(index, e)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        name="note"
+                                                        value={subject.note}
+                                                        onChange={(e) => handleSubjectChange(index, e)}
+                                                    />
+                                                </td>
+                                                <td className="text-center">
+                                                    <Button
+                                                        variant="danger"
+                                                        onClick={() => handleDeleteSubject(index)} // Gọi hàm xóa
+                                                    >
+                                                        Xóa
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="8" className="text-center">
+                                                Không có môn học nào
                                             </td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </Table>
                             <Button variant="outline-primary" onClick={addSubject}>
@@ -416,8 +547,6 @@ const MajorsList = () => {
                                     </Col>
                                 </Row>
                             </Form.Group>
-
-
                             <Form.Group className="mb-3">
                                 <Form.Label>Mô tả:</Form.Label>
                                 <Form.Control
@@ -425,7 +554,6 @@ const MajorsList = () => {
                                     rows={5}
                                     name="description"
                                     value={selectedMajors.description}
-                                //onChange={handleInputChange}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
@@ -507,9 +635,197 @@ const MajorsList = () => {
                             <Button variant="secondary" onClick={handleCloseModal}>
                                 Quay lại
                             </Button>
+                            <Button
+                                className="btn-orange"
+                                onClick={() => {
+                                    handleCloseModal();
+                                    handleShowEditModal(selectedMajors.majorID);
+                                }}
+                            >
+                                Chỉnh sửa
+                            </Button>
                         </Modal.Footer>
                     </>
                 )}
+            </Modal>
+            <Modal show={showEditModal} onHide={handleCloseEditModal} size="lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chỉnh sửa ngành học</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {editMajor ? (
+                        <>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Tên ngành học:</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editMajor.majorName}
+                                    onChange={(e) => setEditMajor({ ...editMajor, majorName: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Label>Mã code:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={editMajor.majorCode}
+                                            onChange={(e) => setEditMajor({ ...editMajor, majorCode: e.target.value })}
+                                        />
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Label>Mã ngành:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={editMajor.majorID}
+                                            readOnly
+                                        />
+                                    </Col>
+                                </Row>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Mô tả:</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    value={editMajor.description}
+                                    onChange={(e) => setEditMajor({ ...editMajor, description: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Row>
+                                    <Col md={4}>
+                                        <Form.Label>Học phí:</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={editMajor.tuition}
+                                            onChange={(e) => setEditMajor({ ...editMajor, tuition: +e.target.value })}
+                                        />
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Label>Thời gian học:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={editMajor.timeStudy}
+                                            onChange={(e) => setEditMajor({ ...editMajor, timeStudy: e.target.value })}
+                                        />
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Label>Hệ đào tạo:</Form.Label>
+                                        <Form.Select
+                                            value={editMajor.isVocationalSchool}
+                                            onChange={(e) =>
+                                                setEditMajor({ ...editMajor, isVocationalSchool: e.target.value === "true" })
+                                            }
+                                        >
+                                            <option value="false">Cao đẳng</option>
+                                            <option value="true">Trung cấp</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Khung chương trình:</Form.Label>
+                                <Table striped bordered hover>
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Mã môn</th>
+                                            <th>Tên môn</th>
+                                            <th>Số tín chỉ</th>
+                                            <th>Kỳ học</th>
+                                            <th>Thời gian học</th>
+                                            <th>Ghi chú</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {editMajor.subjects.map((subject, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={subject.subjectCode}
+                                                        onChange={(e) =>
+                                                            handleEditSubjectChange(index, "subjectCode", e.target.value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={subject.subjectName}
+                                                        onChange={(e) =>
+                                                            handleEditSubjectChange(index, "subjectName", e.target.value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={subject.numberOfCredits || ""}
+                                                        onChange={(e) =>
+                                                            handleEditSubjectChange(index, "numberOfCredits", +e.target.value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={subject.semesterNumber || ""}
+                                                        onChange={(e) =>
+                                                            handleEditSubjectChange(index, "semesterNumber", +e.target.value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={subject.studyTime}
+                                                        onChange={(e) =>
+                                                            handleEditSubjectChange(index, "studyTime", e.target.value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={subject.note}
+                                                        onChange={(e) =>
+                                                            handleEditSubjectChange(index, "note", e.target.value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Button
+                                                        variant="danger"
+                                                        onClick={() => handleDeleteEditSubject(index)}
+                                                    >
+                                                        Xóa
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                                <Button variant="primary" onClick={handleAddEditSubject}>
+                                    Thêm môn học
+                                </Button>
+                            </Form.Group>
+                        </>
+                    ) : (
+                        <p>Đang tải dữ liệu...</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseEditModal}>
+                        Hủy
+                    </Button>
+                    <Button variant="warning" onClick={handleSubmitEdit}>
+                        Lưu thay đổi
+                    </Button>
+                </Modal.Footer>
             </Modal>
         </Container>
     );

@@ -66,19 +66,6 @@ const AccountList = () => {
                         />
                     </Form.Group>
                 </Col>
-                <Col xs={12} md={6} className="d-flex justify-content-end">
-                    <Form.Select
-                        value={selectedRole}
-                        onChange={(e) => setSelectedRole(e.target.value)}
-                        className="me-2"
-                        style={{ width: "200px" }}
-                    >
-                        <option value="">Tất cả vai trò</option>
-                        <option value="student">Học sinh</option>
-                        <option value="teacher">Giáo viên</option>
-                        <option value="admin">Quản trị viên</option>
-                    </Form.Select>
-                </Col>
             </Row>
 
             {/* Bảng dữ liệu */}

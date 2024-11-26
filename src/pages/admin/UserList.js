@@ -16,7 +16,7 @@ const UserList = () => {
     const itemsPerPage = 8;
 
     const roleNames = {
-        Student: "Học sinh",
+        Student: "Sinh viên",
         SchoolService: "Dịch vụ sinh viên",
         AdmissionCouncil: "Hội đồng tuyển sinh",
         Admin: "Quản trị campus",
@@ -119,8 +119,13 @@ const UserList = () => {
             });
             handleClose();
         } catch (error) {
-            console.error("Lỗi khi tạo tài khoản:", error);
-            toast.error("Tạo tài khoản thất bại!");
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Đã xảy ra lỗi khi tạo mới!';
+                toast.error(errorMessage);
+            } else {
+                toast.error("Thêm tài khoản thất bại!");
+            }
+            console.error("Thêm tài khoản thất bại:", error);
         }
     };
 
@@ -144,35 +149,41 @@ const UserList = () => {
     // Chỉnh sửa
     const [showEdit, setShowEdit] = useState(false);
     const [editUser, setEditUser] = useState({
-        userName: "",
+        id: "",
         fullname: "",
         gender: true,
+        email: "",
         phone: "",
         dob: null,
         studentCode: "",
-        majorId: "",
-        typeAccount: 0, // Mặc định là Account
-        roleName: "",
         isAccountActive: false,
-        email: ""
+        majorName: "",
+        roleName: "",
+        userName: "",
+        typeAccount: 0, // Mặc định là Account
     });
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditUser({ ...editUser, [name]: value });
+    };
 
     // Hàm mở modal chỉnh sửa
     const handleShowEdit = async (accountId) => {
         try {
             const response = await api.get(`/Account/get-account/${accountId}`);
             const accountData = response.data;
-            setSelectedAccount(accountData);
             setEditUser({
-                userName: accountData.userName,
+                id: accountData.id,
                 fullname: accountData.fullname,
                 gender: accountData.gender,
+                email: accountData.email,
                 phone: accountData.phone,
                 dob: accountData.dob,
-                campusId: accountData.campusId,
-                typeAccount: accountData.typeAccount,
+                studentCode: accountData.studentCode,
+                isAccountActive: accountData.isAccountActive,
+                majorName: accountData.majorName,
                 roleName: accountData.roleName,
-                email: accountData.email
+                userName: accountData.userName,
             });
 
             setShowEdit(true); // Mở modal chỉnh sửa
@@ -188,13 +199,58 @@ const UserList = () => {
 
     // Hàm submit chỉnh sửa
     const handleSubmitEdit = async () => {
+        // Validate email nếu có giá trị
+        if (editUser.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editUser.email)) {
+            toast.error("Địa chỉ email không hợp lệ!");
+            return;
+        }
+
+        // Validate số điện thoại nếu có giá trị
+        if (editUser.phone && !/^\d{10,15}$/.test(editUser.phone)) {
+            toast.error("Số điện thoại không hợp lệ!");
+            return;
+        }
+        if (editUser.dob) {
+            const dob = new Date(editUser.dob);
+            const today = new Date();
+            if (dob > today) {
+                toast.error("Ngày sinh không thể là sau ngày hiện tại!");
+                return;
+            }
+
+            if (isNaN(dob.getTime())) {
+                toast.error("Ngày sinh không hợp lệ!");
+                return;
+            }
+        }
+
         try {
-            await api.put("/Account/update-account", newUser);
+            // Xác định typeAccount dựa trên roleName
+            const updatedUser = {
+                userName: editUser.userName,
+                fullname: editUser.fullname,
+                gender: editUser.gender,
+                phone: editUser.phone,
+                dob: editUser.dob,
+                studentCode: editUser.studentCode,
+                typeAccount: editUser.roleName === "Student" ? 2 : 0,
+                roleName: editUser.roleName,
+                isAccountActive: editUser.isAccountActive,
+                email: editUser.email,
+            };
+            await api.put(`/Account/update-account/${editUser.id}`, updatedUser);
+
             toast.success("Cập nhật tài khoản thành công!");
-            fetchAccounts();  // Cập nhật lại bảng sau khi chỉnh sửa
+            fetchAccounts();
             setShowEdit(false);
         } catch (error) {
-            toast.error("Cập nhật tài khoản thất bại!");
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Đã xảy ra lỗi khi cập nhật!';
+                toast.error(errorMessage);
+            } else {
+                toast.error("Cập nhật tài khoản thất bại!");
+            }
+            console.error("Cập nhật tài khoản thất bại:", error);
         }
     };
     return (
@@ -248,7 +304,7 @@ const UserList = () => {
                     {accounts.map((account, index) => (
                         <tr key={index}>
                             <td className="text-center fw-bold">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                            <td>{account.username}</td>
+                            <td>{account.userName}</td>
                             <td>{account.fullname}</td>
                             <td>{account.email}</td>
                             <td>{account.phone || "N/A"}</td>
@@ -486,7 +542,13 @@ const UserList = () => {
                             <Col sm={8}>
                                 <Form.Control
                                     type="text"
-                                    value={selectedAccount?.gender ? "Nam" : "Nữ"}
+                                    value={
+                                        selectedAccount?.gender === true
+                                            ? "Nam"
+                                            : selectedAccount?.gender === false
+                                                ? "Nữ"
+                                                : ""
+                                    }
                                     readOnly
                                 />
                             </Col>
@@ -549,7 +611,7 @@ const UserList = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseDetails}>Đóng</Button>
-                    <Button variant="primary" onClick={() => { handleCloseDetails(); handleShowEdit(selectedAccount.id); }}>
+                    <Button variant="warning" onClick={() => { handleCloseDetails(); handleShowEdit(selectedAccount.id); }}>
                         Chỉnh sửa
                     </Button>
                 </Modal.Footer>
@@ -561,27 +623,41 @@ const UserList = () => {
                 <Modal.Body>
                     <Form>
                         <Form.Group as={Row} className="mb-3">
-                            <Form.Label column sm={4}>Tên đăng nhập</Form.Label>
+                            <Form.Label column sm={4}>
+                                Tên đăng nhập <span style={{ color: "red" }}>*</span>
+                            </Form.Label>
                             <Col sm={8}>
                                 <Form.Control
                                     type="text"
                                     name="userName"
-                                    value={newUser.userName}
-                                    onChange={handleInputChange}
+                                    value={editUser.userName}
+                                    readOnly
                                 />
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
-                            <Form.Label column sm={4}>Vai trò</Form.Label>
+                            <Form.Label column sm={4}>
+                                Vai trò <span style={{ color: "red" }}>*</span>
+                            </Form.Label>
                             <Col sm={8}>
-                                <Form.Select
-                                    name="roleName"
-                                    value={newUser.roleName}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="AdmissionOfficer">Cán bộ tuyển sinh</option>
-                                    <option value="Admin">Quản trị</option>
-                                </Form.Select>
+                                {editUser.roleName === "Student" ? (
+                                    <Form.Control
+                                        type="text"
+                                        value="Sinh viên"
+                                        readOnly
+                                    />
+                                ) : (
+                                    <Form.Select
+                                        name="roleName"
+                                        value={editUser.roleName}
+                                        onChange={handleEditChange}
+                                    >
+                                        <option value="SchoolService">Dịch vụ sinh viên</option>
+                                        <option value="AdmissionOfficer">Cán bộ tuyển sinh</option>
+                                        <option value="AdmissionCouncil">Hội đồng tuyển sinh</option>
+                                        <option value="Admin">Quản trị campus</option>
+                                    </Form.Select>
+                                )}
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
@@ -590,8 +666,8 @@ const UserList = () => {
                                 <Form.Control
                                     type="text"
                                     name="fullname"
-                                    value={newUser.fullname}
-                                    onChange={handleInputChange}
+                                    value={editUser.fullname}
+                                    onChange={handleEditChange}
                                 />
                             </Col>
                         </Form.Group>
@@ -601,22 +677,32 @@ const UserList = () => {
                                 <Form.Control
                                     type="email"
                                     name="email"
-                                    value={newUser.email}
-                                    onChange={handleInputChange}
+                                    value={editUser.email}
+                                    onChange={handleEditChange}
                                 />
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
                             <Form.Label column sm={4}>Giới tính</Form.Label>
                             <Col sm={8}>
-                                <Form.Select
+                                <Form.Check
+                                    type="radio"
+                                    id="gender-male"
+                                    label="Nam"
                                     name="gender"
-                                    value={newUser.gender ? "true" : "false"}
-                                    onChange={(e) => handleInputChange({ target: { name: "gender", value: e.target.value === "true" } })}
-                                >
-                                    <option value="true">Nam</option>
-                                    <option value="false">Nữ</option>
-                                </Form.Select>
+                                    value={true}
+                                    checked={editUser.gender === true}
+                                    onChange={(e) => handleEditChange({ target: { name: "gender", value: e.target.value === "true" } })}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    id="gender-female"
+                                    label="Nữ"
+                                    name="gender"
+                                    value={false}
+                                    checked={editUser.gender === false}
+                                    onChange={(e) => handleEditChange({ target: { name: "gender", value: e.target.value === "true" } })}
+                                />
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
@@ -625,8 +711,8 @@ const UserList = () => {
                                 <Form.Control
                                     type="date"
                                     name="dob"
-                                    value={newUser.dob ? new Date(newUser.dob).toISOString().split('T')[0] : ""}
-                                    onChange={handleInputChange}
+                                    value={editUser.dob ? editUser.dob.split('T')[0] : ""}
+                                    onChange={handleEditChange}
                                 />
                             </Col>
                         </Form.Group>
@@ -636,8 +722,57 @@ const UserList = () => {
                                 <Form.Control
                                     type="text"
                                     name="phone"
-                                    value={newUser.phone}
-                                    onChange={handleInputChange}
+                                    value={editUser.phone}
+                                    onChange={handleEditChange}
+                                />
+                            </Col>
+                        </Form.Group>
+                        {editUser?.roleName === "Student" && (
+                            <>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Form.Label column sm={4}>Mã sinh viên</Form.Label>
+                                    <Col sm={8}>
+                                        <Form.Control
+                                            type="text"
+                                            name="studentCode"
+                                            value={editUser?.studentCode || ""}
+                                            onChange={handleEditChange}
+                                        />
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Form.Label column sm={4}>Chuyên ngành</Form.Label>
+                                    <Col sm={8}>
+                                        <Form.Control
+                                            type="text"
+                                            name="majorName"
+                                            value={editUser?.majorName || ""}
+                                            onChange={handleEditChange}
+                                        />
+                                    </Col>
+                                </Form.Group>
+                            </>
+                        )}
+                        <Form.Group as={Row} className="mb-3">
+                            <Form.Label column sm={4}>Trạng thái</Form.Label>
+                            <Col sm={8}>
+                                <Form.Check
+                                    type="radio"
+                                    id="status-active"
+                                    label="Đang hoạt động"
+                                    name="isAccountActive"
+                                    value={true}
+                                    checked={editUser.isAccountActive === true}
+                                    onChange={(e) => handleEditChange({ target: { name: "isAccountActive", value: e.target.value === "true" } })}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    id="status-inactive"
+                                    label="Ngưng hoạt động"
+                                    name="isAccountActive"
+                                    value={false}
+                                    checked={editUser.isAccountActive === false}
+                                    onChange={(e) => handleEditChange({ target: { name: "isAccountActive", value: e.target.value === "true" } })}
                                 />
                             </Col>
                         </Form.Group>

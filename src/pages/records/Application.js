@@ -752,7 +752,13 @@ const Application = () => {
     };
     const handleFileChangePriority = (e) => {
         const file = e.target.files[0];
-        setTempImages(prev => ({ ...prev, imgpriority: file }));
+        if (file) {
+            setTempImages(prev => ({ ...prev, imgpriority: file }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgpriority: validateField("imgpriority", null, { ...tempImages, imgpriority: file }, formData),
+            }));
+        }
     };
 
     // Xử lý CCCD và bằng
@@ -768,6 +774,18 @@ const Application = () => {
         if (file) {
             setFrontCCCD(URL.createObjectURL(file));
             setTempImages(prev => ({ ...prev, imgCitizenIdentification1: file }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgCitizenIdentification1: validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: file }, formData),
+            }));
+        } else {
+            // Nếu không có tệp nào được chọn, xóa trạng thái liên quan
+            setFrontCCCD(null);
+            setTempImages((prev) => ({ ...prev, imgCitizenIdentification1: null }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgCitizenIdentification1: validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: null }, formData),
+            }));
         }
     };
     // Ảnh mặt sau
@@ -776,6 +794,18 @@ const Application = () => {
         if (file) {
             setBackCCCD(URL.createObjectURL(file));
             setTempImages(prev => ({ ...prev, imgCitizenIdentification2: file }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgCitizenIdentification2: validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: file }, formData),
+            }));
+        } else {
+            // Nếu không có tệp nào được chọn, xóa trạng thái liên quan
+            setBackCCCD(null);
+            setTempImages((prev) => ({ ...prev, imgCitizenIdentification2: null }));
+            setFormErrors((prevErrors) => ({
+                ...prevErrors,
+                imgCitizenIdentification2: validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: null }, formData),
+            }));
         }
     };
     // Ảnh tốt nghiệp
@@ -795,6 +825,39 @@ const Application = () => {
             } else {
                 setDiplomaMajor2(objectURL);  // setDiplomaMajor2 là state lưu URL cho ảnh ngành 2
             }
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: validateField(
+                    isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
+                    file,
+                    tempImages,
+                    formData
+                ),
+            }));
+        } else {
+            // Xử lý khi nhấn Cancel hoặc không có file được chọn
+            setTempImages(prev => ({
+                ...prev,
+                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: null,
+            }));
+
+            // Xóa ảnh xem trước
+            if (isMajor1) {
+                setDiplomaMajor1(null); // Xóa ảnh ngành 1
+            } else {
+                setDiplomaMajor2(null); // Xóa ảnh ngành 2
+            }
+
+            // Xóa lỗi tương ứng
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: validateField(
+                    isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
+                    null,
+                    tempImages,
+                    formData
+                ),
+            }));
         }
     };
     // Ảnh học bạ
@@ -807,15 +870,7 @@ const Application = () => {
             }));
         }
     };
-
-    // formData
-    // const handleChange = (e) => {
-    //     const { id, value, type, checked } = e.target;
-    //     setFormData(prevState => ({
-    //         ...prevState,
-    //         [id]: (id === "gender" || id === "recipientResults") ? (value === "true") : (type === "checkbox" ? checked : value)
-    //     }));
-    // };
+    
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
 
@@ -839,8 +894,9 @@ const Application = () => {
     };
 
     // Validate
-    const validateField = (field, value, formData) => {
+    const validateField = (field, value, tempImages, formData) => {
         let error = "";
+        const allowedFileTypes = ["image/jpeg", "image/png", "image/jpg"]; // Loại tệp cho phép
 
         switch (field) {
             case "fullname":
@@ -938,42 +994,88 @@ const Application = () => {
                     error = "Năm tốt nghiệp phải là số.";
                 }
                 break;
-            // case "major1":
-            //     if (!value) {
-            //         error = "Ngành học Nguyện vọng 1 không được để trống.";
-            //     }
-            //     break;
+            case "major1":
+                if (!value) {
+                    error = "Ngành học Nguyện vọng 1 không được để trống.";
+                }
+                break;
 
-            // case "typeOfDiplomaMajor1":
-            //     if (!value) {
-            //         error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
-            //     }
-            //     break;
-            // case "typeOfTranscriptMajor1":
-            //     if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
-            //         if (!value) {
-            //             error = "Khối xét tuyển Nguyện vọng 1 không được để trống.";
-            //         }
-            //     }
-            //     break;
-            // case "academicTranscriptsMajor1":
-            //     if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
-            //         displayedFields1.forEach(field => {
-            //             const transcript = academicTranscriptsMajor1.find(
-            //                 item => item.name === field.name
-            //             );
-            //             const point = transcript?.subjectPoint;
+            case "typeOfDiplomaMajor1":
+                if (!value) {
+                    error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
+                }
+                break;
+            case "academicTranscriptsMajor1":
+                if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
+                    displayedFields1.forEach(field => {
+                        const transcript = academicTranscriptsMajor1.find(
+                            item => item.name === field.name
+                        );
+                        const point = transcript?.subjectPoint;
 
-            //             if (!point && point !== 0) {
-            //                 error = `Điểm của môn ${field.subject} không được để trống.`;
-            //             } else if (isNaN(point) || point < 0 || point > 10) {
-            //                 error = `Điểm của môn ${field.subject} phải là số từ 0 đến 10.`;
-            //             }
-            //         });
-            //     }
-            //     break;
+                        if (!point && point !== 0) {
+                            error = `Điểm của môn ${field.subject} không được để trống.`;
+                        } else if (isNaN(point) || point < 0 || point > 10) {
+                            error = `Điểm của môn ${field.subject} phải là số từ 0 đến 10.`;
+                        }
+                    });
+                }
+                break;
+            // Thêm check NV2
+            case "addressRecipientResults":
+                if (formData?.permanentAddress === false && !value.trim()) {
+                    error = "Vui lòng nhập địa chỉ nhận giấy báo khác.";
+                }
+                break;
 
+            case "imgpriority":
+                // Nếu chọn đối tượng ưu tiên, cần kiểm tra giấy tờ ưu tiên
+                if (selectedPriority) {
+                    const file = tempImages?.imgpriority; // Lấy file từ tempImages
+                    if (!file) {
+                        error = "Vui lòng tải lên giấy tờ ưu tiên.";
+                    } else {
+                        // Kiểm tra loại file
+                        if (!allowedFileTypes.includes(file.type)) {
+                            error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                        }
+                    }
+                }
+                break;
+            case "imgCitizenIdentification1":
+                if (!tempImages?.imgCitizenIdentification1) {
+                    error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
+            case "imgCitizenIdentification2":
+                if (!tempImages?.imgCitizenIdentification2) {
+                    error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
+
+            case "imgDiplomaMajor1":
+                if (!tempImages?.imgDiplomaMajor1) {
+                    error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
+
+            case "imgDiplomaMajor2":
+                if (showGraduationImage2 && !tempImages?.imgDiplomaMajor2) {
+                    error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
+                } else if (
+                    showGraduationImage2 &&
+                    !allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)
+                ) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
             default:
                 break;
         }
@@ -984,7 +1086,7 @@ const Application = () => {
     const validateForm = () => {
         const errors = {};
         Object.keys(formData).forEach((field) => {
-            const error = validateField(field, formData[field]);
+            const error = validateField(field, formData[field], tempImages, formData);
             if (error) errors[field] = error;
         });
         setFormErrors(errors);
@@ -1006,14 +1108,14 @@ const Application = () => {
             return currentTime >= start && currentTime <= end;
         });
 
-        if (!isWithinTime) {
-            toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-            setIsLoading(false); // Kết thúc loading
-            return;
-        }
+        // if (!isWithinTime) {
+        //     toast.error('Đã hết thời gian đăng ký xét tuyển! Vui lòng xem thông tin đợt tuyển sinh mới tại trang tuyển sinh!');
+        //     setTimeout(() => {
+        //         window.location.reload();
+        //     }, 3000);
+        //     setIsLoading(false); // Kết thúc loading
+        //     return;
+        // }
 
         // Validate dữ liệu trước khi submit
         if (!validateForm()) {
@@ -1114,7 +1216,7 @@ const Application = () => {
                     </div>
                 </Row>
             </div>
-            {isWithinAdmissionTime ? (
+            {!isWithinAdmissionTime ? (
                 <Container className="mt-5 mb-3 px-4">
                     <Form onSubmit={handleSubmit}>
                         <h4 className='text-orange'>Thông tin thí sinh</h4>
@@ -1396,6 +1498,7 @@ const Application = () => {
                                                     </option>
                                                 ))}
                                             </Form.Control>
+                                            {formErrors.typeOfDiplomaMajor1 && <p className="error">{formErrors.typeOfDiplomaMajor1}</p>}
                                         </Form.Group>
                                     </Col>
                                 )}
@@ -1460,6 +1563,7 @@ const Application = () => {
                                                     })}
                                                 </div>
                                             </Form.Group>
+                                            {formErrors.academicTranscriptsMajor1 && <p className="error">{formErrors.academicTranscriptsMajor1}</p>}
                                         </Col>
                                     </Row>
                                 )}
@@ -1571,7 +1675,7 @@ const Application = () => {
                                     </Row>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group controlId="prioritySelection">
+                                            <Form.Group controlId="priorityDetailPriorityID">
                                                 <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
                                                     <option value="">Chọn đối tượng</option>
                                                     {priorityData.map((priority) => (
@@ -1589,12 +1693,15 @@ const Application = () => {
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="priorityDocument">
-                                        <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                        <Form.Control type="file" onChange={handleFileChangePriority} />
-                                    </Form.Group>
-                                </Col>
+                                {selectedPriority && (
+                                    <Col md={6}>
+                                        <Form.Group controlId="imgpriority">
+                                            <Form.Label>Giấy tờ ưu tiên</Form.Label>
+                                            <Form.Control type="file" accept="image/*" onChange={handleFileChangePriority} required />
+                                        </Form.Group>
+                                        {formErrors.imgpriority && <p className="error">{formErrors.imgpriority}</p>}
+                                    </Col>
+                                )}
                             </Row>
                         </div>
 
@@ -1622,12 +1729,12 @@ const Application = () => {
                         <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
                         <Row>
                             <Col md={6} className='mt-2'>
-                                <Form.Group controlId="recipient">
+                                <Form.Group controlId="recipientResults">
                                     <Form.Label>Người nhận</Form.Label>
                                     <Form.Check
                                         type="radio"
                                         label="Thí sinh"
-                                        name="recipient"
+                                        name="recipientResults"
                                         id="recipientResults"
                                         value="true"
                                         onChange={handleChange}
@@ -1635,7 +1742,7 @@ const Application = () => {
                                     <Form.Check
                                         type="radio"
                                         label="Phụ huynh/Người bảo trợ"
-                                        name="recipient"
+                                        name="recipientResults"
                                         id="recipientResults"
                                         value="false"
                                         className="pt-3"
@@ -1658,6 +1765,11 @@ const Application = () => {
                                                 addressRecipientResults: "" // Xóa địa chỉ khác nếu chọn địa chỉ thường trú
                                             }));
                                             setShowOtherAddress(false);
+                                            // Xóa lỗi liên quan đến addressRecipientResults
+                                            setFormErrors((prevErrors) => ({
+                                                ...prevErrors,
+                                                addressRecipientResults: "", // Xóa lỗi
+                                            }));
                                         }}
                                     />
                                     <div className='d-flex align-items-end'>
@@ -1677,11 +1789,12 @@ const Application = () => {
                                                 type="text"
                                                 placeholder="Nhập địa chỉ khác"
                                                 className="ms-2"
-                                                value={formData.addressRecipientResults !== undefined ? formData.addressRecipientResults : ''}
+                                                value={formData.addressRecipientResults || ""}
                                                 onChange={handleChange}
                                             />
                                         )}
                                     </div>
+                                    {formErrors.addressRecipientResults && <p className="error">{formErrors.addressRecipientResults}</p>}
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -1701,6 +1814,7 @@ const Application = () => {
                                             <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
                                         </div>
                                     )}
+                                    {formErrors.imgCitizenIdentification1 && <p className="error">{formErrors.imgCitizenIdentification1}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={3} className='mt-2'>
@@ -1717,6 +1831,7 @@ const Application = () => {
                                             <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
                                         </div>
                                     )}
+                                    {formErrors.imgCitizenIdentification2 && <p className="error">{formErrors.imgCitizenIdentification2}</p>}
                                 </Form.Group>
                             </Col>
 
@@ -1735,6 +1850,7 @@ const Application = () => {
                                                 <img src={diplomaMajor1} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
                                             </div>
                                         )}
+                                        {formErrors.imgDiplomaMajor1 && <p className="error">{formErrors.imgDiplomaMajor1}</p>}
                                     </Form.Group>
                                 </Col>
                             )}
@@ -1754,6 +1870,7 @@ const Application = () => {
                                                 <img src={diplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
                                             </div>
                                         )}
+                                        {formErrors.imgDiplomaMajor2 && <p className="error">{formErrors.imgDiplomaMajor2}</p>}
                                     </Form.Group>
                                 </Col>
                             )}

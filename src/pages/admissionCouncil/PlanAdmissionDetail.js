@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Container, Row, Col } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useOutletContext } from 'react-router-dom';
-import api from "../../apiService.js";
+import { Button, Col, Container, Form, Modal, Row, Table } from 'react-bootstrap';
+import { useOutletContext, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from "../../apiService.js";
 
 const PlanAdmissionDetail = () => {
     const { admissionInformationID } = useParams();
@@ -106,11 +105,12 @@ const PlanAdmissionDetail = () => {
     const [showModalCreate, setShowModalCreate] = useState(false);
 
     const [formData, setFormData] = useState({
-        admissionInformationName: "",
+        admissionTimeName: "",
         startRegister: "",
         endRegister: "",
         startAdmission: "",
-        endAdmission: ""
+        endAdmission: "",
+        
     });
     const handleShowModalCreate = () => setShowModalCreate(true);
     const handleCloseModalCreate = () => setShowModalCreate(false);
@@ -126,7 +126,7 @@ const PlanAdmissionDetail = () => {
         e.preventDefault();
         const formDataWithCampusId = { 
             ...formData, 
-            campusId: campusId 
+            admissionInformationID: parseInt(admissionInformationID, 10) 
         };
     
         try {
@@ -240,9 +240,9 @@ const PlanAdmissionDetail = () => {
                 <tbody>
                     {admissionRounds.length > 0 ? (
                         admissionRounds.map((round, index) => (
-                            <tr key={round.aiId}>
+                            <tr key={round.admissionTimeId}>
                                 <td>{index + 1}</td>
-                                <td>{round.admissionInformationName}</td>
+                                <td>{round.admissionTimeName}</td>
                                 <td>{new Date(round.startRegister).toLocaleString()}</td>
                                 <td>{new Date(round.endRegister).toLocaleString()}</td>
                                 <td>{new Date(round.startAdmission).toLocaleString()}</td>
@@ -273,8 +273,8 @@ const PlanAdmissionDetail = () => {
                             <Form.Label>Tên đợt tuyển sinh</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="admissionInformationName"
-                                value={formData.admissionInformationName}
+                                name="admissionTimeName"
+                                value={formData.admissionTimeName}
                                 onChange={handleCreateChange}
                                 required
                             />
@@ -513,8 +513,8 @@ const PlanAdmissionDetail = () => {
                                 <Form.Label>Tên đợt:</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="admissionInformationName"
-                                    value={editFormData.admissionInformationName || ''}
+                                    name="admissionTimeName"
+                                    value={editFormData.admissionTimeName || ''}
                                     onChange={handleChange}
                                 />
                             </Form.Group>

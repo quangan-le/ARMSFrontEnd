@@ -292,8 +292,10 @@ const ApplicationSearch = () => {
             birthCertificate: birthCertificateUrl,
         };
         sessionStorage.setItem('data', JSON.stringify(data));
+    
         const selectedCampusPost = {
-            campus: applicationData.campusId
+            campus: applicationData.campusId,
+            major: applicationData.typeofStatusMajor1 === 1 ? applicationData.major1 : applicationData.major2,
         };
         try {
             // Gửi yêu cầu thanh toán đến VNPAY
@@ -831,7 +833,10 @@ const ApplicationSearch = () => {
                                             onClick={handleEnrollmentSubmit}
                                             className="bg-orange text-white px-4 py-2"
                                             style={{ width: "auto" }}
-                                            disabled={!!(applicationData.birthCertificate || applicationData.admissionForm)}
+                                            disabled={
+                                                !!(applicationData.birthCertificate || applicationData.admissionForm) ||
+                                                (applicationData.typeofStatusMajor1 === 0 && applicationData.typeofStatusMajor2 === 0)
+                                            }
                                         >
                                             Gửi thông tin nhập học
                                         </Button>

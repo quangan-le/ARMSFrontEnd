@@ -715,12 +715,12 @@ const IntermediateApplication = () => {
                         <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
                         <Row>
                             <Col md={6} className='mt-2'>
-                                <Form.Group controlId="recipient">
+                                <Form.Group controlId="recipientResults">
                                     <Form.Label>Người nhận</Form.Label>
                                     <Form.Check
                                         type="radio"
                                         label="Thí sinh"
-                                        name="recipient"
+                                        name="recipientResults"
                                         id="recipientResults"
                                         value="true"
                                         onChange={handleChange}
@@ -728,7 +728,7 @@ const IntermediateApplication = () => {
                                     <Form.Check
                                         type="radio"
                                         label="Phụ huynh/Người bảo trợ"
-                                        name="recipient"
+                                        name="recipientResults"
                                         id="recipientResults"
                                         value="false"
                                         className="pt-3"

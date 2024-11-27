@@ -53,7 +53,6 @@ const Payment = () => {
             payFeeAdmission,
         };
         console.log(updatedFormData);
-        let isSubmitting = false;
 
         // Submit
         const submitApplication = async () => {
@@ -65,7 +64,7 @@ const Payment = () => {
                 console.log("Đã gửi trước đó, không gửi lại.");
                 return;
             }
-            
+
             try {
                 if (storedFormData) {
                     const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);

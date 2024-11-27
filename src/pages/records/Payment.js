@@ -5,6 +5,8 @@ import api from '../../apiService';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+let isSubmitting = false; 
+
 const Payment = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -51,9 +53,19 @@ const Payment = () => {
             payFeeAdmission,
         };
         console.log(updatedFormData);
+        let isSubmitting = false;
 
         // Submit
         const submitApplication = async () => {
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            // Kiểm tra trạng thái thành công trước đó
+            if (sessionStorage.getItem('admissionSuccess') || sessionStorage.getItem('doneSuccess')) {
+                console.log("Đã gửi trước đó, không gửi lại.");
+                return;
+            }
+            
             try {
                 if (storedFormData) {
                     const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
@@ -71,6 +83,8 @@ const Payment = () => {
             } catch (error) {
                 console.error('Lỗi khi gửi đơn:', error);
                 //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+            } finally {
+                isSubmitting = false; // Reset trạng thái
             }
         };
 

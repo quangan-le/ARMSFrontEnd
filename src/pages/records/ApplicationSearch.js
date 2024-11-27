@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row, Spinner  } from 'react-bootstrap';
 import { Download } from 'react-bootstrap-icons';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -47,22 +47,27 @@ const ApplicationSearch = () => {
     const [address, setAddress] = useState('');
     const [majorName1, setMajorName1] = useState('');
     const [majorName2, setMajorName2] = useState('');
+    const [isLoading, setIsLoading] = useState(false); // Trạng thái loading
 
     const handleClose = () => setShowModal(false);
     const handleShow = () => setShowModal(true);
 
     // Gửi OTP qua API
     const handleSendOtp = async () => {
+        setIsLoading(true);
         try {
             const response = await api.post('/RegisterAdmission/send-OTP', {
                 citizenIentificationNumber: cccd
             });
             setEmail(response.data.email);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
             toast.success(response.data.message);
             handleShow();
         } catch (error) {
             console.error('Lỗi khi gửi OTP:', error);
             toast.error('Không thể gửi mã OTP. Vui lòng kiểm tra lại số CCCD.');
+        } finally {
+            setIsLoading(false); // Kết thúc loading
         }
     };
     // Đoạn mã ẩn phần giữa của email
@@ -292,7 +297,7 @@ const ApplicationSearch = () => {
             birthCertificate: birthCertificateUrl,
         };
         sessionStorage.setItem('data', JSON.stringify(data));
-    
+
         const selectedCampusPost = {
             campus: applicationData.campusId,
             major: applicationData.typeofStatusMajor1 === 1 ? applicationData.major1 : applicationData.major2,
@@ -355,15 +360,25 @@ const ApplicationSearch = () => {
                             value={cccd}
                             onChange={(e) => setCccd(e.target.value)}
                             className="flex-grow-1"
-                            disabled={!!applicationData}
+                            disabled={!!applicationData || isLoading}
                         />
                     </Col>
                     <Col xs={4} md={3} lg={2}>
                         <Button variant="light" onClick={handleSendOtp}
                             className="w-100 bg-orange text-white"
-                            disabled={!!applicationData}
+                            disabled={!!applicationData || isLoading || !cccd.trim()}
                         >
-                            Gửi OTP
+                            {isLoading ? (
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                />
+                            ) : (
+                                'Gửi OTP'
+                            )}
                         </Button>
                     </Col>
                 </Row>

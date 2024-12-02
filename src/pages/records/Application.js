@@ -1150,40 +1150,40 @@ const Application = () => {
                     }
                 }
                 break;
-            // case "imgCitizenIdentification1":
-            //     if (!tempImages?.imgCitizenIdentification1) {
-            //         error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgCitizenIdentification1":
+                if (!tempImages?.imgCitizenIdentification1) {
+                    error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgCitizenIdentification2":
-            //     if (!tempImages?.imgCitizenIdentification2) {
-            //         error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgCitizenIdentification2":
+                if (!tempImages?.imgCitizenIdentification2) {
+                    error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgDiplomaMajor1":
-            //     if (!tempImages?.imgDiplomaMajor1) {
-            //         error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgDiplomaMajor1":
+                if (!tempImages?.imgDiplomaMajor1) {
+                    error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgDiplomaMajor2":
-            //     if (showGraduationImage2 && !tempImages?.imgDiplomaMajor2) {
-            //         error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
-            //     } else if (
-            //         showGraduationImage2 &&
-            //         !allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)
-            //     ) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgDiplomaMajor2":
+                if (showGraduationImage2 && !tempImages?.imgDiplomaMajor2) {
+                    error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
+                } else if (
+                    showGraduationImage2 &&
+                    !allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)
+                ) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
             default:
                 break;
         }

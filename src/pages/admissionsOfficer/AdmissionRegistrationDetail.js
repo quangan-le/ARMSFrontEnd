@@ -95,7 +95,7 @@ const AdmissionRegistrationDetail = () => {
         3: ["HK1-10", "HK2-10", "HK1-11", "HK2-11", "HK1-12"], // Xét học bạ 5 kỳ
         4: ["HK1-11", "HK2-11", "HK1-12"], // Xét học bạ 3 kỳ
     };
- 
+
     const indexMap = [
         [0, 3, 6, 9, 12],
         [1, 4, 7, 10, 13],
@@ -151,6 +151,34 @@ const AdmissionRegistrationDetail = () => {
         );
     };
 
+    const [bonusPoint, setBonusPoint] = useState(null); // State lưu điểm ưu tiên
+
+    useEffect(() => {
+        const fetchPriorityBonusPoint = async () => {
+            if (!applicationData?.priorityDetailPriorityID) return;
+
+            try {
+                const response = await api.get('/Priority/get-priority');
+                const priorityList = response.data;
+
+                const priority = priorityList.find(
+                    (p) => p.priorityID === applicationData.priorityDetailPriorityID
+                );
+
+                if (priority) {
+                    setBonusPoint(priority.bonusPoint); 
+                } else {
+                    setBonusPoint(null); 
+                }
+            } catch (error) {
+                console.error('Lỗi khi gọi API Priority:', error);
+                setBonusPoint(null); 
+            }
+        };
+
+        fetchPriorityBonusPoint();
+    }, [applicationData?.priorityDetailPriorityID]);
+
     const calculateAverageScores = (isMajor1, typeOfDiplomaMajor) => {
         if (!applicationData?.academicTranscripts) {
             return { averageScores: {}, totalAverageScore: 0 }; // Trả về mặc định
@@ -172,6 +200,10 @@ const AdmissionRegistrationDetail = () => {
                 (sum, point) => sum + point,
                 0
             );
+            // Cộng điểm ưu tiên (nếu có)
+            if (bonusPoint !== null) {
+                totalAverageScore += bonusPoint;
+            }
 
             return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         } else {
@@ -198,11 +230,15 @@ const AdmissionRegistrationDetail = () => {
             }
 
             // Tính tổng điểm trung bình xét tuyển
-            const totalAverageScore = (
-                Object.values(averageScores).reduce((sum, avg) => sum + parseFloat(avg), 0)
-            ).toFixed(2);
-
-            return { averageScores, totalAverageScore };
+            const totalAverageScore = Object.values(averageScores).reduce(
+                (sum, avg) => sum + parseFloat(avg),
+                0
+            );
+            // Cộng điểm ưu tiên (nếu có)
+            if (bonusPoint !== null) {
+                totalAverageScore += bonusPoint;
+            }
+            return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         }
     };
 
@@ -217,6 +253,7 @@ const AdmissionRegistrationDetail = () => {
     const getHeaderTitle = (typeOfDiplomaMajor) => {
         return typeOfDiplomaMajor === 5 ? "Điểm" : "Điểm trung bình";
     };
+
 
     // Duyệt, từ chối
     const handleUpdateStatus = async (typeofStatusProfile, typeofStatusMajor1, typeofStatusMajor2) => {
@@ -345,6 +382,12 @@ const AdmissionRegistrationDetail = () => {
                                                     ))}
                                                 </tbody>
                                                 <tfoot>
+                                                    {applicationData.priorityDetailPriorityID && (
+                                                        <tr>
+                                                            <td><strong>Điểm ưu tiên</strong></td>
+                                                            <td>{bonusPoint !== null ? bonusPoint : 'Không có điểm ưu tiên'}</td>
+                                                        </tr>
+                                                    )}
                                                     <tr>
                                                         <td><strong>Tổng điểm xét tuyển</strong></td>
                                                         <td>{major1Results.totalAverageScore}</td>
@@ -404,6 +447,12 @@ const AdmissionRegistrationDetail = () => {
                                                     ))}
                                                 </tbody>
                                                 <tfoot>
+                                                    {applicationData.priorityDetailPriorityID && (
+                                                        <tr>
+                                                            <td><strong>Điểm ưu tiên</strong></td>
+                                                            <td>{bonusPoint !== null ? bonusPoint : 'Không có điểm ưu tiên'}</td>
+                                                        </tr>
+                                                    )}
                                                     <tr>
                                                         <td><strong>Tổng điểm xét tuyển</strong></td>
                                                         <td>{major2Results.totalAverageScore}</td>

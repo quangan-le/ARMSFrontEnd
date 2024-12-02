@@ -28,7 +28,6 @@ const Application = () => {
             // Kiểm tra nếu thời gian hiện tại trong bất kỳ khoảng nào
             const withinTime = times.some((admission) => {
                 const start = new Date(admission.startRegister);
-                console.log(start);
                 const end = new Date(admission.endRegister);
                 return currentTime >= start && currentTime <= end;
             });
@@ -105,7 +104,7 @@ const Application = () => {
         }
     }, [selectedDistrict]);
 
-    const handleProvinceChange = (e) => {
+    const handleProvinceChange = async (e) => {
         const selected = e.target.value;
         setSelectedProvince(selected);
         setFormData(prevState => ({
@@ -116,15 +115,16 @@ const Application = () => {
         }));
         setSelectedDistrict('');
         // Cập nhật lỗi
+        const provinceError = await validateField("province", selected);
         setFormErrors((prevErrors) => ({
             ...prevErrors,
-            province: validateField("province", selected),
+            province: provinceError,
             district: "",
             ward: "",
         }));
     };
 
-    const handleDistrictChange = (e) => {
+    const handleDistrictChange = async (e) => {
         const selected = e.target.value;
         setSelectedDistrict(selected);
         setFormData(prevState => ({
@@ -134,23 +134,25 @@ const Application = () => {
         }));
 
         // Cập nhật lỗi
+        const districtError = await validateField("district", selected);
         setFormErrors((prevErrors) => ({
             ...prevErrors,
-            district: validateField("district", selected),
+            district: districtError,
             ward: "",
         }));
     };
 
-    const handleWardChange = (e) => {
+    const handleWardChange = async (e) => {
         const selected = e.target.value;
         setFormData(prevState => ({
             ...prevState,
             ward: selected
         }));
         // Cập nhật lỗi
+        const wardError = await validateField("ward", selected);
         setFormErrors((prevErrors) => ({
             ...prevErrors,
-            ward: validateField("ward", selected),
+            ward: wardError,
         }));
     };
 
@@ -774,20 +776,22 @@ const Application = () => {
         }
         console.log(formErrors);
     };
-    const handleFileChangePriority = (e) => {
+    const handleFileChangePriority = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setTempImages(prev => ({ ...prev, imgpriority: file }));
+            const priorityError = await validateField("imgpriority", null, { ...tempImages, imgpriority: file }, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                imgpriority: validateField("imgpriority", null, { ...tempImages, imgpriority: file }, formData),
+                imgpriority: priorityError,
             }));
         } else {
             // Nếu không có file (hủy chọn ảnh), reset lại tempImages và formErrors
             setTempImages(prev => ({ ...prev, imgpriority: null }));
+            const priorityError = await validateField("imgpriority", null, { ...tempImages, imgpriority: null }, formData);
             setFormErrors(prevErrors => ({
                 ...prevErrors,
-                imgpriority: null, // Reset lỗi nếu ảnh không được chọn
+                imgpriority: priorityError,
             }));
         }
         console.log(formErrors);
@@ -801,47 +805,54 @@ const Application = () => {
     const [diplomaMajor2, setDiplomaMajor2] = useState(null);
 
     // Ảnh mặt trước
-    const handleFrontCCCDChange = (e) => {
+    const handleFrontCCCDChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setFrontCCCD(URL.createObjectURL(file));
             setTempImages(prev => ({ ...prev, imgCitizenIdentification1: file }));
+
+            const error = await validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: file }, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                imgCitizenIdentification1: validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: file }, formData),
+                imgCitizenIdentification1: error
             }));
         } else {
             // Nếu không có tệp nào được chọn, xóa trạng thái liên quan
             setFrontCCCD(null);
             setTempImages((prev) => ({ ...prev, imgCitizenIdentification1: null }));
+
+            const error = await validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: null }, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                imgCitizenIdentification1: validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: null }, formData),
+                imgCitizenIdentification1: error
             }));
         }
     };
     // Ảnh mặt sau
-    const handleBackCCCDChange = (e) => {
+    const handleBackCCCDChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setBackCCCD(URL.createObjectURL(file));
             setTempImages(prev => ({ ...prev, imgCitizenIdentification2: file }));
+            const backCCCDError = await validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: file }, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                imgCitizenIdentification2: validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: file }, formData),
+                imgCitizenIdentification2: backCCCDError,
             }));
         } else {
             // Nếu không có tệp nào được chọn, xóa trạng thái liên quan
             setBackCCCD(null);
             setTempImages((prev) => ({ ...prev, imgCitizenIdentification2: null }));
+
+            const backCCCDError = await validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: null }, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                imgCitizenIdentification2: validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: null }, formData),
+                imgCitizenIdentification2: backCCCDError,
             }));
         }
     };
     // Ảnh tốt nghiệp
-    const handleGraduationCertificateChange = (e, isMajor1) => {
+    const handleGraduationCertificateChange = async (e, isMajor1) => {
         const file = e.target.files[0];
         if (file) {
             // Tạo URL object cho ảnh
@@ -857,14 +868,15 @@ const Application = () => {
             } else {
                 setDiplomaMajor2(objectURL);  // setDiplomaMajor2 là state lưu URL cho ảnh ngành 2
             }
-            setFormErrors(prevErrors => ({
+            const diplomaError = await validateField(
+                isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
+                file,
+                tempImages,
+                formData
+            );
+            setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: validateField(
-                    isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
-                    file,
-                    tempImages,
-                    formData
-                ),
+                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: diplomaError,
             }));
         } else {
             // Xử lý khi nhấn Cancel hoặc không có file được chọn
@@ -880,15 +892,15 @@ const Application = () => {
                 setDiplomaMajor2(null); // Xóa ảnh ngành 2
             }
 
-            // Xóa lỗi tương ứng
-            setFormErrors(prevErrors => ({
+            const diplomaError = await validateField(
+                isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
+                null,
+                tempImages,
+                formData
+            );
+            setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: validateField(
-                    isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
-                    null,
-                    tempImages,
-                    formData
-                ),
+                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: diplomaError,
             }));
         }
     };
@@ -903,7 +915,7 @@ const Application = () => {
         }
     };
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { id, value, type, checked } = e.target;
 
         // Cập nhật giá trị trong formData
@@ -918,17 +930,18 @@ const Application = () => {
             ...prevState,
             [id]: updatedValue,
         }));
-
+        const fieldError = await validateField(id, updatedValue);
         setFormErrors((prevErrors) => ({
             ...prevErrors,
-            [id]: validateField(id, updatedValue),
+            [id]: fieldError,
         }));
     };
 
     // Validate
-    const validateField = (field, value, tempImages, formData) => {
+    const validateField = async (field, value, tempImages, formData) => {
         let error = "";
         const allowedFileTypes = ["image/jpeg", "image/png", "image/jpg"]; // Loại tệp cho phép
+        const phoneRegex = /^[0-9]{10,11}$/;
 
         switch (field) {
             case "fullname":
@@ -958,6 +971,21 @@ const Application = () => {
                     error = "CCCD/CMND không được để trống.";
                 } else if (!/^\d{9}$|^\d{12}$/.test(value)) {
                     error = "CCCD/CMND phải có 9 hoặc 12 chữ số.";
+                } else {
+                    try {
+                        const response = await api.get("/RegisterAdmission/check-cccd", {
+                            params: { CCCD: value },
+                        });
+                        if (!response.data.status) {
+                            error = response.data.message || "CCCD không hợp lệ!";
+                        }
+                    } catch (err) {
+                        if (err.response && err.response.status === 400) {
+                            error = err.response.data.message || "Lỗi khi kiểm tra CCCD!";
+                        } else {
+                            error = "Không thể kiểm tra CCCD, vui lòng thử lại!";
+                        }
+                    }
                 }
                 break;
             case "ciDate":
@@ -993,8 +1021,28 @@ const Application = () => {
                 }
                 break;
             case "phoneStudent":
+                if (!value.trim()) {
+                    error = "Số điện thoại không được để trống.";
+                } else if (!phoneRegex.test(value)) {
+                    error = "Số điện thoại phải có 10-11 chữ số.";
+                } else {
+                    try {
+                        const response = await api.get("/RegisterAdmission/check-phone", {
+                            params: { phone: value },
+                        });
+                        if (!response.data.status) {
+                            error = response.data.message || "Số điện thoại không hợp lệ!";
+                        }
+                    } catch (err) {
+                        if (err.response && err.response.status === 400) {
+                            error = err.response.data.message || "Lỗi khi kiểm tra số điện thoại!";
+                        } else {
+                            error = "Không thể kiểm tra số điện thoại, vui lòng thử lại!";
+                        }
+                    }
+                }
+                break;
             case "phoneParents":
-                const phoneRegex = /^[0-9]{10,11}$/;
                 if (!value.trim()) {
                     error = `Số điện thoại không được để trống.`;
                 } else if (!phoneRegex.test(value)) {
@@ -1007,6 +1055,21 @@ const Application = () => {
                     error = `Email không được để trống.`;
                 } else if (!emailRegex.test(value)) {
                     error = `Email không đúng định dạng.`;
+                } else {
+                    try {
+                        const response = await api.get("/RegisterAdmission/check-email", {
+                            params: { email: value },
+                        });
+                        if (!response.data.status) {
+                            error = response.data.message || "Email không hợp lệ!";
+                        }
+                    } catch (err) {
+                        if (err.response && err.response.status === 400) {
+                            error = err.response.data.message || "Lỗi khi kiểm tra Email!";
+                        } else {
+                            error = "Không thể kiểm tra Email, vui lòng thử lại!";
+                        }
+                    }
                 }
                 break;
             case "fullnameParents":
@@ -1128,12 +1191,18 @@ const Application = () => {
         return error;
     };
 
-    const validateForm = () => {
+    const validateForm = async () => {
         const errors = {};
-        Object.keys(formData).forEach((field) => {
-            const error = validateField(field, formData[field], tempImages, formData);
-            if (error) errors[field] = error;
-        });
+        // Object.keys(formData).forEach((field) => {
+        //     const error = validateField(field, formData[field], tempImages, formData);
+        //     if (error) errors[field] = error;
+        // });
+        for (const field of Object.keys(formData)) {
+            const error = await validateField(field, formData[field], tempImages, formData);
+            if (error) {
+                errors[field] = error;
+            }
+        }
         setFormErrors(errors);
         return Object.keys(errors).length === 0; // Trả về true nếu không có lỗi
     };
@@ -1163,8 +1232,9 @@ const Application = () => {
         }
 
         // Validate dữ liệu trước khi submit
-        if (!validateForm()) {
-            toast.error("Thông tin không hợp lệ. Vui lòng kiểm tra lại các trường bị lỗi!");
+        const isValid = await validateForm();
+        if (!isValid) {
+            toast.error("Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin!");
             setIsLoading(false);
             return;
         }

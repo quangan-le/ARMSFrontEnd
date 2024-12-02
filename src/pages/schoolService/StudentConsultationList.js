@@ -101,29 +101,41 @@ const StudentConsultation = () => {
                         },
                         responseType: 'blob', // Expecting a file response
                     });
-    
-                    // Check if the response is a file (blob) and download it
-                    if (response.status === 200 && response.data instanceof Blob) {
+                    const text = await response.data.text(); // Đọc nội dung từ Blob nếu có
+
+                    // Kiểm tra xem phản hồi có phải là file Excel không (kiểm tra Content-Type hoặc Content-Disposition)
+                    if (response.headers['content-type'] === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                         // Create a URL for the blob and trigger download
                         const url = window.URL.createObjectURL(new Blob([response.data]));
                         const link = document.createElement('a');
                         link.href = url;
-    
+                        
                         // Set filename from response headers or a default filename
                         const contentDisposition = response.headers['content-disposition'];
                         const fileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'errors.xlsx';
+                        
+                        // Trigger download
                         link.setAttribute('download', fileName);
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-    
-                        toast.warning(`Upload file hoàn thành! Vui lòng kiểm tra lại các dữ liệu gặp lỗi! `);
+
+                        toast.warning(`Upload file hoàn thành! Vui lòng kiểm tra lại các dữ liệu gặp lỗi!`);
                     } else {
-                        const result = response.data;
-                        toast.success(`Upload file hoàn thành! Thêm mới thành công: ${result.TotalProcessed}, Lỗi: ${result.TotalErrors} `);
+                        // Nếu không phải file, xử lý dưới dạng JSON
+                        const jsonResponse = JSON.parse(text);
+                        
+                        if (jsonResponse.totalErrors === 0) {
+                            toast.success(`Upload file hoàn thành!`);
+                        } else {
+                            toast.warning(`Có lỗi xảy ra trong quá trình tải lên: ${jsonResponse.totalErrors} lỗi.`);
+                        }
                     }
+
+                    fetchStudentConsultations();
                 } catch (error) {
                     toast.error("Đã sảy ra lỗi trong quá trình upload file!");
+                    
                 }
             } else {
                 toast.error("Vui lòng chọn file và thử lại!");
@@ -133,7 +145,6 @@ const StudentConsultation = () => {
         // Trigger the file input dialog
         inputFile.click();
     };
-    
     
     
     return (

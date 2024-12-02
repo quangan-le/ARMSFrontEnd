@@ -147,7 +147,6 @@ const StudentConsultation = () => {
     };
     
     
-    
     return (
         <div className="me-3">
             <ToastContainer position="top-right" autoClose={3000} />

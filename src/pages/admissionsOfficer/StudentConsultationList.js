@@ -1,3 +1,4 @@
+import FileSaver from 'file-saver';
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Form, Modal, Pagination, Row, Table } from "react-bootstrap";
 import { useOutletContext } from 'react-router-dom';
@@ -142,10 +143,94 @@ const StudentConsultationList = () => {
         5: "Không liên lạc được lần 3",
         6: "Gọi lại sau"
     };
+    const handleDownloadTemplate = async () => {
+        try {
+            const response = await api.get('/admin-officer/StudentConsultation/download-template', {
+                responseType: 'blob',
+            });
+            const contentDisposition = response.headers['content-disposition'];
+            const filename = contentDisposition
+                ? contentDisposition.split('filename=')[1]
+                : 'template.xlsx';
+
+            FileSaver.saveAs(response.data, filename);
+        } catch (error) {
+            toast.error("Lỗi khi tải template!");
+        }
+    };
+    
+    const handleUploadFile = () => {
+        // Dynamically create a file input element
+        const inputFile = document.createElement('input');
+        inputFile.type = 'file';
+        inputFile.accept = '.xlsx, .xls'; // Restrict file selection to Excel files
+    
+        // Handle the file selection and upload
+        inputFile.onchange = async (event) => {
+            const file = event.target.files[0]; // Get the selected file
+    
+            if (file) {
+                try {
+                    // Prepare the file for upload
+                    const formData = new FormData();
+                    formData.append('file', file);
+    
+                    // Send the file using POST
+                    const response = await api.post('/SchoolService/StudentConsultation/upload-excel', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                        responseType: 'blob', // Expecting a file response
+                    });
+                    const text = await response.data.text(); // Đọc nội dung từ Blob nếu có
+
+                    // Kiểm tra xem phản hồi có phải là file Excel không (kiểm tra Content-Type hoặc Content-Disposition)
+                    if (response.headers['content-type'] === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                        // Create a URL for the blob and trigger download
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        
+                        // Set filename from response headers or a default filename
+                        const contentDisposition = response.headers['content-disposition'];
+                        const fileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'errors.xlsx';
+                        
+                        // Trigger download
+                        link.setAttribute('download', fileName);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        toast.warning(`Upload file hoàn thành! Vui lòng kiểm tra lại các dữ liệu gặp lỗi!`);
+                    } else {
+                        // Nếu không phải file, xử lý dưới dạng JSON
+                        const jsonResponse = JSON.parse(text);
+                        
+                        if (jsonResponse.totalErrors === 0) {
+                            toast.success(`Upload file hoàn thành!`);
+                        } else {
+                            toast.warning(`Có lỗi xảy ra trong quá trình tải lên: ${jsonResponse.totalErrors} lỗi.`);
+                        }
+                    }
+
+                    fetchStudentConsultations();
+                } catch (error) {
+                    toast.error("Đã sảy ra lỗi trong quá trình upload file!");
+                    
+                }
+            } else {
+                toast.error("Vui lòng chọn file và thử lại!");
+            }
+        };
+    
+        // Trigger the file input dialog
+        inputFile.click();
+    };
     return (
         <div className="me-3">
             <ToastContainer position="top-right" autoClose={3000} />
-            <h2 className="text-center mb-4">Danh sách đăng ký tư vấn tuyển sinh</h2>
+            <h2 className="text-center text-orange fw-bold">Danh sách đăng ký tư vấn</h2>
+            <p className="text-center mb-4 text-orange fw-bold">Yêu cầu đăng ký tư vấn tuyển sinh cho học sinh </p>
             {/* Search and Filter */}
             <Row className="mb-3">
                 <Col xs={12} md={6}>
@@ -159,6 +244,20 @@ const StudentConsultationList = () => {
                     </Form.Group>
                 </Col>
                 <Col xs={12} md={6} className="d-flex justify-content-end">
+                    <Button
+                        variant="primary"
+                        className="text-white me-2"
+                        onClick={handleDownloadTemplate} // Hàm xử lý tải xuống
+                    >
+                        Tải template
+                    </Button>
+                    <Button
+                        variant="orange"
+                        className="text-white me-2"
+                        onClick={handleUploadFile} // Hàm xử lý tải lên
+                    >
+                        Tải lên file
+                    </Button>
                     <Form.Select
                         aria-label="Chọn trạng thái"
                         value={selectedStatus !== null ? selectedStatus : ''}
@@ -178,6 +277,7 @@ const StudentConsultationList = () => {
                         <option value="5">Không liên lạc được lần 3</option>
                         <option value="6">Gọi lại sau</option>
                     </Form.Select>
+                    
                     <Form.Select
                         aria-label="Chọn loại"
                         value={selectedType !== null ? selectedType : ''}

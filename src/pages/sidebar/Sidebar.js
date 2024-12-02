@@ -70,7 +70,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Book className="me-2" /> Ngành đào tạo
+                <Book className="me-2" /> Ngành tuyển sinh
               </NavLink>
               <NavLink
                 to="/school-service/danh-sach-tin-tuc"

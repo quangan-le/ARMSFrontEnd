@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import api from '../../apiService';
 
 const ProgramDetail = () => {
-    const { majorID, admissionInformationID } = useParams();
+    const { majorID } = useParams();
     const [majorInfo, setMajorInfo] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -12,7 +12,7 @@ const ProgramDetail = () => {
         const fetchData = async () => {
             try {
                 const response = await api.get(
-                    `/Major/get-major-details?MajorId=${majorID}& &AdmissionInformationID=${admissionInformationID}`
+                    `/Major/get-major-details?MajorId=${majorID}`
                 );
                 setMajorInfo(response.data);
                 console.log(response.data);

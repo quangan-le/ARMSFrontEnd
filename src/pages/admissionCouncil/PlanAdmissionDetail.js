@@ -364,10 +364,10 @@ const PlanAdmissionDetail = () => {
                                     <Button variant="warning" onClick={() => handleShowDetailModal('Detail-II', round)} >
                                         Ngành xét Tuyển
                                     </Button>
-                                    <Link to={`/`}>
+                                    <Link to={`/admin-council/RegisterAdmission/list-register-admission/${round.admissionTimeId}`}>
                                         <Button
-                                            variant="orange"
-                                            className="text-white mx-1"
+                                            variant="warning"
+                                            className="mx-1"
                                             style={{ whiteSpace: 'nowrap', marginRight: '10px' }}
                                         >
                                             Hồ sơ

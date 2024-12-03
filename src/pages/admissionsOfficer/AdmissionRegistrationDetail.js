@@ -166,13 +166,13 @@ const AdmissionRegistrationDetail = () => {
                 );
 
                 if (priority) {
-                    setBonusPoint(priority.bonusPoint); 
+                    setBonusPoint(priority.bonusPoint);
                 } else {
-                    setBonusPoint(null); 
+                    setBonusPoint(null);
                 }
             } catch (error) {
                 console.error('Lỗi khi gọi API Priority:', error);
-                setBonusPoint(null); 
+                setBonusPoint(null);
             }
         };
 
@@ -196,11 +196,11 @@ const AdmissionRegistrationDetail = () => {
             });
 
             // Tính tổng điểm
-            const totalAverageScore = Object.values(averageScores).reduce(
+            let totalAverageScore = Object.values(averageScores).reduce(
                 (sum, point) => sum + point,
                 0
             );
-            // Cộng điểm ưu tiên (nếu có)
+            //Cộng điểm ưu tiên (nếu có)
             if (bonusPoint !== null) {
                 totalAverageScore += bonusPoint;
             }
@@ -230,7 +230,7 @@ const AdmissionRegistrationDetail = () => {
             }
 
             // Tính tổng điểm trung bình xét tuyển
-            const totalAverageScore = Object.values(averageScores).reduce(
+            let totalAverageScore = Object.values(averageScores).reduce(
                 (sum, avg) => sum + parseFloat(avg),
                 0
             );
@@ -664,21 +664,23 @@ const AdmissionRegistrationDetail = () => {
                                         <span className="value">
                                             {applicationData.typeofStatusProfile === null
                                                 ? "Chờ xét duyệt"
-                                                : applicationData.typeofStatusProfile === 0
-                                                    ? "Đăng ký hồ sơ thành công"
-                                                    : applicationData.typeofStatusProfile === 1
-                                                        ? "Xác nhận đăng ký hồ sơ thành công"
-                                                        : applicationData.typeofStatusProfile === 2
-                                                            ? "Hồ sơ nhập học thành công"
-                                                            : applicationData.typeofStatusProfile === 3
-                                                                ? "Xác nhận hồ sơ nhập học thành công"
-                                                                : applicationData.typeofStatusProfile === 4
-                                                                    ? "Chờ thanh toán phí nhập học"
-                                                                    : applicationData.typeofStatusProfile === 5
-                                                                        ? "Đang xử lý nhập học"
-                                                                        : applicationData.typeofStatusProfile === 6
-                                                                            ? "Hoàn thành"
-                                                                            : ""}
+                                                : applicationData.typeofStatusProfile === 7
+                                                    ? "Chờ thanh toán phí xét tuyển"
+                                                    : applicationData.typeofStatusProfile === 0
+                                                        ? "Đăng ký hồ sơ thành công"
+                                                        : applicationData.typeofStatusProfile === 1
+                                                            ? "Xác nhận đăng ký hồ sơ thành công"
+                                                            : applicationData.typeofStatusProfile === 2
+                                                                ? "Hồ sơ nhập học thành công"
+                                                                : applicationData.typeofStatusProfile === 3
+                                                                    ? "Xác nhận hồ sơ nhập học thành công"
+                                                                    : applicationData.typeofStatusProfile === 4
+                                                                        ? "Chờ thanh toán phí nhập học"
+                                                                        : applicationData.typeofStatusProfile === 5
+                                                                            ? "Đang xử lý nhập học"
+                                                                            : applicationData.typeofStatusProfile === 6
+                                                                                ? "Hoàn thành"
+                                                                                : ""}
                                         </span>
                                     </div>
                                 </Col>
@@ -694,7 +696,9 @@ const AdmissionRegistrationDetail = () => {
                                                         ? "Đã duyệt"
                                                         : applicationData.typeofStatusMajor1 === 2
                                                             ? "Đang xử lý"
-                                                            : ""}
+                                                            : applicationData.typeofStatusMajor1 === 3
+                                                                ? "N/A"
+                                                                : ""}
                                         </span>
                                     </div>
                                     <div className="info-item">

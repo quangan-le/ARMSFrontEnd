@@ -151,6 +151,34 @@ const AdmissionRegistrationDetailAC = () => {
         );
     };
 
+    const [bonusPoint, setBonusPoint] = useState(null); // State lưu điểm ưu tiên
+
+    useEffect(() => {
+        const fetchPriorityBonusPoint = async () => {
+            if (!applicationData?.priorityDetailPriorityID) return;
+
+            try {
+                const response = await api.get('/Priority/get-priority');
+                const priorityList = response.data;
+
+                const priority = priorityList.find(
+                    (p) => p.priorityID === applicationData.priorityDetailPriorityID
+                );
+
+                if (priority) {
+                    setBonusPoint(priority.bonusPoint);
+                } else {
+                    setBonusPoint(null);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gọi API Priority:', error);
+                setBonusPoint(null);
+            }
+        };
+
+        fetchPriorityBonusPoint();
+    }, [applicationData?.priorityDetailPriorityID]);
+
     const calculateAverageScores = (isMajor1, typeOfDiplomaMajor) => {
         if (!applicationData?.academicTranscripts) {
             return { averageScores: {}, totalAverageScore: 0 }; // Trả về mặc định
@@ -168,10 +196,14 @@ const AdmissionRegistrationDetailAC = () => {
             });
 
             // Tính tổng điểm
-            const totalAverageScore = Object.values(averageScores).reduce(
+            let totalAverageScore = Object.values(averageScores).reduce(
                 (sum, point) => sum + point,
                 0
             );
+            //Cộng điểm ưu tiên (nếu có)
+            if (bonusPoint !== null) {
+                totalAverageScore += bonusPoint;
+            }
 
             return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         } else {
@@ -198,11 +230,15 @@ const AdmissionRegistrationDetailAC = () => {
             }
 
             // Tính tổng điểm trung bình xét tuyển
-            const totalAverageScore = (
-                Object.values(averageScores).reduce((sum, avg) => sum + parseFloat(avg), 0)
-            ).toFixed(2);
-
-            return { averageScores, totalAverageScore };
+            let totalAverageScore = Object.values(averageScores).reduce(
+                (sum, avg) => sum + parseFloat(avg),
+                0
+            );
+            // Cộng điểm ưu tiên (nếu có)
+            if (bonusPoint !== null) {
+                totalAverageScore += bonusPoint;
+            }
+            return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         }
     };
 
@@ -236,7 +272,7 @@ const AdmissionRegistrationDetailAC = () => {
                 // Nếu NV1 fail
                 setFailNV1(0); // Lưu trạng thái fail NV1 để xét tiếp NV2
                 setIsNV1Processed(true); // Đánh dấu NV1 đã được xử lý
-                toast.info("NV1 đã bị từ chối. Tiếp tục xét NV2.");
+                toast.info("Từ chối NV1 thành công. Tiếp tục xét NV2!");
 
                 // Kiểm tra nếu NV2 không đủ điều kiện
                 if (
@@ -379,6 +415,12 @@ const AdmissionRegistrationDetailAC = () => {
                                                     ))}
                                                 </tbody>
                                                 <tfoot>
+                                                    {applicationData.priorityDetailPriorityID && (
+                                                        <tr>
+                                                            <td><strong>Điểm ưu tiên</strong></td>
+                                                            <td>{bonusPoint !== null ? bonusPoint : 'Không có điểm ưu tiên'}</td>
+                                                        </tr>
+                                                    )}
                                                     <tr>
                                                         <td><strong>Tổng điểm xét tuyển</strong></td>
                                                         <td>{major1Results.totalAverageScore}</td>
@@ -438,6 +480,12 @@ const AdmissionRegistrationDetailAC = () => {
                                                     ))}
                                                 </tbody>
                                                 <tfoot>
+                                                    {applicationData.priorityDetailPriorityID && (
+                                                        <tr>
+                                                            <td><strong>Điểm ưu tiên</strong></td>
+                                                            <td>{bonusPoint !== null ? bonusPoint : 'Không có điểm ưu tiên'}</td>
+                                                        </tr>
+                                                    )}
                                                     <tr>
                                                         <td><strong>Tổng điểm xét tuyển</strong></td>
                                                         <td>{major2Results.totalAverageScore}</td>
@@ -649,21 +697,23 @@ const AdmissionRegistrationDetailAC = () => {
                                         <span className="value">
                                             {applicationData.typeofStatusProfile === null
                                                 ? "Chờ xét duyệt"
-                                                : applicationData.typeofStatusProfile === 0
-                                                    ? "Đăng ký hồ sơ thành công"
-                                                    : applicationData.typeofStatusProfile === 1
-                                                        ? "Xác nhận đăng ký hồ sơ thành công"
-                                                        : applicationData.typeofStatusProfile === 2
-                                                            ? "Hồ sơ nhập học thành công"
-                                                            : applicationData.typeofStatusProfile === 3
-                                                                ? "Xác nhận hồ sơ nhập học thành công"
-                                                                : applicationData.typeofStatusProfile === 4
-                                                                    ? "Chờ thanh toán phí nhập học"
-                                                                    : applicationData.typeofStatusProfile === 5
-                                                                        ? "Đang xử lý nhập học"
-                                                                        : applicationData.typeofStatusProfile === 6
-                                                                            ? "Hoàn thành"
-                                                                            : ""}
+                                                : applicationData.typeofStatusProfile === 7
+                                                    ? "Chờ thanh toán phí xét tuyển"
+                                                    : applicationData.typeofStatusProfile === 0
+                                                        ? "Đăng ký hồ sơ thành công"
+                                                        : applicationData.typeofStatusProfile === 1
+                                                            ? "Xác nhận đăng ký hồ sơ thành công"
+                                                            : applicationData.typeofStatusProfile === 2
+                                                                ? "Hồ sơ nhập học thành công"
+                                                                : applicationData.typeofStatusProfile === 3
+                                                                    ? "Xác nhận hồ sơ nhập học thành công"
+                                                                    : applicationData.typeofStatusProfile === 4
+                                                                        ? "Chờ thanh toán phí nhập học"
+                                                                        : applicationData.typeofStatusProfile === 5
+                                                                            ? "Đang xử lý nhập học"
+                                                                            : applicationData.typeofStatusProfile === 6
+                                                                                ? "Hoàn thành"
+                                                                                : ""}
                                         </span>
                                     </div>
                                 </Col>
@@ -679,7 +729,9 @@ const AdmissionRegistrationDetailAC = () => {
                                                         ? "Đã duyệt"
                                                         : applicationData.typeofStatusMajor1 === 2
                                                             ? "Đang xử lý"
-                                                            : ""}
+                                                            : applicationData.typeofStatusMajor1 === 3
+                                                                ? "N/A"
+                                                                : ""}
                                         </span>
                                     </div>
                                     <div className="info-item">

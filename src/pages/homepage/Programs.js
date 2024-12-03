@@ -18,6 +18,7 @@ const Programs = () => {
                     api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`),
                     api.get(`/Major/get-majors-vocational-school?campus=${selectedCampus.id}`)
                 ]);
+                
                 setCollegePrograms(collegeResponse.data);
                 setVocationalPrograms(vocationalResponse.data);
             } catch (err) {

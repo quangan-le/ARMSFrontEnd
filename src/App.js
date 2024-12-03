@@ -30,26 +30,26 @@ import IntermediateApplication from "./pages/records/IntermediateApplication.js"
 
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import AdmissionRegistrationDetailAC from "./pages/admissionCouncil/AdmissionRegistrationDetailAC.js";
+import AdmissionRegistrationListAC from "./pages/admissionCouncil/AdmissionRegistrationListAC.js";
+import AdmissionRegistrationListACInPlan from "./pages/admissionCouncil/AdmissionRegistrationListACInPlan.js";
+import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
+import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
+import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
+import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
+import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
+import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
+import Payment from "./pages/records/Payment.js";
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
 import RequestChangeMajorList from "./pages/schoolService/RequestChangeMajorList.js";
 import RequestsForWithdrawalList from "./pages/schoolService/RequestsForWithdrawalList.js";
+import SendNotification from "./pages/schoolService/SendNotification.js";
 import StudentConsultation from "./pages/schoolService/StudentConsultationList.js";
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
-import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
-import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
-import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
-import SendNotification from "./pages/schoolService/SendNotification.js";
-import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
-import UnauthorizedPage from "./pages/login/UnauthorizedPage.js";
-import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
-import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
-import Payment from "./pages/records/Payment.js";
-import AdmissionRegistrationListAC from "./pages/admissionCouncil/AdmissionRegistrationListAC.js";
-import AdmissionRegistrationDetailAC from "./pages/admissionCouncil/AdmissionRegistrationDetailAC.js";
 
 
 function App() {
@@ -151,6 +151,7 @@ function App() {
         <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/:admissionInformationID" element={<PlanAdmissionDetail />} />
         <Route path="/admissions-council/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationListAC />} />
         <Route path="/admissions-council/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetailAC />} />
+        <Route path="/admin-council/RegisterAdmission/list-register-admission/:ATId" element={<AdmissionRegistrationListACInPlan />} />
       </Route>
     </Routes>
   }

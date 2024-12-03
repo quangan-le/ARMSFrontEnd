@@ -71,7 +71,6 @@ const PlanAdmission = () => {
                         <th>Kết thúc tuyển sinh</th>
                         <th>Lệ phí xét tuyển</th>
                         <th>Lệ phí nhập học</th>
-                        <th>Trạng thái tuyển sinh</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -85,25 +84,6 @@ const PlanAdmission = () => {
                                 <td>{new Date(admissionInformation.endAdmission).toLocaleDateString('en-GB')}</td>
                                 <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(admissionInformation.feeRegister)}</td>
                                 <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(admissionInformation.feeAdmission)}</td>
-                                <td
-                                    style={{
-                                        color: admissionInformation.status === 1
-                                            ? "green"
-                                            : admissionInformation.status === 0
-                                                ? "red"
-                                                : admissionInformation.status === 2
-                                                    ? "blue"
-                                                    : "black"
-                                    }}
-                                >
-                                    {admissionInformation.status === 1
-                                        ? "Đang tuyển"
-                                        : admissionInformation.status === 0
-                                            ? "Ngưng tuyển"
-                                            : admissionInformation.status === 2
-                                                ? "Chưa tuyển"
-                                                : "Trạng thái không xác định"}
-                                </td>
                                 <td>
                                     <Link to={`/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/${admissionInformation.admissionInformationID}`}>
                                         <Button

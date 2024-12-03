@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Modal, Row, Table } from 'react-bootstrap';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { Link, useOutletContext, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from "../../apiService.js";
@@ -10,9 +10,13 @@ const PlanAdmissionDetail = () => {
     const { campusId } = useOutletContext();
     const [showEditModal, setShowEditModal] = useState(false);
     const [currentSection, setCurrentSection] = useState(null);
-
+    // show ngành tuyển sinh
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [detailData, setDetailData] = useState(null);
+    const [ATId, setAdmissionTimeId] = useState(null);
     // Phần I
     const [admissionData, setAdmissionData] = useState(null);
+
     const fetchAdmissionData = async () => {
         try {
             const response = await api.get(
@@ -23,11 +27,56 @@ const PlanAdmissionDetail = () => {
             console.error("Lỗi khi lấy thông tin tuyển sinh:", error);
         }
     };
-
     useEffect(() => {
         fetchAdmissionData();
     }, [admissionInformationID]);
-
+        // Fetch danh sách ngành tuyển sinh theo đợt
+        const fetchAdmissionMajor = async () => {
+            try {
+                const response = await api.get(
+                    `/admission-council/Major/get-majors_admission/${ATId}`
+                );
+                setDetailData(response.data);
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách ngành tuyển sinh:", error);
+            }
+        };
+    
+        // Trigger fetching admission majors when ATId changes
+        useEffect(() => {
+            if (ATId) {
+                fetchAdmissionMajor();
+            }
+        }, [ATId]);
+    const handleShowDetailModal = (type, data) => {
+        setAdmissionTimeId(data.admissionTimeId);
+        setShowDetailModal(true);
+    };
+    const handleCloseDetailModal = () => {
+        setShowDetailModal(false);
+        setDetailData(null);
+    };
+    const getDiplomaName = (typeDiploma) => {
+        switch (typeDiploma) {
+            case 0: return "Tốt nghiệp THCS";
+            case 1: return "Tốt nghiệp THPT";
+            case 2: return "Tốt nghiệp CĐ/ĐH";
+            case 3: return "Xét học bạ THPT";
+            case 4: return "Liên thông";
+            case 5: return "Xét điểm thi THPT";
+            default: return "Khác";
+        }
+    };
+    const getTranscriptName = (typeOfTranscript) => {
+        switch (typeOfTranscript) {
+            case 0: return "Xét học bạ 12";
+            case 1: return "Xét học bạ 3 năm";
+            case 2: return "Xét học bạ lớp 10, lớp 11, HK1 lớp 12";
+            case 3: return "Xét học bạ 5 kỳ";
+            case 4: return "Xét học bạ 3 kỳ";
+            default: return null;
+        }
+    };
     // Phần II
     const admissionInfo = admissionData ? admissionData : null;
     const admissionRounds = admissionInfo?.admissionTimes || [];
@@ -101,6 +150,7 @@ const PlanAdmissionDetail = () => {
             console.error("Lỗi khi cập nhật:", error);
         }
     };
+   
     // Tạo mới đợt tuyển sinh
     const [showModalCreate, setShowModalCreate] = useState(false);
 
@@ -196,32 +246,52 @@ const PlanAdmissionDetail = () => {
             <ToastContainer position="top-right" autoClose={3000} />
             <h2 className="text-center text-orange fw-bold mb-4">Chi tiết kế hoạch tuyển sinh</h2>
 
-            <h4 className='text-orange mt-4'>I. Thông tin</h4>
-            {admissionInfo ? (
-                <Row>
-                    <Col md={10}>
-                        <p><strong>Năm:</strong> {admissionInfo.year}</p>
-                        <p><strong>Thời gian bắt đầu:</strong>  {new Date(admissionInfo.startAdmission).toLocaleString()}</p>
-                        <p><strong>Thời gian kết thúc:</strong> {new Date(admissionInfo.endAdmission).toLocaleString()}</p>
-                        <p><strong>Lệ phí:</strong> {admissionInfo.feeRegister.toLocaleString()} VND</p>
-                        <p><strong>Nhập học:</strong> {admissionInfo.feeAdmission.toLocaleString()} VND</p>
-                    </Col>
-                    <Col md={2}>
-                        <Button variant="warning" onClick={() => handleShowEditModal('I')}>
+            <Row className='mt-3 mb-2 d-flex'>
+                <Col md={10}>
+                    <h4 className='text-orange'>I. Thông tin</h4>
+                </Col>
+                <Col md={2} className="d-flex justify-content-end align-items-end">
+                <Button variant="warning" onClick={() => handleShowEditModal('I')}>
                             Chỉnh sửa
-                        </Button>
-                    </Col>
+                </Button>
+                </Col>
+            </Row>
+            {admissionInfo ? (
+                <Row className='mt-3 mb-2 '>
+                    <p><strong>Năm:</strong> {admissionInfo.year}</p>
+                    <p><strong>Thời gian bắt đầu:</strong> {new Intl.DateTimeFormat('vi-VN', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                                second: '2-digit',
+                                                                hour12: false
+                                                            }).format(new Date(admissionInfo.startAdmission))}
+                    </p>
+                    <p><strong>Thời gian kết thúc:</strong> {new Intl.DateTimeFormat('vi-VN', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                                second: '2-digit',
+                                                                hour12: false
+                                                            }).format(new Date(admissionInfo.endAdmission))}
+                    </p>
+                    <p><strong>Lệ phí:</strong> {admissionInfo.feeRegister.toLocaleString()} VND</p>
+                    <p><strong>Nhập học:</strong> {admissionInfo.feeAdmission.toLocaleString()} VND</p>
                 </Row>
             ) : (
                 <p>Đang tải dữ liệu...</p>
             )}
-            <Row className='mt-3 mb-2'>
+            <Row className='mt-3 mb-2 d-flex'>
                 <Col md={10}>
                     <h4 className='text-orange'>II. Đợt tuyển sinh</h4>
                 </Col>
-                <Col md={2}>
-                    <Button variant="warning" onClick={handleShowModalCreate}>
-                        Tạo mới
+                <Col md={2} className="d-flex justify-content-end align-items-end">
+                    <Button variant="warning" onClick={handleShowModalCreate} >
+                        Thêm mới
                     </Button>
                 </Col>
             </Row>
@@ -243,14 +313,65 @@ const PlanAdmissionDetail = () => {
                             <tr key={round.admissionTimeId}>
                                 <td>{index + 1}</td>
                                 <td>{round.admissionTimeName}</td>
-                                <td>{new Date(round.startRegister).toLocaleString()}</td>
-                                <td>{new Date(round.endRegister).toLocaleString()}</td>
-                                <td>{new Date(round.startAdmission).toLocaleString()}</td>
-                                <td>{new Date(round.endAdmission).toLocaleString()}</td>
+                                <td> {new Intl.DateTimeFormat('vi-VN', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                                second: '2-digit',
+                                                                hour12: false
+                                                            }).format(new Date(round.startRegister))}
+                                </td>
                                 <td>
-                                    <Button variant="warning" onClick={() => handleShowEditModal('II', round)}>
-                                        Sửa
+                                {new Intl.DateTimeFormat('vi-VN', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                                second: '2-digit',
+                                                                hour12: false
+                                                            }).format(new Date(round.endRegister))}
+                                </td>
+                                <td>
+                                {new Intl.DateTimeFormat('vi-VN', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                                second: '2-digit',
+                                                                hour12: false
+                                                            }).format(new Date(round.startAdmission))}
+                                </td>
+                                <td>
+                                {new Intl.DateTimeFormat('vi-VN', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                                second: '2-digit',
+                                                                hour12: false
+                                                            }).format(new Date(round.endAdmission))}
+                                </td>
+                                <td>
+                                    <Button variant="warning" onClick={() => handleShowEditModal('II', round)} className="m-1">
+                                        Chỉnh sửa
                                     </Button>
+                                    <Button variant="warning" onClick={() => handleShowDetailModal('Detail-II', round)} >
+                                        Ngành xét Tuyển
+                                    </Button>
+                                    <Link to={`/`}>
+                                        <Button
+                                            variant="orange"
+                                            className="text-white mx-1"
+                                            style={{ whiteSpace: 'nowrap', marginRight: '10px' }}
+                                        >
+                                            Hồ sơ
+                                        </Button>
+                                    </Link>
                                 </td>
                             </tr>
                         ))
@@ -331,7 +452,7 @@ const PlanAdmissionDetail = () => {
                     <Button variant="warning" onClick={handleSubmit}>Lưu thay đổi</Button>
                 </Modal.Footer>
             </Modal>
-            <Row className='mt-5 mb-2'>
+            {/* <Row className='mt-5 mb-2'>
                 <Col md={10}>
                     <h4 className='text-orange'>III. Ngành tuyển</h4>
                 </Col>
@@ -340,8 +461,8 @@ const PlanAdmissionDetail = () => {
                         Thêm mới
                     </Button>
                 </Col>
-            </Row>
-            <Table striped bordered hover>
+            </Row> */}
+            {/* <Table striped bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
@@ -374,8 +495,8 @@ const PlanAdmissionDetail = () => {
                         </tr>
                     )}
                 </tbody>
-            </Table>
-            <Modal show={showModalCreateMajor} onHide={handleCloseModalCreateMajor}>
+            </Table> */}
+            {/* <Modal show={showModalCreateMajor} onHide={handleCloseModalCreateMajor}>
                 <Modal.Header closeButton>
                     <Modal.Title>Tạo mới Ngành Tuyển Sinh</Modal.Title>
                 </Modal.Header>
@@ -432,7 +553,7 @@ const PlanAdmissionDetail = () => {
                     </Button>
                     <Button variant="warning" onClick={handleSubmitMajor}>Lưu thay đổi</Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
 
             {/* Modal chỉnh sửa */}
             <Modal show={showEditModal} onHide={handleCloseEditModal} size='lg'>
@@ -564,6 +685,76 @@ const PlanAdmissionDetail = () => {
                     <Button variant="warning" onClick={handleSaveChanges}>Lưu thay đổi</Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showDetailModal} onHide={handleCloseDetailModal} size='xl'>
+                <Modal.Header closeButton>
+                    <Modal.Title>Danh sách ngành xét tuyển</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã Ngành</th>
+                                <th>Mã Code</th>
+                                <th>Tên Ngành</th>
+                                <th>Chỉ tiêu</th>
+                                <th>Hình thức xét tuyển</th>
+                                <th>Khối xét tuyển</th>
+                                <th>Điểm học bạ xét tuyển</th>
+                                <th>Điểm THPT xét tuyển</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Array.isArray(detailData) && detailData.length > 0 ? (
+                                detailData.map((round, index) => (
+                                    <tr key={round.majorID}>
+                                        <td>{index + 1}</td>
+                                        <td>{round.majorID}</td>
+                                        <td>{round.majorCode}</td>
+                                        <td>{round.majorName}</td>
+                                        <td>{round.target}</td>
+                                        <td>{round.typeAdmissions.map((admission, idx) => (
+                                            <div key={idx}>
+                                                {getDiplomaName(admission.typeDiploma)}{" "}
+                                                {admission.typeOfTranscript !== null && `- ${getTranscriptName(admission.typeOfTranscript)}`}
+                                            </div>
+                                        ))}</td>
+                                        <td>{round.subjectGroupDTOs.map((subjectGroup, idx) => (
+                                            <div key={idx}>
+                                                {subjectGroup.subjectGroup}
+                                            </div>
+                                        ))}</td>
+                                        <td>{round.totalScoreAcademic ? round.totalScoreAcademic : "N/A"}</td>
+                                        <td>{round.totalScore ? round.totalScore : "N/A"}</td>
+                                        <td className={round.status ? 'text-success' : 'text-danger'}>
+                                            {round.status ? 'Tuyển sinh' : 'Không tuyển sinh'}
+                                        </td>
+                                        <td>
+                                            <Button variant="warning" className="m-1">
+                                                Chỉnh sửa
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="11" className="text-center">
+                                        Đang tải dữ liệu...
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </Table>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDetailModal}>
+                        Đóng
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </Container>
     );
 };

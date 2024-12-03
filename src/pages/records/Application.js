@@ -1150,40 +1150,40 @@ const Application = () => {
                     }
                 }
                 break;
-            case "imgCitizenIdentification1":
-                if (!tempImages?.imgCitizenIdentification1) {
-                    error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
+            // case "imgCitizenIdentification1":
+            //     if (!tempImages?.imgCitizenIdentification1) {
+            //         error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
+            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
 
-            case "imgCitizenIdentification2":
-                if (!tempImages?.imgCitizenIdentification2) {
-                    error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
+            // case "imgCitizenIdentification2":
+            //     if (!tempImages?.imgCitizenIdentification2) {
+            //         error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
+            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
 
-            case "imgDiplomaMajor1":
-                if (!tempImages?.imgDiplomaMajor1) {
-                    error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
+            // case "imgDiplomaMajor1":
+            //     if (!tempImages?.imgDiplomaMajor1) {
+            //         error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
+            //     } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
 
-            case "imgDiplomaMajor2":
-                if (showGraduationImage2 && !tempImages?.imgDiplomaMajor2) {
-                    error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
-                } else if (
-                    showGraduationImage2 &&
-                    !allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)
-                ) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
+            // case "imgDiplomaMajor2":
+            //     if (showGraduationImage2 && !tempImages?.imgDiplomaMajor2) {
+            //         error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
+            //     } else if (
+            //         showGraduationImage2 &&
+            //         !allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)
+            //     ) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
             default:
                 break;
         }
@@ -1277,27 +1277,30 @@ const Application = () => {
         });
         await Promise.all(uploadPromises);
 
-        setLoadingMessage('Chuẩn bị thanh toán...');
         // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         setFormData(updatedFormData);
-        sessionStorage.setItem('formData', JSON.stringify(updatedFormData));
 
         const selectedCampusPost = {
             campus: selectedCampus.id
         };
         try {
-            // Gửi yêu cầu thanh toán đến VNPAY
-            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            // const paymentResponse = await axios.post(
-            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-register-admission',
-            //     selectedCampusPost
-            // );
-            const { paymentUrl } = paymentResponse.data;
+            const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+            sessionStorage.setItem('admissionSuccess', 'true');
+            navigate('/tra-cuu-ho-so');
 
-            // Chuyển hướng người dùng đến trang thanh toán của VNPAY
-            window.location.href = paymentUrl;
+            // // Gửi yêu cầu thanh toán đến VNPAY
+            // const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // const { paymentUrl } = paymentResponse.data;
+
+            // // Chuyển hướng người dùng đến trang thanh toán của VNPAY
+            // window.location.href = paymentUrl;
         } catch (error) {
-            toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
+                toast.error(errorMessage);
+            } else {
+                toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
+            }
         } finally {
             setIsLoading(false);
         }

@@ -319,7 +319,21 @@ const IntermediateApplication = () => {
         }
 
         // Duyệt qua các ảnh trong tempImages và upload
-        for (const [key, file] of Object.entries(tempImages)) {
+        // for (const [key, file] of Object.entries(tempImages)) {
+        //     if (file) {
+        //         const folder = 'RegisterAdmission';
+        //         try {
+        //             // Upload ảnh và lấy URL
+        //             const url = await uploadImage(file, folder);
+
+        //             // Cập nhật updatedFormData với URL ảnh đã upload
+        //             formData[key] = url;
+        //         } catch (error) {
+        //             console.error(`Lỗi cập nhật ảnh lên firebase ${key}:`, error);
+        //         }
+        //     }
+        // }
+        const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {
             if (file) {
                 const folder = 'RegisterAdmission';
                 try {
@@ -332,28 +346,26 @@ const IntermediateApplication = () => {
                     console.error(`Lỗi cập nhật ảnh lên firebase ${key}:`, error);
                 }
             }
-        }
+        });
+        await Promise.all(uploadPromises);
 
-        setLoadingMessage('Chuẩn bị thanh toán...');
-        //Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
-        sessionStorage.setItem('formData', JSON.stringify(formData));
+        //Cập nhật lại formData với các URL ảnh
+        setFormData(formData);
 
         const selectedCampusPost = {
             campus: selectedCampus.id
         };
         try {
-            // Gửi yêu cầu thanh toán đến VNPAY
-            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            // const paymentResponse = await axios.post(
-            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-register-admission',
-            //     selectedCampusPost
-            // );
-            const { paymentUrl } = paymentResponse.data;
-
-            // Chuyển hướng người dùng đến trang thanh toán của VNPAY
-            window.location.href = paymentUrl;
+            const response = await api.post('/RegisterAdmission/add-register-admission', formData);
+            sessionStorage.setItem('admissionSuccess', 'true');
+            navigate('/tra-cuu-ho-so');
         } catch (error) {
-            toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
+                toast.error(errorMessage);
+            } else {
+                toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
+            }
         } finally {
             setIsLoading(false);
         }

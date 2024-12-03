@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row, Spinner  } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row, Spinner } from 'react-bootstrap';
 import { Download } from 'react-bootstrap-icons';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -82,10 +82,10 @@ const ApplicationSearch = () => {
     const [maxStep, setMaxStep] = useState(null);
     // Hàm xác định tiến trình hiện tại
     const getCurrentStep = (typeofStatusProfile, typeofStatusMajor1, typeofStatusMajor2) => {
-        if (typeofStatusProfile > 1) return 4; // Hồ sơ nhập học cuối cùng
-        if (typeofStatusProfile === 1 &&
-            (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 3; // Nhập học
-        if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 2; // Kết quả xét tuyển
+        if (typeofStatusProfile === 7) return 2; // Thanh toán
+        if (typeofStatusProfile > 1) return 5; // Hồ sơ nhập học cuối cùng
+        if (typeofStatusProfile === 1 && (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 4; // Nhập học
+        if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 3; // Kết quả xét tuyển
         return 1; // Hồ sơ xét tuyển
     };
 
@@ -437,19 +437,26 @@ const ApplicationSearch = () => {
                                 className={stepClasses(2)}
                                 onClick={() => handleStepClick(2)}
                             >
-                                Kết quả xét tuyển
+                                Thanh toán
                             </div>
                             <span>→</span>
                             <div
                                 className={stepClasses(3)}
                                 onClick={() => handleStepClick(3)}
                             >
-                                Nhập học
+                                Kết quả xét tuyển
                             </div>
                             <span>→</span>
                             <div
                                 className={stepClasses(4)}
                                 onClick={() => handleStepClick(4)}
+                            >
+                                Nhập học
+                            </div>
+                            <span>→</span>
+                            <div
+                                className={stepClasses(5)}
+                                onClick={() => handleStepClick(5)}
                             >
                                 Hồ sơ nhập học
                             </div>
@@ -731,6 +738,14 @@ const ApplicationSearch = () => {
                             </Card.Body>
                         )}
                         {currentStep === 2 && (
+                            <div className="enrollment-section mt-4">
+                                <h4 className="text-orange mb-3">Thanh toán</h4>
+                                <Row>
+
+                                </Row>
+                            </div>
+                        )}
+                        {currentStep === 3 && (
                             <div className="enrollment-section mt-4 mb-5">
                                 <h4 className='text-orange mb-2'>Kết quả xét tuyển</h4>
                                 <Row>
@@ -799,7 +814,7 @@ const ApplicationSearch = () => {
                                 </Row>
                             </div>
                         )}
-                        {currentStep === 3 && (
+                        {currentStep === 4 && (
                             <div className="enrollment-section mt-4">
                                 <h4 className='text-orange mb-2'>Nhập học</h4>
                                 <Form>
@@ -859,7 +874,7 @@ const ApplicationSearch = () => {
                                 </Form>
                             </div>
                         )}
-                        {currentStep === 4 && (
+                        {currentStep === 5 && (
                             <div className="enrollment-section mt-4">
                                 <h4 className="text-orange mb-3">Hồ sơ nhập học</h4>
                                 <Row>

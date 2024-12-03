@@ -58,6 +58,13 @@ const PlanAdmission = () => {
     };
 
     const handleCreateAdmission = async () => {
+        const startDate = new Date(formData.startAdmission);
+        const endDate = new Date(formData.endAdmission);
+    
+        if (startDate >= endDate) {
+            toast.error("Thời gian bắt đầu phải trước thời gian kết thúc.");
+            return;
+        }
         try {
             const response = await api.post('/admission-council/AdmissionInformation/add-admission-information', {
                 ...formData,
@@ -76,6 +83,13 @@ const PlanAdmission = () => {
     };
 
     const handleEditAdmission = async () => {
+        const startDate = new Date(formData.startAdmission);
+        const endDate = new Date(formData.endAdmission);
+    
+        if (startDate >= endDate) {
+            toast.error("Thời gian bắt đầu phải trước thời gian kết thúc.");
+            return;
+        }
         try {
             const response = await api.put(`/admission-council/AdmissionInformation/update-admission-information`, {
                 ...formData,

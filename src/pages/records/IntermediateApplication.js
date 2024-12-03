@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import uploadImage from '../../firebase/uploadImage.js';
 
 const IntermediateApplication = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         fullname: "",
         dob: "",

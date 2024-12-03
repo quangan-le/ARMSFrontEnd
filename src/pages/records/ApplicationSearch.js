@@ -15,7 +15,7 @@ const ApplicationSearch = () => {
         // Kiểm tra cờ trong sessionStorage
         const admissionSuccess = sessionStorage.getItem('admissionSuccess');
         const doneSuccess = sessionStorage.getItem('doneSuccess');
-
+        const spIdSuccess = sessionStorage.getItem('spIdSuccess');
         if (admissionSuccess) {
             // Hiển thị toast thành công
             toast.success('Đơn đã được gửi thành công!');
@@ -32,6 +32,14 @@ const ApplicationSearch = () => {
             toast.success('Thanh toán phí nhập học thành công!');
             const timeout = setTimeout(() => {
                 sessionStorage.removeItem('doneSuccess');
+            }, 2000);
+            // Dọn dẹp timeout khi component unmount
+            return () => clearTimeout(timeout);
+        }
+        if (spIdSuccess) {
+            toast.success('Thanh toán phí đăng ký thành công!');
+            const timeout = setTimeout(() => {
+                sessionStorage.removeItem('spIdSuccess');
             }, 2000);
             // Dọn dẹp timeout khi component unmount
             return () => clearTimeout(timeout);
@@ -60,7 +68,7 @@ const ApplicationSearch = () => {
                 citizenIentificationNumber: cccd
             });
             setEmail(response.data.email);
-            await new Promise((resolve) => setTimeout(resolve, 3000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             toast.success(response.data.message);
             handleShow();
         } catch (error) {
@@ -82,10 +90,10 @@ const ApplicationSearch = () => {
     const [maxStep, setMaxStep] = useState(null);
     // Hàm xác định tiến trình hiện tại
     const getCurrentStep = (typeofStatusProfile, typeofStatusMajor1, typeofStatusMajor2) => {
-        if (typeofStatusProfile === 7) return 2; // Thanh toán
-        if (typeofStatusProfile > 1) return 5; // Hồ sơ nhập học cuối cùng
-        if (typeofStatusProfile === 1 && (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 4; // Nhập học
-        if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 3; // Kết quả xét tuyển
+        if (typeofStatusProfile === 7) return 1; // Kết quả xét tuyển
+        if (typeofStatusProfile > 1) return 4; // Hồ sơ nhập học cuối cùng
+        if (typeofStatusProfile === 1 && (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 3; // Nhập học
+        if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 2; // Kết quả xét tuyển
         return 1; // Hồ sơ xét tuyển
     };
 
@@ -279,6 +287,20 @@ const ApplicationSearch = () => {
             setSelectedEnrollmentForm(file);
         }
     };
+    const handlePayment = async () => {
+        const selectedCampusPost = {
+            campus: applicationData.campusId
+        };
+        sessionStorage.setItem('spId', applicationData.spId);
+        try {
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            window.location.href = paymentResponse.data.paymentUrl;
+        } catch (error) {
+            toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+            sessionStorage.removeItem('spId');
+        }
+    };
+
     const handleEnrollmentSubmit = async () => {
         if (!selectedEnrollmentForm || !selectedBirthCertificate) {
             toast.error("Vui lòng tải lên đầy đủ Đơn nhập học và Giấy khai sinh.");
@@ -303,13 +325,7 @@ const ApplicationSearch = () => {
             major: applicationData.typeofStatusMajor1 === 1 ? applicationData.major1 : applicationData.major2,
         };
         try {
-            // Gửi yêu cầu thanh toán đến VNPAY
             const paymentResponse = await api.post('/VNPay/pay-admission', selectedCampusPost);
-            // const paymentResponse = await axios.post(
-            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-admission', selectedCampusPost
-            // );
-
-            // Chuyển hướng người dùng đến trang thanh toán của VNPAY
             window.location.href = paymentResponse.data.paymentUrl;
         } catch (error) {
             toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
@@ -437,26 +453,19 @@ const ApplicationSearch = () => {
                                 className={stepClasses(2)}
                                 onClick={() => handleStepClick(2)}
                             >
-                                Thanh toán
+                                Kết quả xét tuyển
                             </div>
                             <span>→</span>
                             <div
                                 className={stepClasses(3)}
                                 onClick={() => handleStepClick(3)}
                             >
-                                Kết quả xét tuyển
+                                Nhập học
                             </div>
                             <span>→</span>
                             <div
                                 className={stepClasses(4)}
                                 onClick={() => handleStepClick(4)}
-                            >
-                                Nhập học
-                            </div>
-                            <span>→</span>
-                            <div
-                                className={stepClasses(5)}
-                                onClick={() => handleStepClick(5)}
                             >
                                 Hồ sơ nhập học
                             </div>
@@ -730,22 +739,23 @@ const ApplicationSearch = () => {
                                     <Button
                                         variant="light"
                                         onClick={() => navigate('/cap-nhat-ho-so')}
-                                        className="btn-block bg-orange text-white"
+                                        className="btn-block bg-orange text-white me-3"
                                     >
                                         Cập nhật hồ sơ
+                                    </Button>
+                                    <Button
+                                        variant="light"
+                                        onClick={handlePayment}
+                                        className="bg-orange text-white px-4 py-2"
+                                        style={{ width: "auto" }}
+                                        disabled={ applicationData.typeofStatusMajor1 === 7}
+                                    >
+                                        Thanh toán phí đăng ký
                                     </Button>
                                 </Col>
                             </Card.Body>
                         )}
                         {currentStep === 2 && (
-                            <div className="enrollment-section mt-4">
-                                <h4 className="text-orange mb-3">Thanh toán</h4>
-                                <Row>
-
-                                </Row>
-                            </div>
-                        )}
-                        {currentStep === 3 && (
                             <div className="enrollment-section mt-4 mb-5">
                                 <h4 className='text-orange mb-2'>Kết quả xét tuyển</h4>
                                 <Row>
@@ -814,7 +824,7 @@ const ApplicationSearch = () => {
                                 </Row>
                             </div>
                         )}
-                        {currentStep === 4 && (
+                        {currentStep === 3 && (
                             <div className="enrollment-section mt-4">
                                 <h4 className='text-orange mb-2'>Nhập học</h4>
                                 <Form>
@@ -874,7 +884,7 @@ const ApplicationSearch = () => {
                                 </Form>
                             </div>
                         )}
-                        {currentStep === 5 && (
+                        {currentStep === 4 && (
                             <div className="enrollment-section mt-4">
                                 <h4 className="text-orange mb-3">Hồ sơ nhập học</h4>
                                 <Row>

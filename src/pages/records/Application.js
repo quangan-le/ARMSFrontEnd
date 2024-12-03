@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Application = () => {
-
+    const navigate = useNavigate();
     const { selectedCampus } = useOutletContext();
     const [isWithinAdmissionTime, setIsWithinAdmissionTime] = useState(false);
     const [admissionTimes, setAdmissionTimes] = useState([]); // Lưu toàn bộ dữ liệu thời gian tuyển sinh
@@ -969,8 +969,8 @@ const Application = () => {
             case "citizenIentificationNumber":
                 if (!value.trim()) {
                     error = "CCCD/CMND không được để trống.";
-                } else if (!/^\d{9}$|^\d{12}$/.test(value)) {
-                    error = "CCCD/CMND phải có 9 hoặc 12 chữ số.";
+                } else if (!/^\d{12}$/.test(value)) { 
+                    error = "CCCD phải có 12 chữ số.";
                 } else {
                     try {
                         const response = await api.get("/RegisterAdmission/check-cccd", {
@@ -1287,13 +1287,6 @@ const Application = () => {
             const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
             sessionStorage.setItem('admissionSuccess', 'true');
             navigate('/tra-cuu-ho-so');
-
-            // // Gửi yêu cầu thanh toán đến VNPAY
-            // const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            // const { paymentUrl } = paymentResponse.data;
-
-            // // Chuyển hướng người dùng đến trang thanh toán của VNPAY
-            // window.location.href = paymentUrl;
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';

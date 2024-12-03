@@ -121,11 +121,11 @@ const PlanAdmissionDetail = () => {
     const handleSaveChanges = async () => {
         // Validation trước khi lưu
         if (currentSection === 'I') {
-            if (editFormData.feeRegister <= 100000) {
+            if (editFormData.feeRegister < 100000) {
                 toast.error('Phí xét tuyển phải lớn hơn 100.000 VND!');
                 return;
             }
-            if (editFormData.feeAdmission <= 100000) {
+            if (editFormData.feeAdmission < 100000) {
                 toast.error('Phí nhập học phải lớn hơn 100.000 VND!');
                 return;
             }
@@ -281,6 +281,7 @@ const PlanAdmissionDetail = () => {
                     </p>
                     <p><strong>Lệ phí:</strong> {admissionInfo.feeRegister.toLocaleString()} VND</p>
                     <p><strong>Nhập học:</strong> {admissionInfo.feeAdmission.toLocaleString()} VND</p>
+                    <p><strong>Hồ sơ nhập học:</strong> {admissionInfo.admissionProfileDescription}</p>
                 </Row>
             ) : (
                 <p>Đang tải dữ liệu...</p>
@@ -377,8 +378,8 @@ const PlanAdmissionDetail = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" className="text-center">
-                                Đang tải dữ liệu...
+                            <td colSpan="7" className="text-center">
+                                Không có đợt tuyển sinh.
                             </td>
                         </tr>
                     )}
@@ -690,6 +691,15 @@ const PlanAdmissionDetail = () => {
                     <Modal.Title>Danh sách ngành xét tuyển</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <Row className=' mb-2 d-flex'>
+                        <Col md={10}>
+                        </Col>
+                        <Col md={2} className="d-flex justify-content-end align-items-end">
+                            <Button variant="warning" >
+                                Thêm mới
+                            </Button>
+                        </Col>
+                    </Row>
                     <Table striped bordered hover>
                         <thead>
                             <tr>

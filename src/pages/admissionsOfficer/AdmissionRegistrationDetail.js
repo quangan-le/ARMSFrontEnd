@@ -757,10 +757,12 @@ const AdmissionRegistrationDetail = () => {
                                     <>
                                         <Button
                                             variant="light"
-                                            onClick={() => navigate('/cap-nhat-ho-so')}
+                                            onClick={() =>
+                                                navigate(`/admissions-officer/chinh-sua-ho-so/${applicationData.spId}`)
+                                            }
                                             className="btn-block bg-orange text-white"
                                         >
-                                            Cập nhật hồ sơ
+                                            Chỉnh sửa
                                         </Button>
 
                                         {majorDetails?.major1 && majorDetails?.major2 && (

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from "../../apiService.js";
 import { useAuthStore } from "../../stores/useAuthStore.js";
 
-const ManagerHeader = ({ toggleSidebar, role, campusId}) => {
+const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
   const { removeUser } = useAuthStore();
   const navigate = useNavigate();
 
@@ -96,7 +96,9 @@ const ManagerHeader = ({ toggleSidebar, role, campusId}) => {
                 <PersonCircle size={30} className="text-orange" />
               </Dropdown.Toggle>
               <Dropdown.Menu align="end">
-                <Dropdown.Item>Đổi mật khẩu</Dropdown.Item>
+                <Dropdown.Item onClick={() => navigate("/doi-mat-khau")}>
+                  Đổi mật khẩu
+                </Dropdown.Item>
                 <Dropdown.Item onClick={handleShowLogoutModal}>Đăng xuất</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -106,7 +108,7 @@ const ManagerHeader = ({ toggleSidebar, role, campusId}) => {
       {/* Modal Xác nhận Đăng xuất */}
       <Modal show={showConfirmModal} onHide={handleCancelLogout} centered>
         <Modal.Header closeButton>
-        <Modal.Title className="text-center w-100 text-orange">Xác nhận đăng xuất</Modal.Title>
+          <Modal.Title className="text-center w-100 text-orange">Xác nhận đăng xuất</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-center">
           Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?

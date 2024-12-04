@@ -253,6 +253,20 @@ const UserList = () => {
             console.error("Cập nhật tài khoản thất bại:", error);
         }
     };
+
+    const handleResetPassword = async (accountId) => {
+        try {
+            const response = await api.get(`/Account/reset-password/${accountId}`);
+            if (response.data.status) {
+                toast.success(response.data.message || "Đặt lại mật khẩu thành công!");
+            } else {
+                toast.error(response.data.message || "Không thể đặt lại mật khẩu!");
+            }
+        } catch (error) {
+            console.error("Lỗi khi đặt lại mật khẩu:", error);
+            toast.error("Đã xảy ra lỗi, vui lòng thử lại sau.");
+        }
+    };
     return (
         <Container>
             <ToastContainer position="top-right" autoClose={3000} />
@@ -326,12 +340,12 @@ const UserList = () => {
                                             </Button>
                                         </>
                                     )}
+
                                 </td>
                             </td>
 
                         </tr>
                     ))}
-
                 </tbody>
             </Table>
             <div className="d-flex justify-content-between">
@@ -614,6 +628,16 @@ const UserList = () => {
                     <Button variant="warning" onClick={() => { handleCloseDetails(); handleShowEdit(selectedAccount.id); }}>
                         Chỉnh sửa
                     </Button>
+                    {selectedAccount?.roleName !== "Student" && selectedAccount?.roleName !== "Admin" && (
+                        <>
+                            <Button
+                                variant="danger"
+                                onClick={() => handleResetPassword(selectedAccount.id)} // Gọi hàm reset mật khẩu
+                            >
+                                Đặt lại mật khẩu
+                            </Button>
+                        </>
+                    )}
                 </Modal.Footer>
             </Modal>
             <Modal show={showEdit} onHide={handleCloseEdit} size="lg">

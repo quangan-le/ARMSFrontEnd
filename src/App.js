@@ -50,6 +50,8 @@ import StudentConsultation from "./pages/schoolService/StudentConsultationList.j
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
+import ChangePassword from "./pages/login/ChangePassword.js";
+import AdmissionRegistrationEdit from "./pages/admissionsOfficer/AdmissionRegistrationEdit.js";
 
 
 function App() {
@@ -112,6 +114,7 @@ function App() {
         <Route path="/admin/danh-sach-nguoi-dung" element={<UserList />} />
         <Route path="/admin/danh-sach-nganh-hoc" element={<MajorsList />} />
         <Route path="/admin/danh-sach-yeu-cau-phe-duyet-tai-khoan" element={<AccountList />} />
+        <Route path="/doi-mat-khau" element={<ChangePassword />} />
       </Route>
     </Routes>
   }
@@ -126,6 +129,8 @@ function App() {
         <Route path="/school-service/danh-sach-yeu-cau-rut-ho-so" element={<RequestsForWithdrawalList />} />
         <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
         <Route path="/school-service/danh-sach-dang-ky-tu-van" element={<StudentConsultation />} />
+        <Route path="/doi-mat-khau" element={<ChangePassword />} />
+
       </Route>
     </Routes>
   }
@@ -138,6 +143,9 @@ function App() {
         <Route path="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh" element={<StudentConsultationList />} />
         <Route path="/admissions-officer/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationList />} />
         <Route path="/admissions-officer/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetail />} />
+        <Route path="/admissions-officer/chinh-sua-ho-so/:spId" element={<AdmissionRegistrationEdit />} />
+        <Route path="/doi-mat-khau" element={<ChangePassword />} />
+
 
       </Route>
     </Routes>
@@ -152,6 +160,8 @@ function App() {
         <Route path="/admissions-council/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationListAC />} />
         <Route path="/admissions-council/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetailAC />} />
         <Route path="/admin-council/RegisterAdmission/list-register-admission/:ATId" element={<AdmissionRegistrationListACInPlan />} />
+        <Route path="/doi-mat-khau" element={<ChangePassword />} />
+
       </Route>
     </Routes>
   }

@@ -385,12 +385,13 @@ const Application = () => {
     }, [selectedCampus]);
 
     // Khi người dùng chọn ngành cho nguyện vọng 1
-    const handleMajorChange1 = (e) => {
+    const handleMajorChange1 = async (e) => {
         const selectedMajorId = e.target.value;
         setSelectedMajor1(selectedMajorId);
         setSelectedAdmissionType1(null);
         setDisplayedFields1([]);
         setAcademicTranscriptsMajor1([]);
+        setDiplomaMajor1(null);
 
         setShowGraduationImage1(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
@@ -402,15 +403,23 @@ const Application = () => {
             ...prevData,
             major1: selectedMajorId
         }));
+
+        // Kiểm tra lỗi và cập nhật
+        const fieldError = await validateField("major1", selectedMajorId, tempImages, formData);
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            major1: fieldError, // Xóa lỗi nếu không có lỗi
+        }));
     };
 
     // Khi người dùng chọn ngành cho nguyện vọng 2
-    const handleMajorChange2 = (e) => {
+    const handleMajorChange2 = async (e) => {
         const selectedMajorId = e.target.value;
         setSelectedMajor2(selectedMajorId);
         setSelectedAdmissionType2(null);
         setDisplayedFields2([]);
         setAcademicTranscriptsMajor2([]);
+        setDiplomaMajor2(null);
 
         setShowGraduationImage2(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
@@ -421,10 +430,17 @@ const Application = () => {
             ...prevData,
             major2: selectedMajorId
         }));
+
+        // Kiểm tra lỗi và cập nhật
+        const fieldError = await validateField("major2", selectedMajorId, tempImages, formData);
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            major2: fieldError, // Xóa lỗi nếu không có lỗi
+        }));
     };
 
     // Khi chọn loại xét tuyển NV1
-    const handleAdmissionTypeChange1 = (e) => {
+    const handleAdmissionTypeChange1 = async (e) => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType1(typeId);
         setDisplayedFields1([]);
@@ -448,9 +464,16 @@ const Application = () => {
             setShowSubjectSelection1(false);
             setSubjectGroups1([]);
         }
+
+        // Validate and clear errors
+        const fieldError = await validateField("typeOfDiplomaMajor1", typeId);
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            typeOfDiplomaMajor1: fieldError,
+        }));
     };
     // Khi chọn loại xét tuyển NV2
-    const handleAdmissionTypeChange2 = (e) => {
+    const handleAdmissionTypeChange2 = async (e) => {
         const typeId = parseInt(e.target.value, 10);
         setSelectedAdmissionType2(typeId);
         setDisplayedFields2([]);
@@ -475,6 +498,11 @@ const Application = () => {
             setShowSubjectSelection2(false);
             setSubjectGroups2([]);
         }
+        const fieldError = await validateField("typeOfDiplomaMajor2", typeId);
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            typeOfDiplomaMajor2: fieldError,
+        }));
     };
 
     const handleSubjectGroupChange1 = (e) => {
@@ -570,7 +598,6 @@ const Application = () => {
     // Xử lý thay đổi điểm cho nguyện vọng 1
     const handleScoreChange1 = (e) => {
         const { name, value } = e.target;
-
         // Xét điểm THPT
         if (selectedAdmissionType1 === 5) {
             const [subject, index] = name.split("_");
@@ -854,36 +881,34 @@ const Application = () => {
     // Ảnh tốt nghiệp
     const handleGraduationCertificateChange = async (e, isMajor1) => {
         const file = e.target.files[0];
+        const key = isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2";
         if (file) {
             // Tạo URL object cho ảnh
             const objectURL = URL.createObjectURL(file);
 
-            setTempImages(prev => ({
-                ...prev,
-                [isMajor1 ? 'imgDiplomaMajor1' : 'imgDiplomaMajor2']: file
-            }));
+            const updatedTempImages = {
+                ...tempImages,
+                [key]: file,
+            };
+            setTempImages(updatedTempImages);
 
             if (isMajor1) {
                 setDiplomaMajor1(objectURL);  // setDiplomaMajor1 là state lưu URL cho ảnh ngành 1
             } else {
                 setDiplomaMajor2(objectURL);  // setDiplomaMajor2 là state lưu URL cho ảnh ngành 2
             }
-            const diplomaError = await validateField(
-                isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
-                file,
-                tempImages,
-                formData
-            );
+            const diplomaError = await validateField(key, null, updatedTempImages, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: diplomaError,
+                [key]: diplomaError,
             }));
         } else {
             // Xử lý khi nhấn Cancel hoặc không có file được chọn
-            setTempImages(prev => ({
-                ...prev,
-                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: null,
-            }));
+            const updatedTempImages = {
+                ...tempImages,
+                [key]: null,
+            };
+            setTempImages(updatedTempImages);
 
             // Xóa ảnh xem trước
             if (isMajor1) {
@@ -891,16 +916,10 @@ const Application = () => {
             } else {
                 setDiplomaMajor2(null); // Xóa ảnh ngành 2
             }
-
-            const diplomaError = await validateField(
-                isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2",
-                null,
-                tempImages,
-                formData
-            );
+            const diplomaError = await validateField(key, null, updatedTempImages, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
-                [isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2"]: diplomaError,
+                [key]: diplomaError,
             }));
         }
     };
@@ -969,7 +988,7 @@ const Application = () => {
             case "citizenIentificationNumber":
                 if (!value.trim()) {
                     error = "CCCD/CMND không được để trống.";
-                } else if (!/^\d{12}$/.test(value)) { 
+                } else if (!/^\d{12}$/.test(value)) {
                     error = "CCCD phải có 12 chữ số.";
                 } else {
                     try {
@@ -1108,28 +1127,72 @@ const Application = () => {
                     error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
                 }
                 break;
-            // case "typeOfDiplomaMajor2":
-            //     if (!value) {
-            //         error = "Loại xét tuyển Nguyện vọng 2 không được để trống.";
-            //     }
-            //     break;
-            // case "academicTranscriptsMajor1":
-            //     if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
-            //         displayedFields1.forEach(field => {
-            //             const transcript = academicTranscriptsMajor1.find(
-            //                 item => item.name === field.name
-            //             );
-            //             const point = transcript?.subjectPoint;
+            case "typeOfDiplomaMajor2":
+                if (!value) {
+                    error = "Loại xét tuyển Nguyện vọng 2 không được để trống.";
+                }
+                break;
+            case "academicTranscriptsMajor1":
+                if (selectedAdmissionType1 === 3 || selectedAdmissionType1 === 5) {
+                    if (!selectedGroupData1 || !selectedGroupData1.subjectGroup || !selectedGroupData1.subjectGroupName) {
+                        error = "Vui lòng chọn khối xét tuyển.";
+                    } else {
+                        const selectedSubjects = selectedGroupData1.subjectGroupName
+                            .split("–")
+                            .map(sub => sub.trim()); // Danh sách môn trong tổ hợp
 
-            //             if (!point && point !== 0) {
-            //                 error = `Điểm của môn ${field.subject} không được để trống.`;
-            //             } else if (isNaN(point) || point < 0 || point > 10) {
-            //                 error = `Điểm của môn ${field.subject} phải là số từ 0 đến 10.`;
-            //             }
-            //         });
-            //     }
-            //     break;
-            // Thêm check NV2
+                        const hasInvalidPoint = selectedSubjects.some((subject, subjectIndex) => {
+                            return fieldMapping[typeOfTranscriptMajor1]?.some((field, fieldIndex) => {
+                                const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex]; // Ánh xạ `typeOfAcademicTranscript`
+
+                                const transcript = academicTranscriptsMajor1.find(
+                                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                                );
+
+                                const point = transcript?.subjectPoint;
+
+                                // Kiểm tra nếu điểm không hợp lệ
+                                return point === undefined || point === null ||
+                                    !/^(10(\.0{1,2})?|[0-9](\.\d{1,2})?)$/.test(point);
+                            });
+                        });
+                        if (hasInvalidPoint) {
+                            error = "Điểm phải là số từ 0 đến 10, tối đa 2 chữ số thập phân.";
+                        }
+                    }
+                }
+                break;
+            case "academicTranscriptsMajor2":
+                if (selectedAdmissionType2 === 3 || selectedAdmissionType2 === 5) {
+                    if (!selectedGroupData2 || !selectedGroupData2.subjectGroup || !selectedGroupData2.subjectGroupName) {
+                        error = "Vui lòng chọn khối xét tuyển.";
+                    } else {
+                        const selectedSubjects = selectedGroupData2.subjectGroupName
+                            .split("–")
+                            .map(sub => sub.trim()); // Danh sách môn trong tổ hợp d
+
+                        const hasInvalidPoint = selectedSubjects.some((subject, subjectIndex) => {
+                            return fieldMapping[typeOfTranscriptMajor2]?.some((field, fieldIndex) => {
+                                const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
+
+                                const transcript = academicTranscriptsMajor2.find(
+                                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                                );
+
+                                const point = transcript?.subjectPoint;
+
+                                // Kiểm tra nếu điểm không hợp lệ
+                                return point === undefined || point === null ||
+                                    !/^(10(\.0{1,2})?|[0-9](\.\d{1,2})?)$/.test(point);
+                            });
+                        });
+
+                        if (hasInvalidPoint) {
+                            error = "Điểm phải là số từ 0 đến 10, tối đa 2 chữ số thập phân.";
+                        }
+                    }
+                }
+                break;
             case "addressRecipientResults":
                 if (formData?.permanentAddress === false && !value.trim()) {
                     error = "Vui lòng nhập địa chỉ nhận giấy báo khác.";
@@ -1150,44 +1213,40 @@ const Application = () => {
                     }
                 }
                 break;
-            // case "imgCitizenIdentification1":
-            //     if (!tempImages?.imgCitizenIdentification1) {
-            //         error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgCitizenIdentification1":
+                if (!tempImages?.imgCitizenIdentification1) {
+                    error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgCitizenIdentification2":
-            //     if (!tempImages?.imgCitizenIdentification2) {
-            //         error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgCitizenIdentification2":
+                if (!tempImages?.imgCitizenIdentification2) {
+                    error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgDiplomaMajor1":
-            //     if (!tempImages?.imgDiplomaMajor1) {
-            //         error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgDiplomaMajor1":
+                if (!tempImages?.imgDiplomaMajor1) {
+                    error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgDiplomaMajor2":
-            //     if (showGraduationImage2 && !tempImages?.imgDiplomaMajor2) {
-            //         error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
-            //     } else if (
-            //         showGraduationImage2 &&
-            //         !allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)
-            //     ) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgDiplomaMajor2":
+                if (!tempImages?.imgDiplomaMajor2) {
+                    error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
+                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
             default:
                 break;
         }
-
         return error;
     };
 
@@ -1711,6 +1770,7 @@ const Application = () => {
                                                     </option>
                                                 ))}
                                             </Form.Control>
+                                            {formErrors.typeOfDiplomaMajor2 && <p className="error">{formErrors.typeOfDiplomaMajor2}</p>}
                                         </Form.Group>
                                     </Col>
                                 )}
@@ -1774,6 +1834,7 @@ const Application = () => {
                                                     })}
                                                 </div>
                                             </Form.Group>
+                                            {formErrors.academicTranscriptsMajor2 && <p className="error">{formErrors.academicTranscriptsMajor2}</p>}
                                         </Col>
                                     </Row>
                                 )}
@@ -1848,6 +1909,7 @@ const Application = () => {
                                         name="recipientResults"
                                         id="recipientResults"
                                         value="true"
+                                        checked={formData.recipientResults === true}
                                         onChange={handleChange}
                                     />
                                     <Form.Check
@@ -1856,6 +1918,7 @@ const Application = () => {
                                         name="recipientResults"
                                         id="recipientResults"
                                         value="false"
+                                        checked={formData.recipientResults === false}
                                         className="pt-3"
                                         onChange={handleChange}
                                     />
@@ -1869,6 +1932,7 @@ const Application = () => {
                                         label="Địa chỉ thường trú"
                                         name="address"
                                         id="permanentAddress"
+                                        checked={formData.permanentAddress === true}
                                         onChange={() => {
                                             setFormData(prevData => ({
                                                 ...prevData,
@@ -1889,6 +1953,7 @@ const Application = () => {
                                             label="Khác"
                                             name="address"
                                             id="otherAddress"
+                                            checked={formData.permanentAddress === false}
                                             onChange={() => {
                                                 setFormData(prevData => ({ ...prevData, permanentAddress: false }));
                                                 setShowOtherAddress(true);

@@ -27,7 +27,6 @@ const IntermediateApplication = () => {
         phoneParents: "",
         campusId: "",
         major1: "",
-        major2: "",
         yearOfGraduation: "",
         schoolName: "",
         recipientResults: true,
@@ -185,7 +184,6 @@ const IntermediateApplication = () => {
     // Ngành học
     const [majors, setMajors] = useState([]);
     const [selectedMajor1, setSelectedMajor1] = useState('');
-    const [selectedMajor2, setSelectedMajor2] = useState('');
 
     // Cập nhật formData và ngành học khi selectedCampus thay đổi
     useEffect(() => {
@@ -196,8 +194,6 @@ const IntermediateApplication = () => {
                 campusName: selectedCampus.name,
             }));
             setSelectedMajor1('');
-            setSelectedMajor2('');
-
             const fetchMajors = async () => {
                 try {
                     const response = await api.get(`/Major/get-majors-college-for-vocational-school?campus=${selectedCampus.id}`);
@@ -217,15 +213,6 @@ const IntermediateApplication = () => {
         setFormData(prevData => ({
             ...prevData,
             major1: selectedMajorId
-        }));
-    };
-    // Khi người dùng chọn ngành cho nguyện vọng
-    const handleMajorChange2 = (e) => {
-        const selectedMajorId = e.target.value;
-        setSelectedMajor2(selectedMajorId);
-        setFormData(prevData => ({
-            ...prevData,
-            major2: selectedMajorId
         }));
     };
 
@@ -319,21 +306,6 @@ const IntermediateApplication = () => {
             return;
         }
 
-        // Duyệt qua các ảnh trong tempImages và upload
-        // for (const [key, file] of Object.entries(tempImages)) {
-        //     if (file) {
-        //         const folder = 'RegisterAdmission';
-        //         try {
-        //             // Upload ảnh và lấy URL
-        //             const url = await uploadImage(file, folder);
-
-        //             // Cập nhật updatedFormData với URL ảnh đã upload
-        //             formData[key] = url;
-        //         } catch (error) {
-        //             console.error(`Lỗi cập nhật ảnh lên firebase ${key}:`, error);
-        //         }
-        //     }
-        // }
         const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {
             if (file) {
                 const folder = 'RegisterAdmission';
@@ -358,8 +330,20 @@ const IntermediateApplication = () => {
         };
         try {
             const response = await api.post('/RegisterAdmission/add-register-admission', formData);
-            sessionStorage.setItem('admissionSuccess', 'true');
-            navigate('/tra-cuu-ho-so');
+            const spId = response.data.spId;
+            if (!spId) {
+                throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
+            }
+            sessionStorage.setItem('spId', spId);
+
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // Chuyển hướng sang trang thanh toán
+            const paymentUrl = paymentResponse.data.paymentUrl;
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+            } else {
+                toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
+            }
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
@@ -367,11 +351,11 @@ const IntermediateApplication = () => {
             } else {
                 toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
             }
+            sessionStorage.removeItem('spId');
         } finally {
             setIsLoading(false);
         }
     };
-
 
     return (
         <div>
@@ -647,21 +631,8 @@ const IntermediateApplication = () => {
                             </Col>
                             <Col md={3} className="mb-2">
                                 <Form.Group controlId="major1">
-                                    <Form.Label>Nguyện vọng 1</Form.Label>
+                                    <Form.Label>Nguyện vọng</Form.Label>
                                     <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
-                                        <option value="">Chọn ngành</option>
-                                        {majors.map(major => (
-                                            <option key={major.majorID} value={major.majorID}>
-                                                {major.majorName}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mb-2">
-                                <Form.Group controlId="major2">
-                                    <Form.Label>Nguyện vọng 2</Form.Label>
-                                    <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
                                         <option value="">Chọn ngành</option>
                                         {majors.map(major => (
                                             <option key={major.majorID} value={major.majorID}>

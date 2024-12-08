@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Pagination, Row, Table } from "react-bootstrap";
 import { Link, useParams } from 'react-router-dom';
-
 import api from "../../apiService.js";
 
 const AdmissionRegistrationListACInPlan = () => {

@@ -14,21 +14,8 @@ const ApplicationSearch = () => {
     // Xử lý thông báo thanh toán
     useEffect(() => {
         // Kiểm tra cờ trong sessionStorage
-        const admissionSuccess = sessionStorage.getItem('admissionSuccess');
         const doneSuccess = sessionStorage.getItem('doneSuccess');
         const spIdSuccess = sessionStorage.getItem('spIdSuccess');
-        if (admissionSuccess) {
-            // Hiển thị toast thành công
-            toast.success('Đơn đã được gửi thành công!');
-
-            // Sử dụng setTimeout để xóa cờ sau khi toast hiển thị
-            const timeout = setTimeout(() => {
-                sessionStorage.removeItem('admissionSuccess');
-            }, 2000); // khoảng thời gian chờ (2000ms = 2 giây)
-
-            // Dọn dẹp timeout khi component unmount
-            return () => clearTimeout(timeout);
-        }
         if (doneSuccess) {
             toast.success('Thanh toán phí nhập học thành công!');
             const timeout = setTimeout(() => {
@@ -54,8 +41,6 @@ const ApplicationSearch = () => {
     const [email, setEmail] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [address, setAddress] = useState('');
-    const [majorName1, setMajorName1] = useState('');
-    const [majorName2, setMajorName2] = useState('');
     const [isLoading, setIsLoading] = useState(false); // Trạng thái loading
 
     const handleClose = () => setShowModal(false);
@@ -559,22 +544,24 @@ const ApplicationSearch = () => {
                                                     <span className="value">{applicationData.schoolName}</span>
                                                 </div>
                                             </Col>
+                                            <h4 className='text-orange mt-2'>Thông tin xét tuyển</h4>
                                             <Col xs={12} md={6}>
-                                                <h5>Nguyện vọng 1</h5>
-                                                {applicationData.academicTranscriptsMajor1 ? (
-                                                    renderTable(applicationData.academicTranscriptsMajor1, applicationData.typeOfTranscriptMajor1)
-                                                ) : (
-                                                    <p>Không có dữ liệu điểm cho ngành 1</p>
-                                                )}
+                                                <div className="info-item">
+                                                    <span className="label">Cơ sở nhập học</span>
+                                                    <span className="value">
+                                                        {
+                                                            campuses.find(campus => campus.campusId === applicationData.campusId)?.campusName || "Tên cơ sở không có sẵn"
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Nguyện vọng</span>
+                                                    <span className="value">{applicationData.majorName1}</span>
+                                                </div>
                                             </Col>
-
                                             <Col xs={12} md={6}>
-                                                <h5>Nguyện vọng 2</h5>
-                                                {applicationData.academicTranscriptsMajor2 ? (
-                                                    renderTable(applicationData.academicTranscriptsMajor2, applicationData.typeOfTranscriptMajor2)
-                                                ) : (
-                                                    <p>Không có dữ liệu điểm cho ngành 2</p>
-                                                )}
+                                                {applicationData.academicTranscriptsMajor1 &&
+                                                    renderTable(applicationData.academicTranscriptsMajor1, applicationData.typeOfTranscriptMajor1)}
                                             </Col>
                                             <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                             <Row>
@@ -597,19 +584,9 @@ const ApplicationSearch = () => {
                                                         <div className="image-container">
                                                             <img src={applicationData.imgDiplomaMajor1} alt="Bằng xét NV1" className="img-fluid" />
                                                         </div>
-                                                        <p className="image-title text-center mt-2">Bằng xét NV1</p>
+                                                        <p className="image-title text-center mt-2">Bằng nộp xét tuyển</p>
                                                     </Col>
                                                 )}
-
-                                                {applicationData.imgDiplomaMajor2 && (
-                                                    <Col xs={6} sm={4} md={3} className="mb-2">
-                                                        <div className="image-container">
-                                                            <img src={applicationData.imgDiplomaMajor2} alt="Bằng xét NV2" className="img-fluid" />
-                                                        </div>
-                                                        <p className="image-title text-center mt-2">Bằng xét NV2</p>
-                                                    </Col>
-                                                )}
-
                                                 {applicationData.imgAcademicTranscript1 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
@@ -736,25 +713,6 @@ const ApplicationSearch = () => {
                                                     </div>
                                                 </Col>
                                             </Row>
-                                            <h4 className='text-orange mt-2'>Thông tin xét tuyển</h4>
-                                            <div className="info-item">
-                                                <span className="label2">Cơ sở nhập học</span>
-                                                <span className="value">
-                                                    {
-                                                        campuses.find(campus => campus.campusId === applicationData.campusId)?.campusName || "Tên cơ sở không có sẵn"
-                                                    }
-                                                </span>
-                                            </div>
-                                            <Col xs={12} md={6}>
-                                                <div className="info-item">
-                                                    <span className="label">Nguyện vọng 1</span>
-                                                    <span className="value">{applicationData.majorName1}</span>
-                                                </div>
-                                                <div className="info-item">
-                                                    <span className="label">Nguyện vọng 2</span>
-                                                    <span className="value">{applicationData.majorName2}</span>
-                                                </div>
-                                            </Col>
                                         </Row>
                                         <Col className="d-flex justify-content-end">
                                             <Button
@@ -784,12 +742,8 @@ const ApplicationSearch = () => {
                                 <Row>
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
-                                            <span className="label">Nguyện vọng 1</span>
+                                            <span className="label">Nguyện vọng</span>
                                             <span className="value">{applicationData.majorName1}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Nguyện vọng 2</span>
-                                            <span className="value">{applicationData.majorName2}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Trạng thái hồ sơ</span>
@@ -816,7 +770,7 @@ const ApplicationSearch = () => {
                                     </Col>
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
-                                            <span className="label me-3">Trạng thái xét duyệt NV1</span>
+                                            <span className="label me-3">Trạng thái xét duyệt</span>
                                             <span className="value">
                                                 {applicationData.typeofStatusMajor1 === null
                                                     ? "Chờ xét duyệt"
@@ -827,20 +781,6 @@ const ApplicationSearch = () => {
                                                             : applicationData.typeofStatusMajor1 === 2
                                                                 ? "Đang xử lý"
                                                                 : ""}
-                                            </span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label me-3">Trạng thái xét duyệt NV2</span>
-                                            <span className="value">
-                                                {applicationData.typeofStatusMajor2 === null
-                                                    ? "Chờ xét duyệt"
-                                                    : applicationData.typeofStatusMajor2 === 0
-                                                        ? "Không đạt"
-                                                        : applicationData.typeofStatusMajor2 === 1
-                                                            ? "Đạt"
-                                                            : applicationData.typeofStatusMajor2 === 2
-                                                                ? "Đang xử lý"
-                                                                : "N/A"}
                                             </span>
                                         </div>
                                     </Col>

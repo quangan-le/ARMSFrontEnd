@@ -173,32 +173,15 @@ const Application = () => {
     // Ngành học
     const [majors, setMajors] = useState([]);
     const [selectedMajor1, setSelectedMajor1] = useState('');
-    const [selectedMajor2, setSelectedMajor2] = useState('');
-
     const [typeAdmissions1, setTypeAdmissions1] = useState([]);
-    const [typeAdmissions2, setTypeAdmissions2] = useState([]);
     const [selectedAdmissionType1, setSelectedAdmissionType1] = useState(null);
-    const [selectedAdmissionType2, setSelectedAdmissionType2] = useState(null);
-
     const [typeOfTranscriptMajor1, setTypeOfTranscriptMajor1] = useState(null);
-    const [typeOfTranscriptMajor2, setTypeOfTranscriptMajor2] = useState(null);
-
     const [subjectGroups1, setSubjectGroups1] = useState([]);
-    const [subjectGroups2, setSubjectGroups2] = useState([]);
     const [selectedGroupData1, setSelectedGroupData1] = useState(null);
-    const [selectedGroupData2, setSelectedGroupData2] = useState(null);
-
     const [showSubjectSelection1, setShowSubjectSelection1] = useState(false);
-    const [showSubjectSelection2, setShowSubjectSelection2] = useState(false);
-
     const [academicTranscriptsMajor1, setAcademicTranscriptsMajor1] = useState([]);
-    const [academicTranscriptsMajor2, setAcademicTranscriptsMajor2] = useState([]);
-
     // Form nhập điểm động
-    const [displayedFields, setDisplayedFields] = useState([]);
     const [displayedFields1, setDisplayedFields1] = useState([]);
-    const [displayedFields2, setDisplayedFields2] = useState([]);
-
     // Định nghĩa các state hiển thị ảnh học bạ cho từng kỳ
     const [showSemester1Year10, setShowSemester1Year10] = useState(false);
     const [showSemester2Year10, setShowSemester2Year10] = useState(false);
@@ -212,7 +195,6 @@ const Application = () => {
     const [showFinalYear12, setShowFinalYear12] = useState(false);
     // Ảnh bằng tốt nghiệp
     const [showGraduationImage1, setShowGraduationImage1] = useState(false);
-    const [showGraduationImage2, setShowGraduationImage2] = useState(false);
 
     const [formData, setFormData] = useState({
         fullname: "",
@@ -232,7 +214,6 @@ const Application = () => {
         phoneParents: "",
         campusId: "",
         major1: "",
-        major2: "",
         yearOfGraduation: "",
         schoolName: "",
         recipientResults: true,
@@ -241,7 +222,6 @@ const Application = () => {
         imgCitizenIdentification1: "",
         imgCitizenIdentification2: "",
         imgDiplomaMajor1: "",
-        imgDiplomaMajor2: "",
         imgpriority: "",
         imgAcademicTranscript1: "",
         imgAcademicTranscript2: "",
@@ -254,12 +234,9 @@ const Application = () => {
         imgAcademicTranscript9: "",
         typeOfDiplomaMajor1: null,
         typeOfTranscriptMajor1: null,
-        typeOfDiplomaMajor2: null,
-        typeOfTranscriptMajor2: null,
         priorityDetailPriorityID: null,
         campusName: "",
         academicTranscriptsMajor1: [],
-        academicTranscriptsMajor2: [],
     });
 
     // Lưu trữ ảnh tạm thời
@@ -268,7 +245,6 @@ const Application = () => {
         imgCitizenIdentification1: null,
         imgCitizenIdentification2: null,
         imgDiplomaMajor1: null,
-        imgDiplomaMajor2: null,
         imgAcademicTranscript1: null,
         imgAcademicTranscript2: null,
         imgAcademicTranscript3: null,
@@ -304,13 +280,6 @@ const Application = () => {
                 name: `${subject}_${field}`,
             }))
         );
-    };
-
-    // Hàm lấy các trường nhập điểm duy nhất từ hai loại xét học bạ
-    const getUniqueFields = (type1, type2) => {
-        const fields1 = fieldMapping[type1] || [];
-        const fields2 = fieldMapping[type2] || [];
-        return Array.from(new Set([...fields1, ...fields2]));
     };
 
     // Khi người dùng chọn cơ sở, cập nhật ngành học
@@ -359,17 +328,11 @@ const Application = () => {
                 campusName: selectedCampus.name,
             }));
             setSelectedMajor1('');
-            setSelectedMajor2('');
             setTypeAdmissions1([]);
-            setTypeAdmissions2([]);
             setSelectedAdmissionType1(null);
-            setSelectedAdmissionType2(null);
             setShowSubjectSelection1(false);
-            setShowSubjectSelection2(false);
             setSubjectGroups1([]);
-            setSubjectGroups2([]);
             setAcademicTranscriptsMajor1([]);
-            setAcademicTranscriptsMajor2([]);
 
             const fetchMajors = async () => {
                 try {
@@ -412,33 +375,6 @@ const Application = () => {
         }));
     };
 
-    // Khi người dùng chọn ngành cho nguyện vọng 2
-    const handleMajorChange2 = async (e) => {
-        const selectedMajorId = e.target.value;
-        setSelectedMajor2(selectedMajorId);
-        setSelectedAdmissionType2(null);
-        setDisplayedFields2([]);
-        setAcademicTranscriptsMajor2([]);
-        setDiplomaMajor2(null);
-
-        setShowGraduationImage2(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
-
-        const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
-        setTypeAdmissions2(selectedMajor?.typeAdmissions || []);
-        setShowSubjectSelection2(false);
-        setFormData(prevData => ({
-            ...prevData,
-            major2: selectedMajorId
-        }));
-
-        // Kiểm tra lỗi và cập nhật
-        const fieldError = await validateField("major2", selectedMajorId, tempImages, formData);
-        setFormErrors((prevErrors) => ({
-            ...prevErrors,
-            major2: fieldError, // Xóa lỗi nếu không có lỗi
-        }));
-    };
-
     // Khi chọn loại xét tuyển NV1
     const handleAdmissionTypeChange1 = async (e) => {
         const typeId = parseInt(e.target.value, 10);
@@ -472,38 +408,7 @@ const Application = () => {
             typeOfDiplomaMajor1: fieldError,
         }));
     };
-    // Khi chọn loại xét tuyển NV2
-    const handleAdmissionTypeChange2 = async (e) => {
-        const typeId = parseInt(e.target.value, 10);
-        setSelectedAdmissionType2(typeId);
-        setDisplayedFields2([]);
-        setAcademicTranscriptsMajor2([]);
-        setSelectedGroupData2([]);
 
-        const selectedMajor = majors.find((major) => major.majorID === selectedMajor2);
-        const selectedAdmissionType = selectedMajor?.typeAdmissions.find(admission => admission.typeDiploma === typeId);
-        const typeOfTranscript = selectedAdmissionType?.typeOfTranscript ?? null;
-
-        setTypeOfTranscriptMajor2(typeOfTranscript);
-        setFormData(prevData => ({
-            ...prevData,
-            typeOfDiplomaMajor2: typeId,
-            typeOfTranscriptMajor2: typeOfTranscript
-        }));
-
-        if (typeId === 3 || typeId === 5) {
-            setSubjectGroups2(selectedMajor?.subjectGroupDTOs || []);
-            setShowSubjectSelection2(true);
-        } else {
-            setShowSubjectSelection2(false);
-            setSubjectGroups2([]);
-        }
-        const fieldError = await validateField("typeOfDiplomaMajor2", typeId);
-        setFormErrors((prevErrors) => ({
-            ...prevErrors,
-            typeOfDiplomaMajor2: fieldError,
-        }));
-    };
 
     const handleSubjectGroupChange1 = (e) => {
         const selectedGroup = e.target.value;
@@ -548,47 +453,6 @@ const Application = () => {
         }
     };
 
-    const handleSubjectGroupChange2 = (e) => {
-        const selectedGroup = e.target.value;
-        const selectedGroupData = subjectGroups2.find(group => group.subjectGroup === selectedGroup);
-        if (selectedGroupData) {
-            setSelectedGroupData2(selectedGroupData);
-            setAcademicTranscriptsMajor2([]);
-            setDisplayedFields2([]);
-        } else {
-            setSelectedGroupData2(null);
-        }
-        // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
-        if (selectedAdmissionType2 === 5 && selectedGroupData) {
-            // Nếu chọn "Xét điểm thi THPT", chỉ hiển thị 3 ô nhập điểm cho 3 môn đã chọn
-            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
-
-            // Tạo các trường nhập điểm cho 3 môn của khối
-            let fieldIndex = 0;
-            const generatedFields = subjects.slice(0, 3).map(subject => ({
-                subject,
-                field: 'Điểm thi THPT',
-                name: `${subject}_${fieldIndex++}`,
-                columnWidthPercentage: 33,
-            }));
-
-            setDisplayedFields2(generatedFields);
-        } else if (selectedGroupData && typeOfTranscriptMajor2 !== null) {
-            // Nếu chọn loại xét tuyển học bạ (typeOfTranscript khác null)
-            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
-
-            // Tạo các trường nhập điểm theo cấu trúc học bạ
-            const generatedFields = generateScoreFields(subjects, typeOfTranscriptMajor2).map(field => {
-                // Xử lý logic độ rộng cột
-                const columnWidthPercentage = typeOfTranscriptMajor2 === 3 ? 20 : 33;
-                return { ...field, columnWidthPercentage };
-            });
-
-            setDisplayedFields2(generatedFields);
-        } else {
-            setDisplayedFields2([]);
-        }
-    };
     // Mảng ánh xạ thứ tự vị trí
     const indexMap = [
         [0, 3, 6, 9, 12],
@@ -662,86 +526,19 @@ const Application = () => {
         }
     };
 
-    // Xử lý thay đổi điểm cho nguyện vọng 2
-    const handleScoreChange2 = (e) => {
-        const { name, value } = e.target;
-        if (selectedAdmissionType2 === 5) {
-            // Trường hợp xét điểm thi THPT cho nguyện vọng 2
-            const [subject, index] = name.split("_");
-
-            setAcademicTranscriptsMajor2(prevTranscripts => {
-                const updatedTranscripts = [...prevTranscripts];
-
-                const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.typeOfAcademicTranscript === Number(index)
-                );
-
-                if (existingTranscriptIndex !== -1) {
-                    // Cập nhật điểm môn học đã tồn tại
-                    updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
-                } else {
-                    // Thêm mới điểm môn học vào `academicTranscriptsMajor2`
-                    updatedTranscripts.push({
-                        subjectName: subject,
-                        subjectPoint: Number(value),
-                        typeOfAcademicTranscript: Number(index)
-                    });
-                }
-
-                return updatedTranscripts;
-            });
-        } else {
-            // Trường hợp xét học bạ cho nguyện vọng 2
-            const [subject, field] = name.split("_");
-
-            // Lấy vị trí của Môn học trong tổ hợp đã chọn
-            const selectedSubjects = selectedGroupData2.subjectGroupName.split("–").map(sub => sub.trim());
-            const subjectIndex = selectedSubjects.indexOf(subject);
-
-            const fieldIndex = fieldMapping[typeOfTranscriptMajor2]?.indexOf(field);
-            if (subjectIndex === -1 || fieldIndex === -1) {
-                console.error("Subject or field not found in mappings");
-                return;
-            }
-
-            const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
-
-            setAcademicTranscriptsMajor2(prevTranscripts => {
-                const updatedTranscripts = [...prevTranscripts];
-
-                const existingTranscriptIndex = updatedTranscripts.findIndex(
-                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
-                );
-
-                if (existingTranscriptIndex !== -1) {
-                    updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
-                } else {
-                    updatedTranscripts.push({
-                        subjectName: subject,
-                        subjectPoint: Number(value),
-                        typeOfAcademicTranscript
-                    });
-                }
-
-                return updatedTranscripts;
-            });
-        }
+    // Hàm lấy các trường nhập điểm duy nhất từ hai loại xét học bạ
+    const getUniqueFields = (type1) => {
+        const fields1 = fieldMapping[type1] || [];
+        return Array.from(new Set(fields1));
     };
 
     useEffect(() => {
         const selectedMajor1Data = majors.find((major) => major.majorID === selectedMajor1);
-        const selectedMajor2Data = majors.find((major) => major.majorID === selectedMajor2);
-
         const selectedType1 = selectedMajor1Data?.typeAdmissions.find(
             (type) => type.typeDiploma === selectedAdmissionType1
         );
-        const selectedType2 = selectedMajor2Data?.typeAdmissions.find(
-            (type) => type.typeDiploma === selectedAdmissionType2
-        );
-
         // Cập nhật displayedFields dựa trên các loại xét học bạ đã chọn
-        const fields = getUniqueFields(selectedType1?.typeOfTranscript, selectedType2?.typeOfTranscript);
-        setDisplayedFields(fields);
+        const fields = getUniqueFields(selectedType1?.typeOfTranscript);
         // Xác định có cần hiện form nhập ảnh học bạ
         setShowSemester1Year10(fields.includes('HK1-10'));
         setShowSemester2Year10(fields.includes('HK2-10'));
@@ -751,7 +548,7 @@ const Application = () => {
         setShowFinalYear11(fields.includes('CN11'));
         setShowSemester1Year12(fields.includes('HK1-12'));
         setShowFinalYear12(fields.includes('CN12'));
-    }, [selectedAdmissionType1, selectedAdmissionType2, selectedMajor1, selectedMajor2, majors]);
+    }, [selectedAdmissionType1, selectedMajor1, majors]);
 
     // Thông tin ưu tiên
     const [priorityData, setPriorityData] = useState([]);
@@ -829,7 +626,6 @@ const Application = () => {
     const [frontCCCD, setFrontCCCD] = useState(null);
     const [backCCCD, setBackCCCD] = useState(null);
     const [diplomaMajor1, setDiplomaMajor1] = useState(null);
-    const [diplomaMajor2, setDiplomaMajor2] = useState(null);
 
     // Ảnh mặt trước
     const handleFrontCCCDChange = async (e) => {
@@ -879,9 +675,9 @@ const Application = () => {
         }
     };
     // Ảnh tốt nghiệp
-    const handleGraduationCertificateChange = async (e, isMajor1) => {
+    const handleGraduationCertificateChange = async (e) => {
         const file = e.target.files[0];
-        const key = isMajor1 ? "imgDiplomaMajor1" : "imgDiplomaMajor2";
+        const key = "imgDiplomaMajor1";
         if (file) {
             // Tạo URL object cho ảnh
             const objectURL = URL.createObjectURL(file);
@@ -891,12 +687,7 @@ const Application = () => {
                 [key]: file,
             };
             setTempImages(updatedTempImages);
-
-            if (isMajor1) {
-                setDiplomaMajor1(objectURL);  // setDiplomaMajor1 là state lưu URL cho ảnh ngành 1
-            } else {
-                setDiplomaMajor2(objectURL);  // setDiplomaMajor2 là state lưu URL cho ảnh ngành 2
-            }
+            setDiplomaMajor1(objectURL);
             const diplomaError = await validateField(key, null, updatedTempImages, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
@@ -909,13 +700,7 @@ const Application = () => {
                 [key]: null,
             };
             setTempImages(updatedTempImages);
-
-            // Xóa ảnh xem trước
-            if (isMajor1) {
-                setDiplomaMajor1(null); // Xóa ảnh ngành 1
-            } else {
-                setDiplomaMajor2(null); // Xóa ảnh ngành 2
-            }
+            setDiplomaMajor1(null);
             const diplomaError = await validateField(key, null, updatedTempImages, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
@@ -1110,26 +895,12 @@ const Application = () => {
                 break;
             case "major1":
                 if (!value) {
-                    error = "Ngành học Nguyện vọng 1 không được để trống.";
-                } else if (value === formData.major2) {
-                    error = "Ngành học Nguyện vọng 1 không được trùng với Nguyện vọng 2.";
-                }
-                break;
-            case "major2":
-                if (!value) {
-                    error = "Ngành học Nguyện vọng 2 không được để trống.";
-                } else if (value === formData.major1) {
-                    error = "Ngành học Nguyện vọng 2 không được trùng với Nguyện vọng 1.";
+                    error = "Ngành học không được để trống.";
                 }
                 break;
             case "typeOfDiplomaMajor1":
                 if (!value) {
-                    error = "Loại xét tuyển Nguyện vọng 1 không được để trống.";
-                }
-                break;
-            case "typeOfDiplomaMajor2":
-                if (!value) {
-                    error = "Loại xét tuyển Nguyện vọng 2 không được để trống.";
+                    error = "Loại xét tuyển không được để trống.";
                 }
                 break;
             case "academicTranscriptsMajor1":
@@ -1156,37 +927,6 @@ const Application = () => {
                                     !/^(10(\.0{1,2})?|[0-9](\.\d{1,2})?)$/.test(point);
                             });
                         });
-                        if (hasInvalidPoint) {
-                            error = "Điểm phải là số từ 0 đến 10, tối đa 2 chữ số thập phân.";
-                        }
-                    }
-                }
-                break;
-            case "academicTranscriptsMajor2":
-                if (selectedAdmissionType2 === 3 || selectedAdmissionType2 === 5) {
-                    if (!selectedGroupData2 || !selectedGroupData2.subjectGroup || !selectedGroupData2.subjectGroupName) {
-                        error = "Vui lòng chọn khối xét tuyển.";
-                    } else {
-                        const selectedSubjects = selectedGroupData2.subjectGroupName
-                            .split("–")
-                            .map(sub => sub.trim()); // Danh sách môn trong tổ hợp d
-
-                        const hasInvalidPoint = selectedSubjects.some((subject, subjectIndex) => {
-                            return fieldMapping[typeOfTranscriptMajor2]?.some((field, fieldIndex) => {
-                                const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
-
-                                const transcript = academicTranscriptsMajor2.find(
-                                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
-                                );
-
-                                const point = transcript?.subjectPoint;
-
-                                // Kiểm tra nếu điểm không hợp lệ
-                                return point === undefined || point === null ||
-                                    !/^(10(\.0{1,2})?|[0-9](\.\d{1,2})?)$/.test(point);
-                            });
-                        });
-
                         if (hasInvalidPoint) {
                             error = "Điểm phải là số từ 0 đến 10, tối đa 2 chữ số thập phân.";
                         }
@@ -1236,14 +976,6 @@ const Application = () => {
                     error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
                 }
                 break;
-
-            case "imgDiplomaMajor2":
-                if (!tempImages?.imgDiplomaMajor2) {
-                    error = "Ảnh bằng tốt nghiệp xét NV2 là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor2?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
             default:
                 break;
         }
@@ -1252,10 +984,6 @@ const Application = () => {
 
     const validateForm = async () => {
         const errors = {};
-        // Object.keys(formData).forEach((field) => {
-        //     const error = validateField(field, formData[field], tempImages, formData);
-        //     if (error) errors[field] = error;
-        // });
         for (const field of Object.keys(formData)) {
             const error = await validateField(field, formData[field], tempImages, formData);
             if (error) {
@@ -1301,25 +1029,8 @@ const Application = () => {
         // Khởi tạo updatedFormData với dữ liệu ban đầu
         const updatedFormData = {
             ...formData,
-            academicTranscriptsMajor1,
-            academicTranscriptsMajor2
+            academicTranscriptsMajor1
         };
-
-        // Duyệt qua các ảnh trong tempImages và upload
-        // for (const [key, file] of Object.entries(tempImages)) {
-        //     if (file) {
-        //         const folder = 'RegisterAdmission';
-        //         try {
-        //             // Upload ảnh và lấy URL
-        //             const url = await uploadImage(file, folder);
-
-        //             // Cập nhật updatedFormData với URL ảnh đã upload
-        //             updatedFormData[key] = url;
-        //         } catch (error) {
-        //             console.error(`Error uploading ${key}:`, error);
-        //         }
-        //     }
-        // }
         const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {
             if (file) {
                 const folder = 'RegisterAdmission';
@@ -1344,8 +1055,20 @@ const Application = () => {
         };
         try {
             const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
-            sessionStorage.setItem('admissionSuccess', 'true');
-            navigate('/tra-cuu-ho-so');
+            const spId = response.data.spId;
+            if (!spId) {
+                throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
+            }
+            sessionStorage.setItem('spId', spId);
+
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // Chuyển hướng sang trang thanh toán
+            const paymentUrl = paymentResponse.data.paymentUrl;
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+            } else {
+                toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
+            }
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
@@ -1353,6 +1076,7 @@ const Application = () => {
             } else {
                 toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
             }
+            sessionStorage.removeItem('spId');
         } finally {
             setIsLoading(false);
         }
@@ -1637,10 +1361,10 @@ const Application = () => {
                                 </Col>
                             </Row>
                             <Row>
-                                <h6 className='mt-2'>Nguyện vọng 1</h6>
+                                <h6 className='mt-2'>Nguyện vọng</h6>
                                 <Col md={3}>
                                     <Form.Group controlId="major1" className='mb-2'>
-                                        <Form.Label>Ngành học Nguyện vọng 1</Form.Label>
+                                        <Form.Label>Ngành học</Form.Label>
                                         <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
                                             <option value="">Chọn ngành</option>
                                             {majors.map(major => (
@@ -1656,7 +1380,7 @@ const Application = () => {
                                 {typeAdmissions1.length > 0 && (
                                     <Col md={3}>
                                         <Form.Group controlId="typeOfDiplomaMajor1" className='mb-2'>
-                                            <Form.Label>Loại xét tuyển Nguyện vọng 1</Form.Label>
+                                            <Form.Label>Loại xét tuyển</Form.Label>
                                             <Form.Control as="select"
                                                 value={selectedAdmissionType1 !== null && selectedAdmissionType1 !== undefined ? selectedAdmissionType1 : ''}
                                                 onChange={handleAdmissionTypeChange1}
@@ -1675,7 +1399,7 @@ const Application = () => {
 
                                 {showSubjectSelection1 && (
                                     <Row>
-                                        <Form.Label>Khối xét tuyển Nguyện vọng 1</Form.Label>
+                                        <Form.Label>Khối xét tuyển</Form.Label>
                                         <Col md={3}>
                                             <Form.Group controlId="subjectSelection1" className='mb-2'>
                                                 <Form.Control as="select"
@@ -1734,107 +1458,6 @@ const Application = () => {
                                                 </div>
                                             </Form.Group>
                                             {formErrors.academicTranscriptsMajor1 && <p className="error">{formErrors.academicTranscriptsMajor1}</p>}
-                                        </Col>
-                                    </Row>
-                                )}
-                            </Row>
-                            <Row className='mt-4'>
-                                <h6 className='mt-2'>Nguyện vọng 2</h6>
-                                <Col md={3}>
-                                    <Form.Group controlId="majorSelection2" className='mb-2'>
-                                        <Form.Label>Ngành học Nguyện vọng 2</Form.Label>
-                                        <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
-                                            <option value="">Chọn ngành</option>
-                                            {majors.map(major => (
-                                                <option key={major.majorID} value={major.majorID}>
-                                                    {major.majorName}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                        {formErrors.major2 && <p className="error">{formErrors.major2}</p>}
-                                    </Form.Group>
-                                </Col>
-
-                                {typeAdmissions2.length > 0 && (
-                                    <Col md={3}>
-                                        <Form.Group controlId="admissionTypeSelection2" className='mb-2'>
-                                            <Form.Label>Loại xét tuyển Nguyện vọng 2</Form.Label>
-                                            <Form.Control as="select"
-                                                value={selectedAdmissionType2 !== null && selectedAdmissionType2 !== undefined ? selectedAdmissionType2 : ''}
-                                                onChange={handleAdmissionTypeChange2}
-                                            >
-                                                <option value="">Chọn loại xét tuyển</option>
-                                                {typeAdmissions2.map((admission, index) => (
-                                                    <option key={index} value={admission.typeDiploma}>
-                                                        {TypeOfDiploma[admission.typeDiploma]}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                            {formErrors.typeOfDiplomaMajor2 && <p className="error">{formErrors.typeOfDiplomaMajor2}</p>}
-                                        </Form.Group>
-                                    </Col>
-                                )}
-                                {showSubjectSelection2 && (
-                                    <Row>
-                                        <Form.Label>Khối xét tuyển Nguyện vọng 2</Form.Label>
-                                        <Col md={3}>
-                                            <Form.Group controlId="subjectSelection2" className='mb-2'>
-                                                <Form.Control as="select"
-                                                    value={selectedGroupData2?.subjectGroup || ''}
-                                                    onChange={handleSubjectGroupChange2}
-                                                >
-                                                    <option value="">Chọn khối</option>
-                                                    {subjectGroups2.map(subject => (
-                                                        <option key={subject.subjectGroup} value={subject.subjectGroup}>
-                                                            {subject.subjectGroupName}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={9}>
-                                            <Form.Group controlId="subjectScores2" className="mb-2">
-                                                <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                    {displayedFields2.map((field, index) => {
-                                                        let transcript2;
-                                                        if (selectedAdmissionType2 === 5) {
-                                                            // Xét điểm THPT cho nguyện vọng 2
-                                                            const [subject, index] = field.name.split("_");
-
-                                                            transcript2 = academicTranscriptsMajor2.find(
-                                                                item => item.typeOfAcademicTranscript === Number(index)
-                                                            );
-                                                        } else {
-                                                            // Xét học bạ cho nguyện vọng 2
-                                                            const selectedSubjects2 = selectedGroupData2.subjectGroupName.split("–").map(sub => sub.trim());
-                                                            const subjectIndex2 = selectedSubjects2.indexOf(field.subject);
-                                                            const fieldIndex2 = fieldMapping[typeOfTranscriptMajor2]?.indexOf(field.name.split("_")[1]);
-
-                                                            // Tính toán typeOfAcademicTranscript cho nguyện vọng 2
-                                                            const typeOfAcademicTranscript2 =
-                                                                subjectIndex2 !== -1 && fieldIndex2 !== -1 ? indexMap[subjectIndex2][fieldIndex2] : null;
-
-                                                            transcript2 = academicTranscriptsMajor2.find(
-                                                                item => item.typeOfAcademicTranscript === typeOfAcademicTranscript2
-                                                            );
-                                                        }
-
-                                                        return (
-                                                            <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
-                                                                <Form.Control
-                                                                    className="mb-2"
-                                                                    type="number"
-                                                                    placeholder={`${field.subject} (${field.field})`}
-                                                                    name={field.name}
-                                                                    value={transcript2 ? transcript2.subjectPoint : ""}
-                                                                    onChange={handleScoreChange2}
-                                                                />
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </Form.Group>
-                                            {formErrors.academicTranscriptsMajor2 && <p className="error">{formErrors.academicTranscriptsMajor2}</p>}
                                         </Col>
                                     </Row>
                                 )}
@@ -2014,11 +1637,11 @@ const Application = () => {
                             {showGraduationImage1 && (
                                 <Col md={3} className='mt-2'>
                                     <Form.Group>
-                                        <Form.Label>Bằng tốt nghiệp xét NV1</Form.Label>
+                                        <Form.Label>Bằng tốt nghiệp xét tuyển</Form.Label>
                                         <Form.Control
                                             type="file"
                                             accept="image/*"
-                                            onChange={(e) => handleGraduationCertificateChange(e, true)}
+                                            onChange={handleGraduationCertificateChange}
                                             required
                                         />
                                         {diplomaMajor1 && (
@@ -2027,26 +1650,6 @@ const Application = () => {
                                             </div>
                                         )}
                                         {formErrors.imgDiplomaMajor1 && <p className="error">{formErrors.imgDiplomaMajor1}</p>}
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-                            {showGraduationImage2 && (
-                                <Col md={3} className='mt-2'>
-                                    <Form.Group>
-                                        <Form.Label>Bằng tốt nghiệp xét NV2</Form.Label>
-                                        <Form.Control
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleGraduationCertificateChange(e, false)}
-                                            required
-                                        />
-                                        {diplomaMajor2 && (
-                                            <div className="image-preview-container mt-2">
-                                                <img src={diplomaMajor2} alt="Bằng tốt nghiệp ngành 2" className="img-preview" />
-                                            </div>
-                                        )}
-                                        {formErrors.imgDiplomaMajor2 && <p className="error">{formErrors.imgDiplomaMajor2}</p>}
                                     </Form.Group>
                                 </Col>
                             )}

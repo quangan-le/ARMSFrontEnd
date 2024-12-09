@@ -98,8 +98,8 @@ const ApplicationSearch = () => {
                 return;
             }
             toast.success('Xác thực thành công!');
-            const dataResponse = await axios.post(
-                'https://localhost:5001/api/RegisterAdmission/search-register-admission',
+            const dataResponse = await api.post(
+                '/RegisterAdmission/search-register-admission',
                 { citizenIentificationNumber: cccd },
                 {
                     headers: {
@@ -308,7 +308,7 @@ const ApplicationSearch = () => {
 
         const selectedCampusPost = {
             campus: applicationData.campusId,
-            major: applicationData.typeofStatusMajor1 === 1 ? applicationData.major1 : applicationData.major2,
+            major: applicationData.typeofStatusMajor === 1 ? applicationData.major : applicationData.major,
         };
         try {
             const paymentResponse = await api.post('/VNPay/pay-admission', selectedCampusPost);
@@ -556,12 +556,12 @@ const ApplicationSearch = () => {
                                                 </div>
                                                 <div className="info-item">
                                                     <span className="label">Nguyện vọng</span>
-                                                    <span className="value">{applicationData.majorName1}</span>
+                                                    <span className="value">{applicationData.majorName}</span>
                                                 </div>
                                             </Col>
                                             <Col xs={12} md={6}>
-                                                {applicationData.academicTranscriptsMajor1 &&
-                                                    renderTable(applicationData.academicTranscriptsMajor1, applicationData.typeOfTranscriptMajor1)}
+                                                {applicationData.academicTranscriptsMajor &&
+                                                    renderTable(applicationData.academicTranscriptsMajor, applicationData.typeOfTranscriptMajor)}
                                             </Col>
                                             <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                             <Row>
@@ -587,19 +587,19 @@ const ApplicationSearch = () => {
                                                         <p className="image-title text-center mt-2">Bằng nộp xét tuyển</p>
                                                     </Col>
                                                 )}
-                                                {applicationData.imgAcademicTranscript1 && (
+                                                {applicationData.imgAcademicTranscript && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img
-                                                                src={applicationData.imgAcademicTranscript1}
-                                                                alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                                src={applicationData.imgAcademicTranscript}
+                                                                alt={(applicationData.typeOfDiplomaMajor === 4)
                                                                     ? "Bảng điểm"
                                                                     : "Ảnh học bạ HKI lớp 10"}
                                                                 className="img-fluid"
                                                             />
                                                         </div>
                                                         <p className="image-title text-center mt-2">
-                                                            {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                            {(applicationData.typeOfDiplomaMajor === 4)
                                                                 ? "Bảng điểm"
                                                                 : "Ảnh học bạ HKI - Lớp 10"}
                                                         </p>
@@ -719,15 +719,16 @@ const ApplicationSearch = () => {
                                                 variant="light"
                                                 onClick={handleEditClick}
                                                 className="btn-block bg-orange text-white me-3"
+                                                disabled={applicationData.typeofStatusProfile !== 0}
                                             >
                                                 Cập nhật hồ sơ
                                             </Button>
                                             <Button
                                                 variant="light"
                                                 onClick={handlePayment}
-                                                className="bg-orange text-white px-4 py-2"
+                                                className="bg-primary text-white px-4 py-2"
                                                 style={{ width: "auto" }}
-                                                disabled={applicationData.typeofStatusMajor1 === 7}
+                                                disabled={applicationData.typeofStatusProfile !== 7}
                                             >
                                                 Thanh toán phí đăng ký
                                             </Button>
@@ -743,7 +744,7 @@ const ApplicationSearch = () => {
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
                                             <span className="label">Nguyện vọng</span>
-                                            <span className="value">{applicationData.majorName1}</span>
+                                            <span className="value">{applicationData.majorName}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Trạng thái hồ sơ</span>
@@ -764,6 +765,8 @@ const ApplicationSearch = () => {
                                                                             ? "Đang xử lý nhập học"
                                                                             : applicationData.typeofStatusProfile === 6
                                                                                 ? "Hoàn thành"
+                                                                                : applicationData.typeofStatusProfile === 7
+                                                                                ? "Thanh toán lệ phí đăng ký"
                                                                                 : ""}
                                             </span>
                                         </div>
@@ -772,13 +775,13 @@ const ApplicationSearch = () => {
                                         <div className="info-item">
                                             <span className="label me-3">Trạng thái xét duyệt</span>
                                             <span className="value">
-                                                {applicationData.typeofStatusMajor1 === null
+                                                {applicationData.typeofStatusMajor === null
                                                     ? "Chờ xét duyệt"
-                                                    : applicationData.typeofStatusMajor1 === 0
+                                                    : applicationData.typeofStatusMajor === 0
                                                         ? "Không đạt"
-                                                        : applicationData.typeofStatusMajor1 === 1
+                                                        : applicationData.typeofStatusMajor === 1
                                                             ? "Đạt"
-                                                            : applicationData.typeofStatusMajor1 === 2
+                                                            : applicationData.typeofStatusMajor === 2
                                                                 ? "Đang xử lý"
                                                                 : ""}
                                             </span>

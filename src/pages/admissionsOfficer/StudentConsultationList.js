@@ -176,7 +176,7 @@ const StudentConsultationList = () => {
                     formData.append('file', file);
     
                     // Send the file using POST
-                    const response = await api.post('/SchoolService/StudentConsultation/upload-excel', formData, {
+                    const response = await api.post('/admin-officer/StudentConsultation/upload-excel', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
@@ -233,7 +233,7 @@ const StudentConsultationList = () => {
             <p className="text-center mb-4 text-orange fw-bold">Yêu cầu đăng ký tư vấn tuyển sinh cho học sinh </p>
             {/* Search and Filter */}
             <Row className="mb-3">
-                <Col xs={12} md={6}>
+                <Col xs={12} md={5}>
                     <Form.Group className="me-2 d-flex align-items-center">
                         <Form.Control
                             type="text"
@@ -243,7 +243,7 @@ const StudentConsultationList = () => {
                         />
                     </Form.Group>
                 </Col>
-                <Col xs={12} md={6} className="d-flex justify-content-end">
+                <Col xs={12} md={7} className="d-flex justify-content-end">
                     <Button
                         variant="primary"
                         className="text-white me-2"

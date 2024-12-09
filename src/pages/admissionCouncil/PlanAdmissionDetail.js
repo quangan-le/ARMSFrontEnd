@@ -360,7 +360,6 @@ const PlanAdmissionDetail = () => {
             const matchingGroup = subjectGroups.find(group => group.code === subjectGroupDTO.subjectGroup);
             return matchingGroup ? matchingGroup.id : null; // Nếu tìm thấy, lấy id, nếu không thì null
         }).filter(id => id !== null); // Lọc các id hợp lệ (không phải null)
-
         setSelectedSubjects(selectedIds);
         setMajorName(major.majorName);
         setMajorCode(major.majorCode);
@@ -388,7 +387,6 @@ const PlanAdmissionDetail = () => {
             console.error("Error updating major:", error);
         }
     };
-    
     return (
         <Container>
             <ToastContainer position="top-right" autoClose={3000} />
@@ -399,7 +397,8 @@ const PlanAdmissionDetail = () => {
                     <h4 className='text-orange'>I. Thông tin</h4>
                 </Col>
                 <Col md={2} className="d-flex justify-content-end align-items-end">
-                    <Button variant="orange" onClick={() => handleShowEditModal('I')}>
+
+                    <Button variant="warning" onClick={() => handleShowEditModal('I')}>
                         Chỉnh sửa
                     </Button>
                 </Col>
@@ -526,6 +525,7 @@ const PlanAdmissionDetail = () => {
                                             </Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
+
                                 </td>
                             </tr>
                         ))

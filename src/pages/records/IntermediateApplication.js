@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import uploadImage from '../../firebase/uploadImage.js';
 
 const IntermediateApplication = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         fullname: "",
         dob: "",
@@ -25,8 +26,7 @@ const IntermediateApplication = () => {
         fullnameParents: "",
         phoneParents: "",
         campusId: "",
-        major1: "",
-        major2: "",
+        major: "",
         yearOfGraduation: "",
         schoolName: "",
         recipientResults: true,
@@ -183,8 +183,7 @@ const IntermediateApplication = () => {
 
     // Ngành học
     const [majors, setMajors] = useState([]);
-    const [selectedMajor1, setSelectedMajor1] = useState('');
-    const [selectedMajor2, setSelectedMajor2] = useState('');
+    const [selectedMajor, setSelectedMajor] = useState('');
 
     // Cập nhật formData và ngành học khi selectedCampus thay đổi
     useEffect(() => {
@@ -194,9 +193,7 @@ const IntermediateApplication = () => {
                 campusId: selectedCampus.id,
                 campusName: selectedCampus.name,
             }));
-            setSelectedMajor1('');
-            setSelectedMajor2('');
-
+            setSelectedMajor('');
             const fetchMajors = async () => {
                 try {
                     const response = await api.get(`/Major/get-majors-college-for-vocational-school?campus=${selectedCampus.id}`);
@@ -210,21 +207,12 @@ const IntermediateApplication = () => {
     }, [selectedCampus]);
 
     // Khi người dùng chọn ngành cho nguyện vọng
-    const handleMajorChange1 = (e) => {
+    const handleMajorChange = (e) => {
         const selectedMajorId = e.target.value;
-        setSelectedMajor1(selectedMajorId);
+        setSelectedMajor(selectedMajorId);
         setFormData(prevData => ({
             ...prevData,
-            major1: selectedMajorId
-        }));
-    };
-    // Khi người dùng chọn ngành cho nguyện vọng
-    const handleMajorChange2 = (e) => {
-        const selectedMajorId = e.target.value;
-        setSelectedMajor2(selectedMajorId);
-        setFormData(prevData => ({
-            ...prevData,
-            major2: selectedMajorId
+            major: selectedMajorId
         }));
     };
 
@@ -318,8 +306,7 @@ const IntermediateApplication = () => {
             return;
         }
 
-        // Duyệt qua các ảnh trong tempImages và upload
-        for (const [key, file] of Object.entries(tempImages)) {
+        const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {
             if (file) {
                 const folder = 'RegisterAdmission';
                 try {
@@ -332,33 +319,43 @@ const IntermediateApplication = () => {
                     console.error(`Lỗi cập nhật ảnh lên firebase ${key}:`, error);
                 }
             }
-        }
+        });
+        await Promise.all(uploadPromises);
 
-        setLoadingMessage('Chuẩn bị thanh toán...');
-        //Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
-        sessionStorage.setItem('formData', JSON.stringify(formData));
+        //Cập nhật lại formData với các URL ảnh
+        setFormData(formData);
 
         const selectedCampusPost = {
             campus: selectedCampus.id
         };
         try {
-            // Gửi yêu cầu thanh toán đến VNPAY
-            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            // const paymentResponse = await axios.post(
-            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-register-admission',
-            //     selectedCampusPost
-            // );
-            const { paymentUrl } = paymentResponse.data;
+            const response = await api.post('/RegisterAdmission/add-register-admission', formData);
+            const spId = response.data.spId;
+            if (!spId) {
+                throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
+            }
+            sessionStorage.setItem('spId', spId);
 
-            // Chuyển hướng người dùng đến trang thanh toán của VNPAY
-            window.location.href = paymentUrl;
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // Chuyển hướng sang trang thanh toán
+            const paymentUrl = paymentResponse.data.paymentUrl;
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+            } else {
+                toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
+            }
         } catch (error) {
-            toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
+                toast.error(errorMessage);
+            } else {
+                toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
+            }
+            sessionStorage.removeItem('spId');
         } finally {
             setIsLoading(false);
         }
     };
-
 
     return (
         <div>
@@ -633,22 +630,9 @@ const IntermediateApplication = () => {
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mb-2">
-                                <Form.Group controlId="major1">
-                                    <Form.Label>Nguyện vọng 1</Form.Label>
-                                    <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
-                                        <option value="">Chọn ngành</option>
-                                        {majors.map(major => (
-                                            <option key={major.majorID} value={major.majorID}>
-                                                {major.majorName}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mb-2">
-                                <Form.Group controlId="major2">
-                                    <Form.Label>Nguyện vọng 2</Form.Label>
-                                    <Form.Control as="select" value={selectedMajor2} onChange={handleMajorChange2}>
+                                <Form.Group controlId="major">
+                                    <Form.Label>Nguyện vọng</Form.Label>
+                                    <Form.Control as="select" value={selectedMajor} onChange={handleMajorChange}>
                                         <option value="">Chọn ngành</option>
                                         {majors.map(major => (
                                             <option key={major.majorID} value={major.majorID}>
@@ -715,12 +699,12 @@ const IntermediateApplication = () => {
                         <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
                         <Row>
                             <Col md={6} className='mt-2'>
-                                <Form.Group controlId="recipient">
+                                <Form.Group controlId="recipientResults">
                                     <Form.Label>Người nhận</Form.Label>
                                     <Form.Check
                                         type="radio"
                                         label="Thí sinh"
-                                        name="recipient"
+                                        name="recipientResults"
                                         id="recipientResults"
                                         value="true"
                                         onChange={handleChange}
@@ -728,7 +712,7 @@ const IntermediateApplication = () => {
                                     <Form.Check
                                         type="radio"
                                         label="Phụ huynh/Người bảo trợ"
-                                        name="recipient"
+                                        name="recipientResults"
                                         id="recipientResults"
                                         value="false"
                                         className="pt-3"

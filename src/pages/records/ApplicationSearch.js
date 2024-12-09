@@ -1,37 +1,33 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Col, Container, Form, Modal, Row, Spinner } from 'react-bootstrap';
 import { Download } from 'react-bootstrap-icons';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../apiService';
 import uploadImage from '../../firebase/uploadImage.js';
+import ApplicationUpdate from './ApplicationUpdate.js';
 
 const ApplicationSearch = () => {
     const navigate = useNavigate();
     // Xử lý thông báo thanh toán
     useEffect(() => {
         // Kiểm tra cờ trong sessionStorage
-        const admissionSuccess = sessionStorage.getItem('admissionSuccess');
         const doneSuccess = sessionStorage.getItem('doneSuccess');
-
-        if (admissionSuccess) {
-            // Hiển thị toast thành công
-            toast.success('Đơn đã được gửi thành công!');
-
-            // Sử dụng setTimeout để xóa cờ sau khi toast hiển thị
-            const timeout = setTimeout(() => {
-                sessionStorage.removeItem('admissionSuccess');
-            }, 2000); // khoảng thời gian chờ (2000ms = 2 giây)
-
-            // Dọn dẹp timeout khi component unmount
-            return () => clearTimeout(timeout);
-        }
+        const spIdSuccess = sessionStorage.getItem('spIdSuccess');
         if (doneSuccess) {
             toast.success('Thanh toán phí nhập học thành công!');
             const timeout = setTimeout(() => {
                 sessionStorage.removeItem('doneSuccess');
+            }, 2000);
+            // Dọn dẹp timeout khi component unmount
+            return () => clearTimeout(timeout);
+        }
+        if (spIdSuccess) {
+            toast.success('Thanh toán phí đăng ký thành công!');
+            const timeout = setTimeout(() => {
+                sessionStorage.removeItem('spIdSuccess');
             }, 2000);
             // Dọn dẹp timeout khi component unmount
             return () => clearTimeout(timeout);
@@ -45,24 +41,27 @@ const ApplicationSearch = () => {
     const [email, setEmail] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [address, setAddress] = useState('');
-    const [majorName1, setMajorName1] = useState('');
-    const [majorName2, setMajorName2] = useState('');
+    const [isLoading, setIsLoading] = useState(false); // Trạng thái loading
 
     const handleClose = () => setShowModal(false);
     const handleShow = () => setShowModal(true);
 
     // Gửi OTP qua API
     const handleSendOtp = async () => {
+        setIsLoading(true);
         try {
             const response = await api.post('/RegisterAdmission/send-OTP', {
                 citizenIentificationNumber: cccd
             });
             setEmail(response.data.email);
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             toast.success(response.data.message);
             handleShow();
         } catch (error) {
             console.error('Lỗi khi gửi OTP:', error);
             toast.error('Không thể gửi mã OTP. Vui lòng kiểm tra lại số CCCD.');
+        } finally {
+            setIsLoading(false); // Kết thúc loading
         }
     };
     // Đoạn mã ẩn phần giữa của email
@@ -76,10 +75,10 @@ const ApplicationSearch = () => {
     const [currentStep, setCurrentStep] = useState(1); // Trạng thái theo dõi bước hiện tại
     const [maxStep, setMaxStep] = useState(null);
     // Hàm xác định tiến trình hiện tại
-    const getCurrentStep = (typeofStatusProfile, typeofStatusMajor1, typeofStatusMajor2) => {
+    const getCurrentStep = (typeofStatusProfile, typeofStatusMajor) => {
+        if (typeofStatusProfile === 7) return 1; // Kết quả xét tuyển
         if (typeofStatusProfile > 1) return 4; // Hồ sơ nhập học cuối cùng
-        if (typeofStatusProfile === 1 &&
-            (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 3; // Nhập học
+        if (typeofStatusProfile === 1 && typeofStatusMajor === 1) return 3; // Nhập học
         if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 2; // Kết quả xét tuyển
         return 1; // Hồ sơ xét tuyển
     };
@@ -99,8 +98,8 @@ const ApplicationSearch = () => {
                 return;
             }
             toast.success('Xác thực thành công!');
-            const dataResponse = await axios.post(
-                'https://localhost:5001/api/RegisterAdmission/search-register-admission',
+            const dataResponse = await api.post(
+                '/RegisterAdmission/search-register-admission',
                 { citizenIentificationNumber: cccd },
                 {
                     headers: {
@@ -108,11 +107,9 @@ const ApplicationSearch = () => {
                     }
                 }
             );
-            console.log(dataResponse.data);
             setApplicationData(dataResponse.data);
-            setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor1, dataResponse.data.typeofStatusMajor2));
+            setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor));
             handleClose(dataResponse.data);
-            console.log(dataResponse.data);
         } catch (error) {
             console.error('Lỗi xác thực OTP:', error);
             toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
@@ -274,6 +271,20 @@ const ApplicationSearch = () => {
             setSelectedEnrollmentForm(file);
         }
     };
+    const handlePayment = async () => {
+        const selectedCampusPost = {
+            campus: applicationData.campusId
+        };
+        sessionStorage.setItem('spId', applicationData.spId);
+        try {
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            window.location.href = paymentResponse.data.paymentUrl;
+        } catch (error) {
+            toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
+            sessionStorage.removeItem('spId');
+        }
+    };
+
     const handleEnrollmentSubmit = async () => {
         if (!selectedEnrollmentForm || !selectedBirthCertificate) {
             toast.error("Vui lòng tải lên đầy đủ Đơn nhập học và Giấy khai sinh.");
@@ -292,17 +303,13 @@ const ApplicationSearch = () => {
             birthCertificate: birthCertificateUrl,
         };
         sessionStorage.setItem('data', JSON.stringify(data));
+
         const selectedCampusPost = {
-            campus: applicationData.campusId
+            campus: applicationData.campusId,
+            major: applicationData.major,
         };
         try {
-            // Gửi yêu cầu thanh toán đến VNPAY
             const paymentResponse = await api.post('/VNPay/pay-admission', selectedCampusPost);
-            // const paymentResponse = await axios.post(
-            //     'https://roughy-finer-seemingly.ngrok-free.app/api/VNPay/pay-admission', selectedCampusPost
-            // );
-
-            // Chuyển hướng người dùng đến trang thanh toán của VNPAY
             window.location.href = paymentResponse.data.paymentUrl;
         } catch (error) {
             toast.error('Lỗi khi gửi yêu cầu thanh toán, vui lòng thử lại!');
@@ -330,6 +337,18 @@ const ApplicationSearch = () => {
         }
     }, [maxStep, selectedCampus.id]);
 
+    const [isEditing, setIsEditing] = useState(false);  // Trạng thái chỉnh sửa
+    const handleEditClick = () => {
+        setIsEditing(true);  // Hiển thị form chỉnh sửa
+    };
+    const handleCloseEdit = () => {
+        setIsEditing(false);  // Quay lại chế độ xem thông tin
+    };
+    // Callback sau khi chỉnh sửa thành công
+    const handleEditSuccess = () => {
+        setIsEditing(false);  // Chuyển về chế độ xem sau khi chỉnh sửa thành công
+    };
+
 
     return (
         <Container className="my-5">
@@ -353,15 +372,25 @@ const ApplicationSearch = () => {
                             value={cccd}
                             onChange={(e) => setCccd(e.target.value)}
                             className="flex-grow-1"
-                            disabled={!!applicationData}
+                            disabled={!!applicationData || isLoading}
                         />
                     </Col>
                     <Col xs={4} md={3} lg={2}>
                         <Button variant="light" onClick={handleSendOtp}
                             className="w-100 bg-orange text-white"
-                            disabled={!!applicationData}
+                            disabled={!!applicationData || isLoading || !cccd.trim()}
                         >
-                            Gửi OTP
+                            {isLoading ? (
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                />
+                            ) : (
+                                'Gửi OTP'
+                            )}
                         </Button>
                     </Col>
                 </Row>
@@ -442,275 +471,269 @@ const ApplicationSearch = () => {
                     <Card className="mt-4 px-md-5 px-3">
                         {currentStep === 1 && (
                             <Card.Body>
-                                <h4 className='text-orange mt-3'>Thông tin thí sinh</h4>
-                                <Row>
-                                    <Col xs={12} md={6}>
-                                        <div className="info-item">
-                                            <span className="label">Họ và tên</span>
-                                            <span className="value">{applicationData.fullname}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Giới tính</span>
-                                            <span className="value">{applicationData.gender ? 'Nam' : 'Nữ'}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Ngày sinh</span>
-                                            <span className="value">{new Date(applicationData.dob).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Dân tộc</span>
-                                            <span className="value">{applicationData.nation}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Số điện thoại</span>
-                                            <span className="value">{applicationData.phoneStudent}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Email</span>
-                                            <span className="value">{applicationData.emailStudent}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Số CMND/CCCD</span>
-                                            <span className="value">{applicationData.citizenIentificationNumber}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Ngày cấp</span>
-                                            <span className="value">{new Date(applicationData.ciDate).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Nơi cấp</span>
-                                            <span className="value">{applicationData.ciAddress}</span>
-                                        </div>
+                                {isEditing ? (
+                                    <ApplicationUpdate
+                                        applicationData={applicationData}
+                                        onEditSuccess={handleEditSuccess}  // Chuyển về trạng thái view
+                                        onCloseEdit={handleCloseEdit}      // Quay lại chế độ view khi nhấn Đóng
+                                    />
+                                ) : (
+                                    <div>
+                                        <h4 className='text-orange mt-3'>Thông tin thí sinh</h4>
+                                        <Row>
+                                            <Col xs={12} md={6}>
+                                                <div className="info-item">
+                                                    <span className="label">Họ và tên</span>
+                                                    <span className="value">{applicationData.fullname}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Giới tính</span>
+                                                    <span className="value">{applicationData.gender ? 'Nam' : 'Nữ'}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Ngày sinh</span>
+                                                    <span className="value">{new Date(applicationData.dob).toLocaleDateString()}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Dân tộc</span>
+                                                    <span className="value">{applicationData.nation}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Số điện thoại</span>
+                                                    <span className="value">{applicationData.phoneStudent}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Email</span>
+                                                    <span className="value">{applicationData.emailStudent}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Số CMND/CCCD</span>
+                                                    <span className="value">{applicationData.citizenIentificationNumber}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Ngày cấp</span>
+                                                    <span className="value">{new Date(applicationData.ciDate).toLocaleDateString()}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Nơi cấp</span>
+                                                    <span className="value">{applicationData.ciAddress}</span>
+                                                </div>
 
-                                    </Col>
-                                    <Col xs={12} md={6}>
-                                        <div className="info-item">
-                                            <span className="label">Họ và tên phụ huynh</span>
-                                            <span className="value">{applicationData.fullnameParents}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Số điện thoại phụ huynh</span>
-                                            <span className="value">{applicationData.phoneParents}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Địa chỉ thường trú</span>
-                                            <span className="value">{address}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Năm tốt nghiệp</span>
-                                            <span className="value">{applicationData.yearOfGraduation}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Trường tốt nghiệp</span>
-                                            <span className="value">{applicationData.schoolName}</span>
-                                        </div>
-                                    </Col>
-                                    <Col xs={12} md={6}>
-                                        <h5>Nguyện vọng 1</h5>
-                                        {applicationData.academicTranscriptsMajor1 ? (
-                                            renderTable(applicationData.academicTranscriptsMajor1, applicationData.typeOfTranscriptMajor1)
-                                        ) : (
-                                            <p>Không có dữ liệu điểm cho ngành 1</p>
-                                        )}
-                                    </Col>
+                                            </Col>
+                                            <Col xs={12} md={6}>
+                                                <div className="info-item">
+                                                    <span className="label">Họ và tên phụ huynh</span>
+                                                    <span className="value">{applicationData.fullnameParents}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Số điện thoại phụ huynh</span>
+                                                    <span className="value">{applicationData.phoneParents}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Địa chỉ thường trú</span>
+                                                    <span className="value">{address}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Năm tốt nghiệp</span>
+                                                    <span className="value">{applicationData.yearOfGraduation}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Trường tốt nghiệp</span>
+                                                    <span className="value">{applicationData.schoolName}</span>
+                                                </div>
+                                            </Col>
+                                            <h4 className='text-orange mt-2'>Thông tin xét tuyển</h4>
+                                            <Col xs={12} md={6}>
+                                                <div className="info-item">
+                                                    <span className="label">Cơ sở nhập học</span>
+                                                    <span className="value">
+                                                        {
+                                                            campuses.find(campus => campus.campusId === applicationData.campusId)?.campusName || "Tên cơ sở không có sẵn"
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label">Nguyện vọng</span>
+                                                    <span className="value">{applicationData.majorName}</span>
+                                                </div>
+                                            </Col>
+                                            <Col xs={12} md={6}>
+                                                {applicationData.academicTranscriptsMajor &&
+                                                    renderTable(applicationData.academicTranscriptsMajor, applicationData.typeOfTranscriptMajor)}
+                                            </Col>
+                                            <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
+                                            <Row>
+                                                <Col xs={6} sm={4} md={3} className="mb-2">
+                                                    <div className="image-container">
+                                                        <img src={applicationData.imgCitizenIdentification1} alt="Mặt trước CCCD" className="img-fluid" />
+                                                    </div>
+                                                    <p className="image-title text-center mt-2">Mặt trước CCCD</p>
 
-                                    <Col xs={12} md={6}>
-                                        <h5>Nguyện vọng 2</h5>
-                                        {applicationData.academicTranscriptsMajor2 ? (
-                                            renderTable(applicationData.academicTranscriptsMajor2, applicationData.typeOfTranscriptMajor2)
-                                        ) : (
-                                            <p>Không có dữ liệu điểm cho ngành 2</p>
-                                        )}
-                                    </Col>
-                                    <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
-                                    <Row>
-                                        <Col xs={6} sm={4} md={3} className="mb-2">
-                                            <div className="image-container">
-                                                <img src={applicationData.imgCitizenIdentification1} alt="Mặt trước CCCD" className="img-fluid" />
-                                            </div>
-                                            <p className="image-title text-center mt-2">Mặt trước CCCD</p>
+                                                </Col>
+                                                <Col xs={6} sm={4} md={3} className="mb-2">
+                                                    <div className="image-container">
+                                                        <img src={applicationData.imgCitizenIdentification2} alt="Mặt sau CCCD" className="img-fluid" />
+                                                    </div>
+                                                    <p className="image-title text-center mt-2">Mặt sau CCCD</p>
 
+                                                </Col>
+                                                {applicationData.imgDiplomaMajor && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgDiplomaMajor} alt="Bằng xét NV1" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Bằng nộp xét tuyển</p>
+                                                    </Col>
+                                                )}
+                                                {applicationData.imgAcademicTranscript1 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img
+                                                                src={applicationData.imgAcademicTranscript1}
+                                                                alt={(applicationData.typeOfDiplomaMajor === 4)
+                                                                    ? "Bảng điểm"
+                                                                    : "Ảnh học bạ HKI lớp 10"}
+                                                                className="img-fluid"
+                                                            />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">
+                                                            {(applicationData.typeOfDiplomaMajor === 4)
+                                                                ? "Bảng điểm"
+                                                                : "Ảnh học bạ HKI - Lớp 10"}
+                                                        </p>
+                                                    </Col>
+                                                )}
+                                                {applicationData.imgAcademicTranscript2 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript2} alt="Ảnh học bạ HKII lớp 10" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ HKII - Lớp 10</p>
+                                                    </Col>
+                                                )}
+
+                                                {applicationData.imgAcademicTranscript3 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript3} alt="Ảnh học bạ CN - Lớp 10" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ CN - Lớp 10</p>
+                                                    </Col>
+                                                )}
+
+                                                {applicationData.imgAcademicTranscript4 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript4} alt="Ảnh học bạ HKI - Lớp 11" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ HKI - Lớp 11</p>
+                                                    </Col>
+                                                )}
+
+                                                {applicationData.imgAcademicTranscript5 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript5} alt="Ảnh học bạ HKII - Lớp 11" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ HKII - Lớp 11</p>
+                                                    </Col>
+                                                )}
+
+                                                {applicationData.imgAcademicTranscript6 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript6} alt="Ảnh học bạ CN - Lớp 11" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ CN - Lớp 11</p>
+                                                    </Col>
+                                                )}
+
+                                                {applicationData.imgAcademicTranscript7 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript7} alt="Ảnh học bạ HKI - Lớp 12" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ HKI - Lớp 12</p>
+                                                    </Col>
+                                                )}
+
+                                                {applicationData.imgAcademicTranscript9 && (
+                                                    <Col xs={6} sm={4} md={3} className="mb-2">
+                                                        <div className="image-container">
+                                                            <img src={applicationData.imgAcademicTranscript9} alt="Ảnh học bạ CN - Lớp 12" className="img-fluid" />
+                                                        </div>
+                                                        <p className="image-title text-center mt-2">Ảnh học bạ CN - Lớp 12</p>
+                                                    </Col>
+                                                )}
+                                            </Row>
+                                            <h4 className='text-orange mt-3'>Thông tin ưu tiên</h4>
+                                            <Col xs={12} md={6}>
+                                                <div className="info-item">
+                                                    <span className="label">Đối tượng ưu tiên</span>
+                                                    <span className="value">
+                                                        {applicationData.priorityDetailPriorityID > 0
+                                                            ? applicationData.priorityDetail.priorityName
+                                                            : "Không thuộc diện ưu tiên"}
+                                                    </span>
+                                                </div>
+                                            </Col>
+                                            {applicationData.priorityDetailPriorityID > 0 && applicationData.imgpriority && (
+                                                <Col xs={12} md={6}>
+                                                    <div>
+                                                        <span className="label">Giấy tờ ưu tiên</span>
+                                                        <div>
+                                                            <img
+                                                                src={applicationData.imgpriority}
+                                                                alt="Giấy tờ ưu tiên"
+                                                                className="img-fluid"
+                                                                style={{ maxHeight: '200px', objectFit: 'contain' }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                            )}
+                                            <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
+                                            <Row>
+                                                <Col md={12}>
+                                                    <div className="info-item">
+                                                        <span className="label2">Người nhận</span>
+                                                        <span className="value">
+                                                            {applicationData.recipientResults ? "Thí sinh" : "Phụ huynh/Người bảo trợ"}
+                                                        </span>
+                                                    </div>
+                                                    <div className="info-item">
+                                                        <span className="label2">Địa chỉ nhận</span>
+                                                        <span className="value">
+                                                            {applicationData.permanentAddress
+                                                                ? address
+                                                                : applicationData.addressRecipientResults}
+                                                        </span>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+                                        </Row>
+                                        <Col className="d-flex justify-content-end">
+                                            {(applicationData.typeofStatusProfile === 0 || applicationData.typeofStatusProfile === 7) && (
+                                                <Button
+                                                    variant="light"
+                                                    onClick={handleEditClick}
+                                                    className="btn-block bg-orange text-white me-3"
+                                                >
+                                                    Cập nhật hồ sơ
+                                                </Button>
+                                            )}
+                                            <Button
+                                                variant="light"
+                                                onClick={handlePayment}
+                                                className="bg-primary text-white px-4 py-2"
+                                                style={{ width: "auto" }}
+                                                disabled={applicationData.typeofStatusProfile !== 7}
+                                            >
+                                                Thanh toán phí đăng ký
+                                            </Button>
                                         </Col>
-                                        <Col xs={6} sm={4} md={3} className="mb-2">
-                                            <div className="image-container">
-                                                <img src={applicationData.imgCitizenIdentification2} alt="Mặt sau CCCD" className="img-fluid" />
-                                            </div>
-                                            <p className="image-title text-center mt-2">Mặt sau CCCD</p>
-
-                                        </Col>
-                                        {applicationData.imgDiplomaMajor1 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgDiplomaMajor1} alt="Bằng xét NV1" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Bằng xét NV1</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgDiplomaMajor2 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgDiplomaMajor2} alt="Bằng xét NV2" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Bằng xét NV2</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript1 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img
-                                                        src={applicationData.imgAcademicTranscript1}
-                                                        alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
-                                                            ? "Bảng điểm"
-                                                            : "Ảnh học bạ HKI lớp 10"}
-                                                        className="img-fluid"
-                                                    />
-                                                </div>
-                                                <p className="image-title text-center mt-2">
-                                                    {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
-                                                        ? "Bảng điểm"
-                                                        : "Ảnh học bạ HKI - Lớp 10"}
-                                                </p>
-                                            </Col>
-                                        )}
-                                        {applicationData.imgAcademicTranscript2 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript2} alt="Ảnh học bạ HKII lớp 10" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ HKII - Lớp 10</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript3 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript3} alt="Ảnh học bạ CN - Lớp 10" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ CN - Lớp 10</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript4 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript4} alt="Ảnh học bạ HKI - Lớp 11" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ HKI - Lớp 11</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript5 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript5} alt="Ảnh học bạ HKII - Lớp 11" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ HKII - Lớp 11</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript6 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript6} alt="Ảnh học bạ CN - Lớp 11" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ CN - Lớp 11</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript7 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript7} alt="Ảnh học bạ HKI - Lớp 12" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ HKI - Lớp 12</p>
-                                            </Col>
-                                        )}
-
-                                        {applicationData.imgAcademicTranscript9 && (
-                                            <Col xs={6} sm={4} md={3} className="mb-2">
-                                                <div className="image-container">
-                                                    <img src={applicationData.imgAcademicTranscript9} alt="Ảnh học bạ CN - Lớp 12" className="img-fluid" />
-                                                </div>
-                                                <p className="image-title text-center mt-2">Ảnh học bạ CN - Lớp 12</p>
-                                            </Col>
-                                        )}
-                                    </Row>
-                                    <h4 className='text-orange mt-3'>Thông tin ưu tiên</h4>
-                                    <Col xs={12} md={6}>
-                                        <div className="info-item">
-                                            <span className="label">Đối tượng ưu tiên</span>
-                                            <span className="value">
-                                                {applicationData.priorityDetailPriorityID > 0
-                                                    ? applicationData.priorityDetail.priorityName
-                                                    : "Không thuộc diện ưu tiên"}
-                                            </span>
-                                        </div>
-                                    </Col>
-                                    {applicationData.priorityDetailPriorityID > 0 && applicationData.imgpriority && (
-                                        <Col xs={12} md={6}>
-                                            <div>
-                                                <span className="label">Giấy tờ ưu tiên</span>
-                                                <div>
-                                                    <img
-                                                        src={applicationData.imgpriority}
-                                                        alt="Giấy tờ ưu tiên"
-                                                        className="img-fluid"
-                                                        style={{ maxHeight: '200px', objectFit: 'contain' }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </Col>
-                                    )}
-                                    <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
-                                    <Row>
-                                        <Col md={12}>
-                                            <div className="info-item">
-                                                <span className="label2">Người nhận</span>
-                                                <span className="value">
-                                                    {applicationData.recipientResults ? "Thí sinh" : "Phụ huynh/Người bảo trợ"}
-                                                </span>
-                                            </div>
-                                            <div className="info-item">
-                                                <span className="label2">Địa chỉ nhận</span>
-                                                <span className="value">
-                                                    {applicationData.permanentAddress
-                                                        ? address
-                                                        : applicationData.addressRecipientResults}
-                                                </span>
-                                            </div>
-                                        </Col>
-                                    </Row>
-                                    <h4 className='text-orange mt-2'>Thông tin xét tuyển</h4>
-                                    <div className="info-item">
-                                        <span className="label2">Cơ sở nhập học</span>
-                                        <span className="value">
-                                            {
-                                                campuses.find(campus => campus.campusId === applicationData.campusId)?.campusName || "Tên cơ sở không có sẵn"
-                                            }
-                                        </span>
                                     </div>
-                                    <Col xs={12} md={6}>
-                                        <div className="info-item">
-                                            <span className="label">Nguyện vọng 1</span>
-                                            <span className="value">{applicationData.majorName1}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Nguyện vọng 2</span>
-                                            <span className="value">{applicationData.majorName2}</span>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Col className="d-flex justify-content-end">
-                                    <Button
-                                        variant="light"
-                                        onClick={() => navigate('/cap-nhat-ho-so')}
-                                        className="btn-block bg-orange text-white"
-                                    >
-                                        Cập nhật hồ sơ
-                                    </Button>
-                                </Col>
+                                )}
                             </Card.Body>
                         )}
                         {currentStep === 2 && (
@@ -719,12 +742,8 @@ const ApplicationSearch = () => {
                                 <Row>
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
-                                            <span className="label">Nguyện vọng 1</span>
-                                            <span className="value">{applicationData.majorName1}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label">Nguyện vọng 2</span>
-                                            <span className="value">{applicationData.majorName2}</span>
+                                            <span className="label">Nguyện vọng</span>
+                                            <span className="value">{applicationData.majorName}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Trạng thái hồ sơ</span>
@@ -751,31 +770,17 @@ const ApplicationSearch = () => {
                                     </Col>
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
-                                            <span className="label me-3">Trạng thái xét duyệt NV1</span>
+                                            <span className="label me-3">Trạng thái xét duyệt</span>
                                             <span className="value">
-                                                {applicationData.typeofStatusMajor1 === null
+                                                {applicationData.typeofStatusMajor === null
                                                     ? "Chờ xét duyệt"
-                                                    : applicationData.typeofStatusMajor1 === 0
+                                                    : applicationData.typeofStatusMajor === 0
                                                         ? "Không đạt"
-                                                        : applicationData.typeofStatusMajor1 === 1
+                                                        : applicationData.typeofStatusMajor === 1
                                                             ? "Đạt"
-                                                            : applicationData.typeofStatusMajor1 === 2
+                                                            : applicationData.typeofStatusMajor === 2
                                                                 ? "Đang xử lý"
                                                                 : ""}
-                                            </span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="label me-3">Trạng thái xét duyệt NV2</span>
-                                            <span className="value">
-                                                {applicationData.typeofStatusMajor2 === null
-                                                    ? "Chờ xét duyệt"
-                                                    : applicationData.typeofStatusMajor2 === 0
-                                                        ? "Không đạt"
-                                                        : applicationData.typeofStatusMajor2 === 1
-                                                            ? "Đạt"
-                                                            : applicationData.typeofStatusMajor2 === 2
-                                                                ? "Đang xử lý"
-                                                                : "N/A"}
                                             </span>
                                         </div>
                                     </Col>
@@ -831,7 +836,10 @@ const ApplicationSearch = () => {
                                             onClick={handleEnrollmentSubmit}
                                             className="bg-orange text-white px-4 py-2"
                                             style={{ width: "auto" }}
-                                            disabled={!!(applicationData.birthCertificate || applicationData.admissionForm)}
+                                            disabled={
+                                                !!(applicationData.birthCertificate || applicationData.admissionForm) ||
+                                                (applicationData.typeofStatusMajor === 0)
+                                            }
                                         >
                                             Gửi thông tin nhập học
                                         </Button>

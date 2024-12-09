@@ -8,6 +8,8 @@ import 'react-toastify/dist/ReactToastify.css';
 const Payment = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     // Hàm chuyển đổi định dạng ngày của VNPAY thành ISO-8601
     function formatVNPayDate(vnpDate) {
         if (!vnpDate || vnpDate.length !== 14) return null;
@@ -18,11 +20,21 @@ const Payment = () => {
     }
     // Xử lý thanh toán
     useEffect(() => {
-        // Lấy dữ liệu từ sessionStorage
-        const storedFormData = JSON.parse(sessionStorage.getItem('formData') ?? 'null'); // Thông tin đăng ký
-        const storedFormDataDone = JSON.parse(sessionStorage.getItem('data') ?? 'null'); // Hồ sơ nhập học
+         // Tránh xử lý nếu đã xử lý trước đó
+         if (sessionStorage.getItem('processingPayment') === 'true') {
+            console.log('Payment processing is already in progress.');
+            return;
+        }
 
-        if (!storedFormData && !storedFormDataDone) {
+        // Đánh dấu đang xử lý
+        sessionStorage.setItem('processingPayment', 'true');
+
+        // Lấy dữ liệu từ sessionStorage
+        const storedFormDataDone = JSON.parse(sessionStorage.getItem('data') ?? 'null'); // Hồ sơ nhập học
+        const spId = sessionStorage.getItem('spId') ?? null; // spId của đăng ký (chỉ là chuỗi)
+
+        if (!spId && !storedFormDataDone) {
+            sessionStorage.clear(); 
             navigate('/');
             return;
         }
@@ -44,24 +56,34 @@ const Payment = () => {
             isFeeRegister: true,
         };
 
-        const baseFormData = storedFormData || storedFormDataDone;
-        // Kết hợp dữ liệu baseFormData và payFeeAdmission
-        const updatedFormData = {
-            ...baseFormData,
-            payFeeAdmission,
-        };
-        console.log(updatedFormData);
-
         // Submit
         const submitApplication = async () => {
+            if (isSubmitting) return;
+            setIsSubmitting(true); // Bắt đầu gửi
+
+            // Kiểm tra trạng thái thành công trước đó
+            if (sessionStorage.getItem('spIdSuccess') || sessionStorage.getItem('doneSuccess')) {
+                console.log("Đã gửi trước đó, không gửi lại.");
+                return;
+            }
+
             try {
-                if (storedFormData) {
-                    const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+                if (spId) {
+                    const updatedFormData = {
+                        spId: spId,
+                        ...payFeeAdmission,
+                    };
+                    const response = await api.post('/RegisterAdmission/pay-register-admission', updatedFormData);
                     // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
-                    sessionStorage.setItem('admissionSuccess', 'true');
-                    sessionStorage.removeItem('formData');
+                    sessionStorage.setItem('spIdSuccess', 'true');
+                    sessionStorage.removeItem('spId');
 
                 } else if (storedFormDataDone) {
+                    const updatedFormData = {
+                        ...storedFormDataDone,
+                        payFeeAdmission,
+                    };
+
                     const response = await api.put('/RegisterAdmission/done-profile-admission', updatedFormData);
                     // Lưu cờ vào sessionStorage để báo rằng đơn đã được nộp thành công
                     sessionStorage.setItem('doneSuccess', 'true');
@@ -71,6 +93,9 @@ const Payment = () => {
             } catch (error) {
                 console.error('Lỗi khi gửi đơn:', error);
                 //toast.error('Gửi đơn thất bại, vui lòng thử lại!');
+            } finally {
+                setIsSubmitting(false);
+                sessionStorage.removeItem('processingPayment'); // Xóa cờ sau khi hoàn thành
             }
         };
 
@@ -79,11 +104,12 @@ const Payment = () => {
             submitApplication();
         } else {
             toast.error('Thanh toán không thành công. Vui lòng thử lại!');
+            sessionStorage.removeItem('processingPayment'); // Xóa cờ nếu thất bại
             setTimeout(() => {
-                navigate('/nop-ho-so'); 
-            }, 3000); 
+                navigate('/nop-ho-so');
+            }, 3000);
         }
-    }, [location, navigate]);
+    }, [location, navigate, isSubmitting]);
 
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>

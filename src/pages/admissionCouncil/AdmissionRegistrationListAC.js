@@ -62,6 +62,7 @@ const AdmissionRegistrationListAC = () => {
                             onChange={(e) => setSelectedTypeofStatus(e.target.value)}
                         >
                             <option value="">Trạng thái hồ sơ</option>
+                            <option value="7">Chờ thanh toán phí xét tuyển</option>
                             <option value="0">Đăng ký hồ sơ thành công</option>
                             <option value="1">Xác nhận hồ sơ đăng ký thành công</option>
                             <option value="2">Hồ sơ nhập học thành công</option>
@@ -104,21 +105,23 @@ const AdmissionRegistrationListAC = () => {
                                 </td>
                                 <td> {item.typeofStatusProfile === null
                                     ? "Chờ xét duyệt"
-                                    : item.typeofStatusProfile === 0
-                                        ? "Đăng ký hồ sơ thành công"
-                                        : item.typeofStatusProfile === 1
-                                            ? "Xác nhận đăng ký hồ sơ thành công"
-                                            : item.typeofStatusProfile === 2
-                                                ? "Hồ sơ nhập học thành công"
-                                                : item.typeofStatusProfile === 3
-                                                    ? "Xác nhận hồ sơ nhập học thành công"
-                                                    : item.typeofStatusProfile === 4
-                                                        ? "Chờ thanh toán phí nhập học"
-                                                        : item.typeofStatusProfile === 5
-                                                            ? "Đang xử lý nhập học"
-                                                            : item.typeofStatusProfile === 6
-                                                                ? "Hoàn thành"
-                                                                : ""}
+                                    : item.typeofStatusProfile === 7
+                                        ? "Chờ thanh toán phí xét tuyển"
+                                        : item.typeofStatusProfile === 0
+                                            ? "Đăng ký hồ sơ thành công"
+                                            : item.typeofStatusProfile === 1
+                                                ? "Xác nhận đăng ký hồ sơ thành công"
+                                                : item.typeofStatusProfile === 2
+                                                    ? "Hồ sơ nhập học thành công"
+                                                    : item.typeofStatusProfile === 3
+                                                        ? "Xác nhận hồ sơ nhập học thành công"
+                                                        : item.typeofStatusProfile === 4
+                                                            ? "Chờ thanh toán phí nhập học"
+                                                            : item.typeofStatusProfile === 5
+                                                                ? "Đang xử lý nhập học"
+                                                                : item.typeofStatusProfile === 6
+                                                                    ? "Hoàn thành"
+                                                                    : ""}
                                 </td>
                                 <td className="text-center">
                                     <Link to={`/admissions-council/chi-tiet-dang-ky-tuyen-sinh/${item.spId}`}>

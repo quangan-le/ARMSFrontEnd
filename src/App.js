@@ -37,9 +37,11 @@ import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
 import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
+import AdmissionRegistrationEdit from "./pages/admissionsOfficer/AdmissionRegistrationEdit.js";
 import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
 import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
 import StudentConsultationList from "./pages/admissionsOfficer/StudentConsultationList.js";
+import ChangePassword from "./pages/login/ChangePassword.js";
 import Payment from "./pages/records/Payment.js";
 import MajorsListView from "./pages/schoolService/MajorsListView.js";
 import NewsList from "./pages/schoolService/NewsList.js";
@@ -50,8 +52,6 @@ import StudentConsultation from "./pages/schoolService/StudentConsultationList.j
 import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
-import ChangePassword from "./pages/login/ChangePassword.js";
-import AdmissionRegistrationEdit from "./pages/admissionsOfficer/AdmissionRegistrationEdit.js";
 
 
 function App() {

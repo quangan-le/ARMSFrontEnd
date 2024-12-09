@@ -75,10 +75,10 @@ const ApplicationSearch = () => {
     const [currentStep, setCurrentStep] = useState(1); // Trạng thái theo dõi bước hiện tại
     const [maxStep, setMaxStep] = useState(null);
     // Hàm xác định tiến trình hiện tại
-    const getCurrentStep = (typeofStatusProfile, typeofStatusMajor1, typeofStatusMajor2) => {
+    const getCurrentStep = (typeofStatusProfile, typeofStatusMajor) => {
         if (typeofStatusProfile === 7) return 1; // Kết quả xét tuyển
         if (typeofStatusProfile > 1) return 4; // Hồ sơ nhập học cuối cùng
-        if (typeofStatusProfile === 1 && (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 3; // Nhập học
+        if (typeofStatusProfile === 1 && typeofStatusMajor === 1) return 3; // Nhập học
         if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 2; // Kết quả xét tuyển
         return 1; // Hồ sơ xét tuyển
     };
@@ -107,11 +107,9 @@ const ApplicationSearch = () => {
                     }
                 }
             );
-            console.log(dataResponse.data);
             setApplicationData(dataResponse.data);
-            setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor1, dataResponse.data.typeofStatusMajor2));
+            setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor));
             handleClose(dataResponse.data);
-            console.log(dataResponse.data);
         } catch (error) {
             console.error('Lỗi xác thực OTP:', error);
             toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
@@ -308,7 +306,7 @@ const ApplicationSearch = () => {
 
         const selectedCampusPost = {
             campus: applicationData.campusId,
-            major: applicationData.typeofStatusMajor === 1 ? applicationData.major : applicationData.major,
+            major: applicationData.major,
         };
         try {
             const paymentResponse = await api.post('/VNPay/pay-admission', selectedCampusPost);
@@ -579,19 +577,19 @@ const ApplicationSearch = () => {
                                                     <p className="image-title text-center mt-2">Mặt sau CCCD</p>
 
                                                 </Col>
-                                                {applicationData.imgDiplomaMajor1 && (
+                                                {applicationData.imgDiplomaMajor && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
-                                                            <img src={applicationData.imgDiplomaMajor1} alt="Bằng xét NV1" className="img-fluid" />
+                                                            <img src={applicationData.imgDiplomaMajor} alt="Bằng xét NV1" className="img-fluid" />
                                                         </div>
                                                         <p className="image-title text-center mt-2">Bằng nộp xét tuyển</p>
                                                     </Col>
                                                 )}
-                                                {applicationData.imgAcademicTranscript && (
+                                                {applicationData.imgAcademicTranscript1 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img
-                                                                src={applicationData.imgAcademicTranscript}
+                                                                src={applicationData.imgAcademicTranscript1}
                                                                 alt={(applicationData.typeOfDiplomaMajor === 4)
                                                                     ? "Bảng điểm"
                                                                     : "Ảnh học bạ HKI lớp 10"}
@@ -715,14 +713,15 @@ const ApplicationSearch = () => {
                                             </Row>
                                         </Row>
                                         <Col className="d-flex justify-content-end">
-                                            <Button
-                                                variant="light"
-                                                onClick={handleEditClick}
-                                                className="btn-block bg-orange text-white me-3"
-                                                disabled={applicationData.typeofStatusProfile !== 0}
-                                            >
-                                                Cập nhật hồ sơ
-                                            </Button>
+                                            {(applicationData.typeofStatusProfile === 0 || applicationData.typeofStatusProfile === 7) && (
+                                                <Button
+                                                    variant="light"
+                                                    onClick={handleEditClick}
+                                                    className="btn-block bg-orange text-white me-3"
+                                                >
+                                                    Cập nhật hồ sơ
+                                                </Button>
+                                            )}
                                             <Button
                                                 variant="light"
                                                 onClick={handlePayment}
@@ -765,8 +764,6 @@ const ApplicationSearch = () => {
                                                                             ? "Đang xử lý nhập học"
                                                                             : applicationData.typeofStatusProfile === 6
                                                                                 ? "Hoàn thành"
-                                                                                : applicationData.typeofStatusProfile === 7
-                                                                                ? "Thanh toán lệ phí đăng ký"
                                                                                 : ""}
                                             </span>
                                         </div>
@@ -841,7 +838,7 @@ const ApplicationSearch = () => {
                                             style={{ width: "auto" }}
                                             disabled={
                                                 !!(applicationData.birthCertificate || applicationData.admissionForm) ||
-                                                (applicationData.typeofStatusMajor1 === 0 && applicationData.typeofStatusMajor2 === 0)
+                                                (applicationData.typeofStatusMajor === 0)
                                             }
                                         >
                                             Gửi thông tin nhập học

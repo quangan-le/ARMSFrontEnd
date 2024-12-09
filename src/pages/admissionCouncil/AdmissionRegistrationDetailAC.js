@@ -31,20 +31,14 @@ const AdmissionRegistrationDetailAC = () => {
     // Fetch major details
     useEffect(() => {
         const fetchMajorDetails = async () => {
-            if (!applicationData || !applicationData.major1 || !applicationData.major2) return;
+            if (!applicationData) return;
+
             try {
-                const major1Response = await api.get(
-                    `/admission-council/Major/get-major-details?MajorId=${applicationData.major1}&AdmissionInformationID=${applicationData.aiId}`
+                const majorResponse = await api.get(
+                    `/admin-officer/Major/get-major-details?MajorId=${applicationData.major}&AdmissionInformationID=${applicationData.aiId}`
                 );
-                console.log(major1Response);
-
-                const major2Response = await api.get(
-                    `/admission-council/Major/get-major-details?MajorId=${applicationData.major2}&AdmissionInformationID=${applicationData.aiId}`
-                );
-
                 setMajorDetails({
-                    major1: major1Response.data,
-                    major2: major2Response.data,
+                    major: majorResponse.data,
                 });
             } catch (error) {
                 console.error("Lỗi lấy chi tiết ngành:", error);
@@ -102,13 +96,12 @@ const AdmissionRegistrationDetailAC = () => {
         [2, 5, 8, 11, 14],
     ];
 
-    const getSubjects = (isMajor1) => {
+    const getSubjects = () => {
         if (!applicationData?.academicTranscripts) {
             return [];
         }
 
         return applicationData.academicTranscripts
-            .filter((item) => item.isMajor1 === isMajor1)
             .filter((item) => item.typeOfAcademicTranscript < 3) // Lấy 3 môn đầu tiên
             .map((item) => ({
                 name: item.subjectName,
@@ -116,9 +109,9 @@ const AdmissionRegistrationDetailAC = () => {
             }));
     };
 
-    const renderTable = (isMajor1, typeOfTranscriptMajor) => {
+    const renderTable = (typeOfTranscriptMajor) => {
         // Lấy danh sách môn học
-        const subjects = getSubjects(isMajor1);
+        const subjects = getSubjects();
 
         // Lấy danh sách kỳ từ fieldMapping
         const periods = fieldMapping[typeOfTranscriptMajor];
@@ -140,7 +133,7 @@ const AdmissionRegistrationDetailAC = () => {
                             {periods.map((_, periodIndex) => {
                                 const index = indexMap[subject.baseIndex][periodIndex];
                                 const transcript = applicationData.academicTranscripts.find(
-                                    (item) => item.isMajor1 === isMajor1 && item.typeOfAcademicTranscript === index
+                                    (item) => item.typeOfAcademicTranscript === index
                                 );
                                 return <td key={periodIndex}>{transcript ? transcript.subjectPoint : "-"}</td>;
                             })}
@@ -179,16 +172,14 @@ const AdmissionRegistrationDetailAC = () => {
         fetchPriorityBonusPoint();
     }, [applicationData?.priorityDetailPriorityID]);
 
-    const calculateAverageScores = (isMajor1, typeOfDiplomaMajor) => {
+    const calculateAverageScores = (typeOfDiplomaMajor) => {
         if (!applicationData?.academicTranscripts) {
             return { averageScores: {}, totalAverageScore: 0 }; // Trả về mặc định
         }
 
         if (typeOfDiplomaMajor === 5) {
             // Xét điểm THPT
-            const subjects = applicationData.academicTranscripts.filter(
-                (item) => item.isMajor1 === isMajor1
-            );
+            const subjects = applicationData.academicTranscripts;
 
             const averageScores = {};
             subjects.forEach((item) => {
@@ -208,10 +199,7 @@ const AdmissionRegistrationDetailAC = () => {
             return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         } else {
             // Xét học bạ (typeOfDiplomaMajor == 3)
-            // Lọc các môn học liên quan đến isMajor1
-            const subjects = applicationData.academicTranscripts.filter(
-                (item) => item.isMajor1 === isMajor1
-            );
+            const subjects = applicationData.academicTranscripts;
 
             // Tạo một object để lưu điểm của từng môn
             const scoresBySubject = {};
@@ -242,14 +230,8 @@ const AdmissionRegistrationDetailAC = () => {
         }
     };
 
-    const major1Results = calculateAverageScores(
-        true,
-        applicationData?.typeOfDiplomaMajor1 ?? null
-    );
-    const major2Results = calculateAverageScores(
-        false,
-        applicationData?.typeOfDiplomaMajor2 ?? null
-    );
+    const majorResults = calculateAverageScores(applicationData?.typeOfDiplomaMajor ?? null);
+
     const getHeaderTitle = (typeOfDiplomaMajor) => {
         return typeOfDiplomaMajor === 5 ? "Điểm" : "Điểm trung bình";
     };
@@ -389,25 +371,25 @@ const AdmissionRegistrationDetailAC = () => {
                                 </Col>
 
                                 <Col xs={12} md={6}>
-                                    {applicationData.typeOfDiplomaMajor1 === 3 &&
-                                        applicationData.typeOfTranscriptMajor1 !== undefined && (
+                                    {applicationData.typeOfDiplomaMajor === 3 &&
+                                        applicationData.typeOfTranscriptMajor !== undefined && (
                                             <>
-                                                <h6>Bảng điểm xét nguyện vọng 1</h6>
-                                                {renderTable(true, applicationData.typeOfTranscriptMajor1)}
+                                                <h6>Bảng điểm xét tuyển</h6>
+                                                {renderTable(true, applicationData.typeOfTranscriptMajor)}
                                             </>
                                         )}
-                                    {(applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5) && (
+                                    {(applicationData.typeOfDiplomaMajor === 3 || applicationData.typeOfDiplomaMajor === 5) && (
                                         <>
-                                            <h6>Tổng điểm xét tuyển nguyện vọng 1</h6>
+                                            <h6>Tổng điểm xét tuyển</h6>
                                             <table className="table table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th>Môn học</th>
-                                                        <th>{getHeaderTitle(applicationData.typeOfDiplomaMajor1)}</th>
+                                                        <th>{getHeaderTitle(applicationData.typeOfDiplomaMajor)}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {Object.entries(major1Results.averageScores).map(([subject, avg], index) => (
+                                                    {Object.entries(majorResults.averageScores).map(([subject, avg], index) => (
                                                         <tr key={index}>
                                                             <td>{subject}</td>
                                                             <td>{avg}</td>
@@ -423,26 +405,26 @@ const AdmissionRegistrationDetailAC = () => {
                                                     )}
                                                     <tr>
                                                         <td><strong>Tổng điểm xét tuyển</strong></td>
-                                                        <td>{major1Results.totalAverageScore}</td>
+                                                        <td>{majorResults.totalAverageScore}</td>
                                                     </tr>
                                                     <tr>
                                                         <td><strong>Điểm chuẩn</strong></td>
                                                         <td>
-                                                            {majorDetails?.major1 && (
-                                                                applicationData.typeOfDiplomaMajor1 === 5
-                                                                    ? majorDetails.major1.totalScore
-                                                                    : majorDetails.major1.totalScoreAcademic
+                                                            {majorDetails?.major && (
+                                                                applicationData.typeOfDiplomaMajor === 5
+                                                                    ? majorDetails.major.totalScore
+                                                                    : majorDetails.major.totalScoreAcademic
                                                             )}
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td><strong>Kết quả</strong></td>
                                                         <td>
-                                                            {majorDetails?.major1 && (
-                                                                parseFloat(major1Results.totalAverageScore) >=
-                                                                    (applicationData.typeOfDiplomaMajor1 === 5
-                                                                        ? majorDetails.major1.totalScore
-                                                                        : majorDetails.major1.totalScoreAcademic)
+                                                            {majorDetails?.major && (
+                                                                parseFloat(majorResults.totalAverageScore) >=
+                                                                    (applicationData.typeOfDiplomaMajor === 5
+                                                                        ? majorDetails.major.totalScore
+                                                                        : majorDetails.major.totalScoreAcademic)
                                                                     ? "Đạt"
                                                                     : "Không đạt"
                                                             )}
@@ -454,69 +436,7 @@ const AdmissionRegistrationDetailAC = () => {
                                     )}
                                 </Col>
                                 <Col xs={12} md={6}>
-                                    {applicationData.typeOfDiplomaMajor2 === 3 &&
-                                        applicationData.typeOfTranscriptMajor2 !== undefined && (
-                                            <>
-                                                <h6>Bảng điểm xét nguyện vọng 2</h6>
-                                                {renderTable(false, applicationData.typeOfTranscriptMajor2)}
-                                            </>
-                                        )}
-                                    {(applicationData.typeOfDiplomaMajor2 === 3 || applicationData.typeOfDiplomaMajor2 === 5) && (
-                                        <>
-                                            <h6>Tổng điểm xét tuyển nguyện vọng 2</h6>
-                                            <table className="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Môn học</th>
-                                                        <th>{getHeaderTitle(applicationData.typeOfDiplomaMajor2)}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {Object.entries(major2Results.averageScores).map(([subject, avg], index) => (
-                                                        <tr key={index}>
-                                                            <td>{subject}</td>
-                                                            <td>{avg}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                                <tfoot>
-                                                    {applicationData.priorityDetailPriorityID && (
-                                                        <tr>
-                                                            <td><strong>Điểm ưu tiên</strong></td>
-                                                            <td>{bonusPoint !== null ? bonusPoint : 'Không có điểm ưu tiên'}</td>
-                                                        </tr>
-                                                    )}
-                                                    <tr>
-                                                        <td><strong>Tổng điểm xét tuyển</strong></td>
-                                                        <td>{major2Results.totalAverageScore}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Điểm chuẩn</strong></td>
-                                                        <td>
-                                                            {majorDetails?.major2 && (
-                                                                applicationData.typeOfDiplomaMajor2 === 5
-                                                                    ? majorDetails.major2.totalScore
-                                                                    : majorDetails.major2.totalScoreAcademic
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Kết quả</strong></td>
-                                                        <td>
-                                                            {majorDetails?.major2 && (
-                                                                parseFloat(major2Results.totalAverageScore) >=
-                                                                    (applicationData.typeOfDiplomaMajor2 === 5
-                                                                        ? majorDetails.major2.totalScore
-                                                                        : majorDetails.major2.totalScoreAcademic)
-                                                                    ? "Đạt"
-                                                                    : "Không đạt"
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </>
-                                    )}
+                                 
                                 </Col>
                                 <span className="label my-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                 <Row>
@@ -534,21 +454,12 @@ const AdmissionRegistrationDetailAC = () => {
                                         <p className="image-title text-center mt-2">Mặt sau CCCD</p>
 
                                     </Col>
-                                    {applicationData.imgDiplomaMajor1 && (
+                                    {applicationData.imgDiplomaMajor && (
                                         <Col xs={6} sm={4} md={3} className="mb-2">
                                             <div className="image-container">
-                                                <img src={applicationData.imgDiplomaMajor1} alt="Bằng xét NV1" className="img-fluid" />
+                                                <img src={applicationData.imgDiplomaMajor} alt="Bằng xét tuyển" className="img-fluid" />
                                             </div>
-                                            <p className="image-title text-center mt-2">Bằng xét NV1</p>
-                                        </Col>
-                                    )}
-
-                                    {applicationData.imgDiplomaMajor2 && (
-                                        <Col xs={6} sm={4} md={3} className="mb-2">
-                                            <div className="image-container">
-                                                <img src={applicationData.imgDiplomaMajor2} alt="Bằng xét NV2" className="img-fluid" />
-                                            </div>
-                                            <p className="image-title text-center mt-2">Bằng xét NV2</p>
+                                            <p className="image-title text-center mt-2">Bằng xét tuyển</p>
                                         </Col>
                                     )}
                                     {applicationData.imgAcademicTranscript1 && (
@@ -556,14 +467,14 @@ const AdmissionRegistrationDetailAC = () => {
                                             <div className="image-container">
                                                 <img
                                                     src={applicationData.imgAcademicTranscript1}
-                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                    alt={(applicationData.typeOfDiplomaMajor === 4)
                                                         ? "Bảng điểm"
                                                         : "Ảnh học bạ HKI lớp 10"}
                                                     className="img-fluid"
                                                 />
                                             </div>
                                             <p className="image-title text-center mt-2">
-                                                {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                {(applicationData.typeOfDiplomaMajor === 4)
                                                     ? "Bảng điểm"
                                                     : "Ảnh học bạ HKI - Lớp 10"}
                                             </p>
@@ -685,12 +596,8 @@ const AdmissionRegistrationDetailAC = () => {
                                 </div>
                                 <Col xs={12} md={5}>
                                     <div className="info-item">
-                                        <span className="label">Nguyện vọng 1</span>
-                                        <span className="value">{applicationData.majorName1}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">Nguyện vọng 2</span>
-                                        <span className="value">{applicationData.majorName2}</span>
+                                        <span className="label">Nguyện vọng</span>
+                                        <span className="value">{applicationData.majorName}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Trạng thái hồ sơ</span>
@@ -719,44 +626,28 @@ const AdmissionRegistrationDetailAC = () => {
                                 </Col>
                                 <Col xs={12} md={4}>
                                     <div className="info-item">
-                                        <span className="label me-3 text-nowrap">Trạng thái xét duyệt NV1</span>
+                                        <span className="label me-3 text-nowrap">Trạng thái xét duyệt</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusMajor1 === null
+                                            {applicationData.typeofStatusMajor === null
                                                 ? ""
-                                                : applicationData.typeofStatusMajor1 === 0
+                                                : applicationData.typeofStatusMajor === 0
                                                     ? "Từ chối"
-                                                    : applicationData.typeofStatusMajor1 === 1
+                                                    : applicationData.typeofStatusMajor === 1
                                                         ? "Đã duyệt"
-                                                        : applicationData.typeofStatusMajor1 === 2
+                                                        : applicationData.typeofStatusMajor === 2
                                                             ? "Đang xử lý"
-                                                            : applicationData.typeofStatusMajor1 === 3
-                                                                ? "N/A"
-                                                                : ""}
-                                        </span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label me-3 text-nowrap">Trạng thái xét duyệt NV2</span>
-                                        <span className="value">
-                                            {applicationData.typeofStatusMajor2 === null
-                                                ? ""
-                                                : applicationData.typeofStatusMajor2 === 0
-                                                    ? "Từ chối"
-                                                    : applicationData.typeofStatusMajor2 === 1
-                                                        ? "Đã duyệt"
-                                                        : applicationData.typeofStatusMajor2 === 2
-                                                            ? "Đang xử lý"
-                                                            : applicationData.typeofStatusMajor2 === 3
+                                                            : applicationData.typeofStatusMajor === 3
                                                                 ? "N/A"
                                                                 : ""}
                                         </span>
                                     </div>
                                 </Col>
-                                <Col xs={12} md={3}>
-                                    {applicationData.typeofStatusProfile === 1 && majorDetails && majorDetails.major1 && majorDetails.major2 && (
+                                {/* <Col xs={12} md={3}>
+                                    {applicationData.typeofStatusProfile === 1 && majorDetails && majorDetails.major && (
                                         <>
-                                            {/* Nguyện vọng 1 */}
+                                            {/* Nguyện vọng 1 *
                                             <div>
-                                                {/* Chỉ kiểm tra điểm nếu typeOfDiplomaMajor1 là 3 hoặc 5 */}
+                                                {/* Chỉ kiểm tra điểm nếu typeOfDiplomaMajor1 là 3 hoặc 5 *
                                                 {applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5 ? (
                                                     major1Results.totalAverageScore >=
                                                         (applicationData.typeOfDiplomaMajor1 === 5
@@ -787,7 +678,7 @@ const AdmissionRegistrationDetailAC = () => {
                                             </div>
                                             {failNV1 !== null && (
                                                 <div>
-                                                    {/* Chỉ kiểm tra điểm nếu typeOfDiplomaMajor2 là 3 hoặc 5 */}
+                                                    {/* Chỉ kiểm tra điểm nếu typeOfDiplomaMajor2 là 3 hoặc 5 *
                                                     {applicationData.typeOfDiplomaMajor2 === 3 || applicationData.typeOfDiplomaMajor2 === 5 ? (
                                                         major2Results.totalAverageScore >=
                                                             (applicationData.typeOfDiplomaMajor2 === 5
@@ -819,7 +710,7 @@ const AdmissionRegistrationDetailAC = () => {
                                             )}
                                         </>
                                     )}
-                                </Col>
+                                </Col> */}
                                 <h4 className='text-orange mb-2'>Hồ sơ nhập học</h4>
                                 <Col md={6}>
                                     {applicationData.admissionForm ? (

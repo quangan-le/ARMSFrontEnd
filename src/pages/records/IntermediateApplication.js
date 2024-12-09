@@ -26,7 +26,7 @@ const IntermediateApplication = () => {
         fullnameParents: "",
         phoneParents: "",
         campusId: "",
-        major1: "",
+        major: "",
         yearOfGraduation: "",
         schoolName: "",
         recipientResults: true,
@@ -183,7 +183,7 @@ const IntermediateApplication = () => {
 
     // Ngành học
     const [majors, setMajors] = useState([]);
-    const [selectedMajor1, setSelectedMajor1] = useState('');
+    const [selectedMajor, setSelectedMajor] = useState('');
 
     // Cập nhật formData và ngành học khi selectedCampus thay đổi
     useEffect(() => {
@@ -193,7 +193,7 @@ const IntermediateApplication = () => {
                 campusId: selectedCampus.id,
                 campusName: selectedCampus.name,
             }));
-            setSelectedMajor1('');
+            setSelectedMajor('');
             const fetchMajors = async () => {
                 try {
                     const response = await api.get(`/Major/get-majors-college-for-vocational-school?campus=${selectedCampus.id}`);
@@ -207,12 +207,12 @@ const IntermediateApplication = () => {
     }, [selectedCampus]);
 
     // Khi người dùng chọn ngành cho nguyện vọng
-    const handleMajorChange1 = (e) => {
+    const handleMajorChange = (e) => {
         const selectedMajorId = e.target.value;
-        setSelectedMajor1(selectedMajorId);
+        setSelectedMajor(selectedMajorId);
         setFormData(prevData => ({
             ...prevData,
-            major1: selectedMajorId
+            major: selectedMajorId
         }));
     };
 
@@ -630,9 +630,9 @@ const IntermediateApplication = () => {
                                 </Form.Group>
                             </Col>
                             <Col md={3} className="mb-2">
-                                <Form.Group controlId="major1">
+                                <Form.Group controlId="major">
                                     <Form.Label>Nguyện vọng</Form.Label>
-                                    <Form.Control as="select" value={selectedMajor1} onChange={handleMajorChange1}>
+                                    <Form.Control as="select" value={selectedMajor} onChange={handleMajorChange}>
                                         <option value="">Chọn ngành</option>
                                         {majors.map(major => (
                                             <option key={major.majorID} value={major.majorID}>

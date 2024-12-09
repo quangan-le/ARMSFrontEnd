@@ -932,7 +932,7 @@ const Application = () => {
 
             case "imgDiplomaMajor":
                 if (!tempImages?.imgDiplomaMajor) {
-                    error = "Ảnh bằng tốt nghiệp xét NV1 là bắt buộc.";
+                    error = "Ảnh bằng tốt nghiệp xét tuyển là bắt buộc.";
                 } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor?.type)) {
                     error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
                 }
@@ -1607,7 +1607,7 @@ const Application = () => {
                                         />
                                         {diplomaMajor && (
                                             <div className="image-preview-container mt-2">
-                                                <img src={diplomaMajor} alt="Bằng tốt nghiệp ngành 1" className="img-preview" />
+                                                <img src={diplomaMajor} alt="Bằng tốt nghiệp" className="img-preview" />
                                             </div>
                                         )}
                                         {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}

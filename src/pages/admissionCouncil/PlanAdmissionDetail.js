@@ -167,7 +167,16 @@ const PlanAdmissionDetail = () => {
 
     });
     const handleShowModalCreate = () => setShowModalCreate(true);
-    const handleCloseModalCreate = () => setShowModalCreate(false);
+    const handleCloseModalCreate = () => {
+        setShowModalCreate(false);
+        setFormData({ // Reset form data to initial state
+          admissionTimeName: "",
+          startRegister: "",
+          endRegister: "",
+          startAdmission: "",
+          endAdmission: "",
+        });
+      };
     const handleCreateChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -175,7 +184,6 @@ const PlanAdmissionDetail = () => {
             [name]: value,
         }));
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formDataWithCampusId = {
@@ -188,16 +196,15 @@ const PlanAdmissionDetail = () => {
                 "/admission-council/AdmissionTime/add-admission-time",
                 formDataWithCampusId
             );
-            toast.success("Thêm đợt tuyển sinh thành công!");
+            if(response.data.status===true){
+                toast.success("Thêm đợt tuyển sinh thành công!");
+            } else if(response.data.status===false){
+                toast.error(response.data.message);
+            }
             handleCloseModalCreate();
             fetchAdmissionData();
         } catch (error) {
-            // if (error.response && error.response.data) {
-            //     const errorMessage = error.response.data.message || 'Đã xảy ra lỗi khi tạo mới!';
-            //     toast.error(errorMessage);
-            // } else {
-            //     toast.error("Thêm đợt tuyển sinh thất bại!");
-            // }
+            toast.error(error.response.data.message);
             console.error("Lỗi khi thêm đợt tuyển sinh:", error);
         }
     };

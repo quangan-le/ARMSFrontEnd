@@ -75,10 +75,10 @@ const ApplicationSearch = () => {
     const [currentStep, setCurrentStep] = useState(1); // Trạng thái theo dõi bước hiện tại
     const [maxStep, setMaxStep] = useState(null);
     // Hàm xác định tiến trình hiện tại
-    const getCurrentStep = (typeofStatusProfile, typeofStatusMajor1, typeofStatusMajor2) => {
+    const getCurrentStep = (typeofStatusProfile, typeofStatusMajor) => {
         if (typeofStatusProfile === 7) return 1; // Kết quả xét tuyển
         if (typeofStatusProfile > 1) return 4; // Hồ sơ nhập học cuối cùng
-        if (typeofStatusProfile === 1 && (typeofStatusMajor1 === 1 || typeofStatusMajor2 === 1)) return 3; // Nhập học
+        if (typeofStatusProfile === 1 && typeofStatusMajor === 1) return 3; // Nhập học
         if (typeofStatusProfile === 0 || typeofStatusProfile === 1) return 2; // Kết quả xét tuyển
         return 1; // Hồ sơ xét tuyển
     };
@@ -107,11 +107,9 @@ const ApplicationSearch = () => {
                     }
                 }
             );
-            console.log(dataResponse.data);
             setApplicationData(dataResponse.data);
-            setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor1, dataResponse.data.typeofStatusMajor2));
+            setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor));
             handleClose(dataResponse.data);
-            console.log(dataResponse.data);
         } catch (error) {
             console.error('Lỗi xác thực OTP:', error);
             toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
@@ -308,7 +306,7 @@ const ApplicationSearch = () => {
 
         const selectedCampusPost = {
             campus: applicationData.campusId,
-            major: applicationData.typeofStatusMajor1 === 1 ? applicationData.major1 : applicationData.major2,
+            major: applicationData.major,
         };
         try {
             const paymentResponse = await api.post('/VNPay/pay-admission', selectedCampusPost);
@@ -556,12 +554,12 @@ const ApplicationSearch = () => {
                                                 </div>
                                                 <div className="info-item">
                                                     <span className="label">Nguyện vọng</span>
-                                                    <span className="value">{applicationData.majorName1}</span>
+                                                    <span className="value">{applicationData.majorName}</span>
                                                 </div>
                                             </Col>
                                             <Col xs={12} md={6}>
-                                                {applicationData.academicTranscriptsMajor1 &&
-                                                    renderTable(applicationData.academicTranscriptsMajor1, applicationData.typeOfTranscriptMajor1)}
+                                                {applicationData.academicTranscriptsMajor &&
+                                                    renderTable(applicationData.academicTranscriptsMajor, applicationData.typeOfTranscriptMajor)}
                                             </Col>
                                             <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                             <Row>
@@ -579,10 +577,10 @@ const ApplicationSearch = () => {
                                                     <p className="image-title text-center mt-2">Mặt sau CCCD</p>
 
                                                 </Col>
-                                                {applicationData.imgDiplomaMajor1 && (
+                                                {applicationData.imgDiplomaMajor && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
-                                                            <img src={applicationData.imgDiplomaMajor1} alt="Bằng xét NV1" className="img-fluid" />
+                                                            <img src={applicationData.imgDiplomaMajor} alt="Bằng xét NV1" className="img-fluid" />
                                                         </div>
                                                         <p className="image-title text-center mt-2">Bằng nộp xét tuyển</p>
                                                     </Col>
@@ -592,14 +590,14 @@ const ApplicationSearch = () => {
                                                         <div className="image-container">
                                                             <img
                                                                 src={applicationData.imgAcademicTranscript1}
-                                                                alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                                alt={(applicationData.typeOfDiplomaMajor === 4)
                                                                     ? "Bảng điểm"
                                                                     : "Ảnh học bạ HKI lớp 10"}
                                                                 className="img-fluid"
                                                             />
                                                         </div>
                                                         <p className="image-title text-center mt-2">
-                                                            {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor2 === 4)
+                                                            {(applicationData.typeOfDiplomaMajor === 4)
                                                                 ? "Bảng điểm"
                                                                 : "Ảnh học bạ HKI - Lớp 10"}
                                                         </p>
@@ -727,7 +725,7 @@ const ApplicationSearch = () => {
                                                 onClick={handlePayment}
                                                 className="bg-orange text-white px-4 py-2"
                                                 style={{ width: "auto" }}
-                                                disabled={applicationData.typeofStatusMajor1 === 7}
+                                                disabled={applicationData.typeofStatusProfile !== 7}
                                             >
                                                 Thanh toán phí đăng ký
                                             </Button>
@@ -743,7 +741,7 @@ const ApplicationSearch = () => {
                                     <Col xs={12} md={6}>
                                         <div className="info-item">
                                             <span className="label">Nguyện vọng</span>
-                                            <span className="value">{applicationData.majorName1}</span>
+                                            <span className="value">{applicationData.majorName}</span>
                                         </div>
                                         <div className="info-item">
                                             <span className="label">Trạng thái hồ sơ</span>
@@ -772,13 +770,13 @@ const ApplicationSearch = () => {
                                         <div className="info-item">
                                             <span className="label me-3">Trạng thái xét duyệt</span>
                                             <span className="value">
-                                                {applicationData.typeofStatusMajor1 === null
+                                                {applicationData.typeofStatusMajor === null
                                                     ? "Chờ xét duyệt"
-                                                    : applicationData.typeofStatusMajor1 === 0
+                                                    : applicationData.typeofStatusMajor === 0
                                                         ? "Không đạt"
-                                                        : applicationData.typeofStatusMajor1 === 1
+                                                        : applicationData.typeofStatusMajor === 1
                                                             ? "Đạt"
-                                                            : applicationData.typeofStatusMajor1 === 2
+                                                            : applicationData.typeofStatusMajor === 2
                                                                 ? "Đang xử lý"
                                                                 : ""}
                                             </span>
@@ -838,7 +836,7 @@ const ApplicationSearch = () => {
                                             style={{ width: "auto" }}
                                             disabled={
                                                 !!(applicationData.birthCertificate || applicationData.admissionForm) ||
-                                                (applicationData.typeofStatusMajor1 === 0 && applicationData.typeofStatusMajor2 === 0)
+                                                (applicationData.typeofStatusMajor === 0 )
                                             }
                                         >
                                             Gửi thông tin nhập học

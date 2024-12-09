@@ -237,67 +237,27 @@ const AdmissionRegistrationDetailAC = () => {
     };
 
     // Duyệt, từ chối
-    // const [failNV1, setFailNV1] = useState(null); // Lưu trạng thái fail của NV1
-    // const [isNV1Processed, setIsNV1Processed] = useState(false); // NV1 đã được xử lý chưa
-    // const handleUpdateNV1 = async (status) => {
-    //     try {
-    //         if (status === 1) {
-    //             // Nếu NV1 pass
-    //             await api.put('/admin-council/RegisterAdmission/update-student-register-status', {
-    //                 spId: applicationData.spId,
-    //                 typeofStatusMajor1: 1,
-    //             });
-    //             toast.success("Duyệt NV1 thành công!");
-    //             setIsNV1Processed(true); // Đánh dấu NV1 đã được xử lý
-    //             fetchApplicationData();
-    //         } else {
-    //             // Nếu NV1 fail
-    //             setFailNV1(0); // Lưu trạng thái fail NV1 để xét tiếp NV2
-    //             setIsNV1Processed(true); // Đánh dấu NV1 đã được xử lý
-    //             toast.info("Từ chối NV1 thành công. Tiếp tục xét NV2!");
-
-    //             // Kiểm tra nếu NV2 không đủ điều kiện
-    //             if (
-    //                 applicationData.typeOfDiplomaMajor2 === 3 || applicationData.typeOfDiplomaMajor2 === 5
-    //                     ? major2Results.totalAverageScore <
-    //                     (applicationData.typeOfDiplomaMajor2 === 5
-    //                         ? majorDetails.major2.totalScore
-    //                         : majorDetails.major2.totalScoreAcademic)
-    //                     : false // Các loại không xét điểm sẽ không rơi vào trường hợp này
-    //             ) {
-    //                 // NV2 không đủ điều kiện, gọi API cập nhật Fail cho cả NV1 và NV2
-    //                 await api.put('/admin-council/RegisterAdmission/update-student-register-status', {
-    //                     spId: applicationData.spId,
-    //                     typeofStatusMajor1: 0, // Fail NV1
-    //                     typeofStatusMajor2: 0, // Fail NV2
-    //                 });
-    //                 toast.error("Cả NV1 và NV2 đều không đủ điều kiện. Hồ sơ bị từ chối.");
-    //                 setTimeout(() => {
-    //                     fetchApplicationData();
-    //                 }, 3000); // Load lại dữ liệu
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.error("Lỗi khi xử lý NV1:", error);
-    //         toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
-    //     }
-    // };
-    // const handleUpdateNV2 = async (status) => {
-    //     try {
-    //         const payload = {
-    //             spId: applicationData.spId,
-    //             typeofStatusMajor1: failNV1, // Giá trị fail NV1 lưu tạm
-    //             typeofStatusMajor2: status,
-    //         };
-
-    //         await api.put('/admin-council/RegisterAdmission/update-student-register-status', payload);
-    //         toast.success(status === 1 ? "Duyệt NV2 thành công!" : "Từ chối NV2 thành công!");
-    //         fetchApplicationData();
-    //     } catch (error) {
-    //         console.error("Lỗi khi xử lý NV2:", error);
-    //         toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
-    //     }
-    // };
+    const handleUpdate = async (status) => {
+        try {
+            if (status === 1) {
+                await api.put('/admin-council/RegisterAdmission/update-student-register-status', {
+                    spId: applicationData.spId,
+                    typeofStatusMajor: 1,
+                });
+                toast.success("Duyệt nguyện vọng thành công!");
+            } else {
+                await api.put('/admin-council/RegisterAdmission/update-student-register-status', {
+                    spId: applicationData.spId,
+                    typeofStatusMajor: 0,
+                });
+                toast.success("Từ chối nguyện vọng thành công!");
+            }
+            fetchApplicationData();
+        } catch (error) {
+            console.error("Lỗi khi xử lý:", error);
+            toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
+        }
+    };
     return (
         <Container className="my-3">
             <ToastContainer position="top-right" autoClose={3000} />
@@ -642,21 +602,19 @@ const AdmissionRegistrationDetailAC = () => {
                                         </span>
                                     </div>
                                 </Col>
-                                {/* <Col xs={12} md={3}>
+                                <Col xs={12} md={3}>
                                     {applicationData.typeofStatusProfile === 1 && majorDetails && majorDetails.major && (
                                         <>
-                                            {/* Nguyện vọng 1 *
                                             <div>
-                                                {/* Chỉ kiểm tra điểm nếu typeOfDiplomaMajor1 là 3 hoặc 5 *
-                                                {applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5 ? (
-                                                    major1Results.totalAverageScore >=
-                                                        (applicationData.typeOfDiplomaMajor1 === 5
-                                                            ? majorDetails.major1.totalScore
-                                                            : majorDetails.major1.totalScoreAcademic) ? (
-                                                        applicationData.typeofStatusMajor1 === 2 && !isNV1Processed ? (
+                                                {applicationData.typeOfDiplomaMajor === 3 || applicationData.typeOfDiplomaMajor === 5 ? (
+                                                    majorResults.totalAverageScore >=
+                                                        (applicationData.typeOfDiplomaMajor === 5
+                                                            ? majorDetails.major.totalScore
+                                                            : majorDetails.major.totalScoreAcademic) ? (
+                                                        applicationData.typeofStatusMajor === 2 ? (
                                                             <>
-                                                                <Button variant="success" className="me-3" onClick={() => handleUpdateNV1(1)}>Duyệt</Button>
-                                                                <Button variant="danger" onClick={() => handleUpdateNV1(0)}>Từ chối</Button>
+                                                                <Button variant="success" className="me-3" onClick={() => handleUpdate(1)}>Duyệt</Button>
+                                                                <Button variant="danger" onClick={() => handleUpdate(0)}>Từ chối</Button>
                                                             </>
                                                         ) : (
                                                             <p></p>
@@ -666,51 +624,19 @@ const AdmissionRegistrationDetailAC = () => {
                                                     )
                                                 ) : (
                                                     // Trường hợp không xét điểm
-                                                    applicationData.typeofStatusMajor1 === 2 ? (
+                                                    applicationData.typeofStatusMajor === 2 ? (
                                                         <>
-                                                            <Button variant="success" className="me-3" onClick={() => handleUpdateNV1(1)}>Duyệt</Button>
-                                                            <Button variant="danger" onClick={() => handleUpdateNV1(0)}>Từ chối</Button>
+                                                            <Button variant="success" className="me-3" onClick={() => handleUpdate(1)}>Duyệt</Button>
+                                                            <Button variant="danger" onClick={() => handleUpdate(0)}>Từ chối</Button>
                                                         </>
                                                     ) : (
                                                         <p></p>
                                                     )
                                                 )}
                                             </div>
-                                            {failNV1 !== null && (
-                                                <div>
-                                                    {/* Chỉ kiểm tra điểm nếu typeOfDiplomaMajor2 là 3 hoặc 5 *
-                                                    {applicationData.typeOfDiplomaMajor2 === 3 || applicationData.typeOfDiplomaMajor2 === 5 ? (
-                                                        major2Results.totalAverageScore >=
-                                                            (applicationData.typeOfDiplomaMajor2 === 5
-                                                                ? majorDetails.major2.totalScore
-                                                                : majorDetails.major2.totalScoreAcademic) ? (
-                                                            applicationData.typeofStatusMajor2 === 2 ? (
-                                                                <>
-                                                                    <Button variant="success" className="me-3 mt-3" onClick={() => handleUpdateNV2(1)}>Duyệt</Button>
-                                                                    <Button variant="danger" className="me-3 mt-3" onClick={() => handleUpdateNV2(0)}>Từ chối</Button>
-                                                                </>
-                                                            ) : (
-                                                                <p></p>
-                                                            )
-                                                        ) : (
-                                                            <p className='mt-2'>Không đủ điều kiện</p>
-                                                        )
-                                                    ) : (
-                                                        // Trường hợp không xét điểm
-                                                        applicationData.typeofStatusMajor2 === 2 ? (
-                                                            <>
-                                                                <Button variant="success" className="me-3 mt-3" onClick={() => handleUpdateNV2(1)}>Duyệt</Button>
-                                                                <Button variant="danger" className="me-3 mt-3" onClick={() => handleUpdateNV2(0)}>Từ chối</Button>
-                                                            </>
-                                                        ) : (
-                                                            <p></p>
-                                                        )
-                                                    )}
-                                                </div>
-                                            )}
                                         </>
                                     )}
-                                </Col> */}
+                                </Col>
                                 <h4 className='text-orange mb-2'>Hồ sơ nhập học</h4>
                                 <Col md={6}>
                                     {applicationData.admissionForm ? (

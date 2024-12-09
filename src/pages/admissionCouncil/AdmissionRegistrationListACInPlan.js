@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Pagination, Row, Table } from "react-bootstrap";
 import { Link, useParams } from 'react-router-dom';
-
 import api from "../../apiService.js";
 
 const AdmissionRegistrationListACInPlan = () => {
-    const { ATId } = useParams();
+    const { AI,ATId } = useParams();
     const [search, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedTypeofStatus, setSelectedTypeofStatus] = useState('');
@@ -42,8 +41,12 @@ const AdmissionRegistrationListACInPlan = () => {
             <h2 className="text-center text-orange fw-bold">Danh sách hồ sơ đăng ký</h2>
             <p className="text-center mb-4 text-orange fw-bold">Danh sách hồ sơ đăng ký theo đợt</p>
             <Row className="mb-3">
-                <Col xs={12} md={8} className="d-flex">
-                    <Form.Group className="me-2 d-flex align-items-center" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
+                <Col xs={12} md={8} className='d-flex'>
+                    <Link to={`/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/${AI}`}>
+                        <button className="btn btn-orange">Quay lại thông tin tuyển sinh</button>
+                    </Link>
+
+                    <Form.Group className='mx-3' style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
                         <Form.Control
                             type="text"
                             placeholder="Nhập từ khóa tìm kiếm"
@@ -52,6 +55,7 @@ const AdmissionRegistrationListACInPlan = () => {
                         />
                     </Form.Group>
                 </Col>
+
                 <Col xs={12} md={4}>
                     <Form.Group controlId="typeOfStatusSelect" className="d-flex align-items-center">
                         <Form.Control
@@ -120,7 +124,7 @@ const AdmissionRegistrationListACInPlan = () => {
                                 </td>
                                 <td className="text-center">
                                     <Link to={`/admissions-council/chi-tiet-dang-ky-tuyen-sinh/${item.spId}`}>
-                                        <Button variant="warning" className="text-white">
+                                        <Button variant="orange" className="text-white">
                                             Chi tiết
                                         </Button>
                                     </Link>
@@ -162,6 +166,7 @@ const AdmissionRegistrationListACInPlan = () => {
                     </Pagination>
                 )}
             </div>
+            
         </Container>
     );
 };

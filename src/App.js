@@ -36,6 +36,7 @@ import AdmissionRegistrationListACInPlan from "./pages/admissionCouncil/Admissio
 import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
+import PlanReport from "./pages/admissionCouncil/PlanReport.js";
 import AdmissionRegistrationDetail from "./pages/admissionsOfficer/AdmissionRegistrationDetail.js";
 import AdmissionRegistrationList from "./pages/admissionsOfficer/AdmissionRegistrationList.js";
 import MajorsListViewAO from "./pages/admissionsOfficer/MajorsListViewAO.js";
@@ -151,7 +152,8 @@ function App() {
         <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/:admissionInformationID" element={<PlanAdmissionDetail />} />
         <Route path="/admissions-council/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationListAC />} />
         <Route path="/admissions-council/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetailAC />} />
-        <Route path="/admin-council/RegisterAdmission/list-register-admission/:ATId" element={<AdmissionRegistrationListACInPlan />} />
+        <Route path="/admin-council/RegisterAdmission/list-register-admission/:AI/:ATId" element={<AdmissionRegistrationListACInPlan />} />
+        <Route path="/admin-council/RegisterAdmission/plan-report/:AI/:ATId" element={<PlanReport />} />
       </Route>
     </Routes>
   }

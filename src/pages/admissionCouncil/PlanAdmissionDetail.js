@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Container, Form, Modal, Row, Table } from 'react-bootstrap';
+import { Button, Col, Container, Dropdown, Form, Modal, Row, Table } from 'react-bootstrap';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -360,7 +360,6 @@ const PlanAdmissionDetail = () => {
             const matchingGroup = subjectGroups.find(group => group.code === subjectGroupDTO.subjectGroup);
             return matchingGroup ? matchingGroup.id : null; // Nếu tìm thấy, lấy id, nếu không thì null
         }).filter(id => id !== null); // Lọc các id hợp lệ (không phải null)
-
         setSelectedSubjects(selectedIds);
         setMajorName(major.majorName);
         setMajorCode(major.majorCode);
@@ -398,6 +397,7 @@ const PlanAdmissionDetail = () => {
                     <h4 className='text-orange'>I. Thông tin</h4>
                 </Col>
                 <Col md={2} className="d-flex justify-content-end align-items-end">
+
                     <Button variant="warning" onClick={() => handleShowEditModal('I')}>
                         Chỉnh sửa
                     </Button>
@@ -438,7 +438,7 @@ const PlanAdmissionDetail = () => {
                     <h4 className='text-orange'>II. Đợt tuyển sinh</h4>
                 </Col>
                 <Col md={2} className="d-flex justify-content-end align-items-end">
-                    <Button variant="warning" onClick={handleShowModalCreate} >
+                    <Button variant="orange" onClick={handleShowModalCreate} >
                         Thêm mới
                     </Button>
                 </Col>
@@ -505,21 +505,27 @@ const PlanAdmissionDetail = () => {
                                     }).format(new Date(round.endAdmission))}
                                 </td>
                                 <td>
-                                    <Button variant="warning" onClick={() => handleShowEditModal('II', round)} className="m-1">
-                                        Chỉnh sửa
-                                    </Button>
-                                    <Button variant="warning" onClick={() => handleShowDetailModal('Detail-II', round)} >
-                                        Ngành xét tuyển
-                                    </Button>
-                                    <Link to={`/admin-council/RegisterAdmission/list-register-admission/${round.admissionTimeId}`}>
-                                        <Button
-                                            variant="warning"
-                                            className="mx-1"
-                                            style={{ whiteSpace: 'nowrap', marginRight: '10px' }}
-                                        >
-                                            Hồ sơ
-                                        </Button>
-                                    </Link>
+                                    <Dropdown>
+                                        <Dropdown.Toggle variant="orange" id="dropdown-action">
+                                            Hành động
+                                        </Dropdown.Toggle>
+
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item onClick={() => handleShowEditModal('II', round)}>
+                                            Chỉnh sửa
+                                            </Dropdown.Item>
+                                            <Dropdown.Item onClick={() => handleShowDetailModal('Detail-II', round)}>
+                                            Ngành xét tuyển
+                                            </Dropdown.Item>
+                                            <Dropdown.Item as={Link} to={`/admin-council/RegisterAdmission/list-register-admission/${admissionInformationID}/${round.admissionTimeId}`}>
+                                            Hồ sơ đã nộp
+                                            </Dropdown.Item>
+                                            <Dropdown.Item as={Link} to={`/admin-council/RegisterAdmission/plan-report/${admissionInformationID}/${round.admissionTimeId}`}>
+                                            Thống kê
+                                            </Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+
                                 </td>
                             </tr>
                         ))
@@ -597,7 +603,7 @@ const PlanAdmissionDetail = () => {
                     <Button variant="secondary" onClick={handleCloseModalCreate}>
                         Đóng
                     </Button>
-                    <Button variant="warning" onClick={handleSubmit}>Lưu thay đổi</Button>
+                    <Button variant="orange" onClick={handleSubmit}>Lưu thay đổi</Button>
                 </Modal.Footer>
             </Modal>
 

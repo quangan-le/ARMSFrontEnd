@@ -98,8 +98,8 @@ const ApplicationSearch = () => {
                 return;
             }
             toast.success('Xác thực thành công!');
-            const dataResponse = await axios.post(
-                'https://localhost:5001/api/RegisterAdmission/search-register-admission',
+            const dataResponse = await api.post(
+                '/RegisterAdmission/search-register-admission',
                 { citizenIentificationNumber: cccd },
                 {
                     headers: {
@@ -713,17 +713,19 @@ const ApplicationSearch = () => {
                                             </Row>
                                         </Row>
                                         <Col className="d-flex justify-content-end">
-                                            <Button
-                                                variant="light"
-                                                onClick={handleEditClick}
-                                                className="btn-block bg-orange text-white me-3"
-                                            >
-                                                Cập nhật hồ sơ
-                                            </Button>
+                                            {(applicationData.typeofStatusProfile === 0 || applicationData.typeofStatusProfile === 7) && (
+                                                <Button
+                                                    variant="light"
+                                                    onClick={handleEditClick}
+                                                    className="btn-block bg-orange text-white me-3"
+                                                >
+                                                    Cập nhật hồ sơ
+                                                </Button>
+                                            )}
                                             <Button
                                                 variant="light"
                                                 onClick={handlePayment}
-                                                className="bg-orange text-white px-4 py-2"
+                                                className="bg-primary text-white px-4 py-2"
                                                 style={{ width: "auto" }}
                                                 disabled={applicationData.typeofStatusProfile !== 7}
                                             >
@@ -836,7 +838,7 @@ const ApplicationSearch = () => {
                                             style={{ width: "auto" }}
                                             disabled={
                                                 !!(applicationData.birthCertificate || applicationData.admissionForm) ||
-                                                (applicationData.typeofStatusMajor === 0 )
+                                                (applicationData.typeofStatusMajor === 0)
                                             }
                                         >
                                             Gửi thông tin nhập học

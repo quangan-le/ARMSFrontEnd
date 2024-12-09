@@ -438,7 +438,7 @@ const Application = () => {
                     // Cập nhật điểm môn học đã tồn tại
                     updatedTranscripts[existingTranscriptIndex].subjectPoint = Number(value);
                 } else {
-                    // Thêm mới điểm môn học vào `academicTranscriptsMajor1`
+                    // Thêm mới điểm môn học vào `academicTranscriptsMajor`
                     updatedTranscripts.push({
                         subjectName: subject,
                         subjectPoint: Number(value),
@@ -464,7 +464,7 @@ const Application = () => {
             // Tính toán `typeOfAcademicTranscript` dựa trên vị trí của `subjectIndex` và `fieldIndex`
             const typeOfAcademicTranscript = indexMap[subjectIndex][fieldIndex];
 
-            // Cập nhật `academicTranscriptsMajor1` 
+            // Cập nhật `academicTranscriptsMajor` 
             setAcademicTranscriptsMajor(prevTranscripts => {
                 const updatedTranscripts = [...prevTranscripts];
 
@@ -1010,37 +1010,37 @@ const Application = () => {
 
         // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         setFormData(updatedFormData);
+console.log(updatedFormData)
+        // const selectedCampusPost = {
+        //     campus: selectedCampus.id
+        // };
+        // try {
+        //     const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+        //     const spId = response.data;
+        //     if (!spId) {
+        //         throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
+        //     }
+        //     sessionStorage.setItem('spId', spId);
 
-        const selectedCampusPost = {
-            campus: selectedCampus.id
-        };
-        try {
-            const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
-            const spId = response.data;
-            if (!spId) {
-                throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
-            }
-            sessionStorage.setItem('spId', spId);
-
-            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            // Chuyển hướng sang trang thanh toán
-            const paymentUrl = paymentResponse.data.paymentUrl;
-            if (paymentUrl) {
-                window.location.href = paymentUrl;
-            } else {
-                toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
-            }
-        } catch (error) {
-            if (error.response && error.response.data) {
-                const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
-                toast.error(errorMessage);
-            } else {
-                toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
-            }
-            sessionStorage.removeItem('spId');
-        } finally {
-            setIsLoading(false);
-        }
+        //     const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+        //     // Chuyển hướng sang trang thanh toán
+        //     const paymentUrl = paymentResponse.data.paymentUrl;
+        //     if (paymentUrl) {
+        //         window.location.href = paymentUrl;
+        //     } else {
+        //         toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
+        //     }
+        // } catch (error) {
+        //     if (error.response && error.response.data) {
+        //         const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
+        //         toast.error(errorMessage);
+        //     } else {
+        //         toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
+        //     }
+        //     sessionStorage.removeItem('spId');
+        // } finally {
+        //     setIsLoading(false);
+        // }
     };
 
     return (

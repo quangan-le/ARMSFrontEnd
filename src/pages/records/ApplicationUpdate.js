@@ -53,6 +53,21 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         campusName: "",
         academicTranscriptsMajor: [],
     });
+    // Lưu trữ ảnh tạm thời
+    const [tempImages, setTempImages] = useState({
+        imgpriority: null,
+        imgCitizenIdentification1: null,
+        imgCitizenIdentification2: null,
+        imgDiplomaMajor: null,
+        imgAcademicTranscript1: null,
+        imgAcademicTranscript2: null,
+        imgAcademicTranscript3: null,
+        imgAcademicTranscript4: null,
+        imgAcademicTranscript5: null,
+        imgAcademicTranscript6: null,
+        imgAcademicTranscript7: null,
+        imgAcademicTranscript9: null,
+    });
 
     useEffect(() => {
         if (!applicationData) {
@@ -105,6 +120,21 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 priorityDetailPriorityID: applicationData.priorityDetailPriorityID ?? null,
                 campusName: applicationData.campusName || "",
                 academicTranscriptsMajor: applicationData.academicTranscriptsMajor || [],
+            });
+            setTempImages({
+                imgpriority: applicationData.imgpriority || null,
+                imgCitizenIdentification1: applicationData.imgCitizenIdentification1 || null,
+                imgCitizenIdentification2: applicationData.imgCitizenIdentification2 || null,
+                imgDiplomaMajor: applicationData.imgDiplomaMajor || null,
+                imgAcademicTranscript1: applicationData.imgAcademicTranscript1 || "",
+                imgAcademicTranscript2: applicationData.imgAcademicTranscript2 || "",
+                imgAcademicTranscript3: applicationData.imgAcademicTranscript3 || "",
+                imgAcademicTranscript4: applicationData.imgAcademicTranscript4 || "",
+                imgAcademicTranscript5: applicationData.imgAcademicTranscript5 || "",
+                imgAcademicTranscript6: applicationData.imgAcademicTranscript6 || "",
+                imgAcademicTranscript7: applicationData.imgAcademicTranscript7 || "",
+                imgAcademicTranscript8: applicationData.imgAcademicTranscript8 || "",
+                imgAcademicTranscript9: applicationData.imgAcademicTranscript9 || "",
             });
             setSelectedProvince(applicationData.province || "");
             setSelectedDistrict(applicationData.district || "");
@@ -266,21 +296,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
     const [showFinalYear12, setShowFinalYear12] = useState(false);
     // Ảnh bằng tốt nghiệp
     const [showGraduationImage, setShowGraduationImage] = useState(false);
-    // Lưu trữ ảnh tạm thời
-    const [tempImages, setTempImages] = useState({
-        imgpriority: null,
-        imgCitizenIdentification1: null,
-        imgCitizenIdentification2: null,
-        imgDiplomaMajor: null,
-        imgAcademicTranscript1: null,
-        imgAcademicTranscript2: null,
-        imgAcademicTranscript3: null,
-        imgAcademicTranscript4: null,
-        imgAcademicTranscript5: null,
-        imgAcademicTranscript6: null,
-        imgAcademicTranscript7: null,
-        imgAcademicTranscript9: null,
-    });
+
     const TypeOfDiploma = {
         0: 'Tốt nghiệp THCS',
         1: 'Tốt nghiệp THPT',
@@ -342,7 +358,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         }
     }, [selectedCampus]);
 
-    // Khi người dùng chọn ngành cho nguyện vọng 1
+    // Khi người dùng chọn ngành cho nguyện vọng
     const handleMajorChange = async (e) => {
         const selectedMajorId = e.target.value;
         setSelectedMajor(selectedMajorId);
@@ -619,7 +635,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
     const handleFrontCCCDChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFrontCCCD(URL.createObjectURL(file));
             setTempImages(prev => ({ ...prev, imgCitizenIdentification1: file }));
 
             const error = await validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: file }, formData);
@@ -629,7 +644,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             }));
         } else {
             // Nếu không có tệp nào được chọn, xóa trạng thái liên quan
-            setFrontCCCD(null);
             setTempImages((prev) => ({ ...prev, imgCitizenIdentification1: null }));
 
             const error = await validateField("imgCitizenIdentification1", null, { ...tempImages, imgCitizenIdentification1: null }, formData);
@@ -643,7 +657,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
     const handleBackCCCDChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setBackCCCD(URL.createObjectURL(file));
             setTempImages(prev => ({ ...prev, imgCitizenIdentification2: file }));
             const backCCCDError = await validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: file }, formData);
             setFormErrors((prevErrors) => ({
@@ -652,7 +665,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             }));
         } else {
             // Nếu không có tệp nào được chọn, xóa trạng thái liên quan
-            setBackCCCD(null);
             setTempImages((prev) => ({ ...prev, imgCitizenIdentification2: null }));
 
             const backCCCDError = await validateField("imgCitizenIdentification2", null, { ...tempImages, imgCitizenIdentification2: null }, formData);
@@ -667,15 +679,11 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         const file = e.target.files[0];
         const key = "imgDiplomaMajor";
         if (file) {
-            // Tạo URL object cho ảnh
-            const objectURL = URL.createObjectURL(file);
-
             const updatedTempImages = {
                 ...tempImages,
                 [key]: file,
             };
             setTempImages(updatedTempImages);
-            setDiplomaMajor(objectURL);
             const diplomaError = await validateField(key, null, updatedTempImages, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
@@ -688,7 +696,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 [key]: null,
             };
             setTempImages(updatedTempImages);
-            setDiplomaMajor(null);
             const diplomaError = await validateField(key, null, updatedTempImages, formData);
             setFormErrors((prevErrors) => ({
                 ...prevErrors,
@@ -700,11 +707,15 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
     // Ảnh học bạ
     const handleAcademicTranscriptUpload = (e, index) => {
         const file = e.target.files[0];
+        const key = `imgAcademicTranscript${index}`; // Tạo key cho mỗi học bạ
         if (file) {
             setTempImages(prev => ({
                 ...prev,
                 [`imgAcademicTranscript${index}`]: file // Lưu từng học bạ vào ảnh tương ứng
             }));
+        } else {
+            const updatedTempImages = { ...tempImages, [key]: null };
+            setTempImages(updatedTempImages); // Xóa ảnh nếu người dùng hủy
         }
     };
 
@@ -927,44 +938,43 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = "Vui lòng nhập địa chỉ nhận giấy báo khác.";
                 }
                 break;
+            // case "imgpriority":
+            //     // Nếu chọn đối tượng ưu tiên, cần kiểm tra giấy tờ ưu tiên
+            //     if (selectedPriority) {
+            //         const file = tempImages?.imgpriority; // Lấy file từ tempImages
+            //         if (!file) {
+            //             error = "Vui lòng tải lên giấy tờ ưu tiên.";
+            //         } else {
+            //             // Kiểm tra loại file
+            //             if (!allowedFileTypes.includes(file.type)) {
+            //                 error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //             }
+            //         }
+            //     }
+            //     break;
+            // case "imgCitizenIdentification1":
+            //     if (!tempImages?.imgCitizenIdentification1) {
+            //         error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
+            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
 
-            case "imgpriority":
-                // Nếu chọn đối tượng ưu tiên, cần kiểm tra giấy tờ ưu tiên
-                if (selectedPriority) {
-                    const file = tempImages?.imgpriority; // Lấy file từ tempImages
-                    if (!file) {
-                        error = "Vui lòng tải lên giấy tờ ưu tiên.";
-                    } else {
-                        // Kiểm tra loại file
-                        if (!allowedFileTypes.includes(file.type)) {
-                            error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                        }
-                    }
-                }
-                break;
-            case "imgCitizenIdentification1":
-                if (!tempImages?.imgCitizenIdentification1) {
-                    error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
+            // case "imgCitizenIdentification2":
+            //     if (!tempImages?.imgCitizenIdentification2) {
+            //         error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
+            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
 
-            case "imgCitizenIdentification2":
-                if (!tempImages?.imgCitizenIdentification2) {
-                    error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
-
-            case "imgDiplomaMajor":
-                if (!tempImages?.imgDiplomaMajor) {
-                    error = "Ảnh bằng tốt nghiệp xét tuyển là bắt buộc.";
-                } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor?.type)) {
-                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-                }
-                break;
+            // case "imgDiplomaMajor":
+            //     if (!tempImages?.imgDiplomaMajor) {
+            //         error = "Ảnh bằng tốt nghiệp xét tuyển là bắt buộc.";
+            //     } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor?.type)) {
+            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+            //     }
+            //     break;
             default:
                 break;
         }
@@ -1431,7 +1441,31 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                             <Col md={6}>
                                 <Form.Group controlId="imgpriority">
                                     <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                    <Form.Control type="file" accept="image/*" onChange={handleFileChangePriority} required />
+                                    {(tempImages.imgpriority || applicationData.imgpriority) ? (
+                                        <div>
+                                            <img
+                                                src={
+                                                    tempImages.imgpriority
+                                                        ? URL.createObjectURL(tempImages.imgpriority) // Hiển thị ảnh tạm nếu đã chọn file mới
+                                                        : applicationData.imgpriority // Hiển thị ảnh từ URL nếu chưa chọn file mới
+                                                }
+                                                alt="Giấy tờ ưu tiên"
+                                                style={{ maxWidth: "100%", maxHeight: "200px", marginBottom: "10px" }}
+                                            />
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileChangePriority}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChangePriority}
+                                            required
+                                        />
+                                    )}
                                 </Form.Group>
                                 {formErrors.imgpriority && <p className="error">{formErrors.imgpriority}</p>}
                             </Col>
@@ -1536,7 +1570,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                         </Form.Group>
                     </Col>
                 </Row>
-                <h4 className='text-orange mt-3'>Tải lên giấy tờ xác thực hồ sơ đăng ký học</h4>
+                <h4 className='text-orange mt-3'>Giấy tờ xác thực hồ sơ đăng ký học</h4>
                 <Row>
                     <Col md={3} className='mt-2'>
                         <Form.Group>
@@ -1545,11 +1579,18 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 type="file"
                                 accept="image/*"
                                 onChange={handleFrontCCCDChange}
-                                required
                             />
-                            {frontCCCD && (
+                            {(tempImages.imgCitizenIdentification1 || applicationData.imgCitizenIdentification1) && (
                                 <div className="image-preview-container mt-2">
-                                    <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
+                                    <img
+                                        src={
+                                            tempImages.imgCitizenIdentification1
+                                                ? URL.createObjectURL(tempImages.imgCitizenIdentification1)
+                                                : applicationData.imgCitizenIdentification1
+                                        }
+                                        alt="Mặt trước CCCD"
+                                        className="img-preview"
+                                    />
                                 </div>
                             )}
                             {formErrors.imgCitizenIdentification1 && <p className="error">{formErrors.imgCitizenIdentification1}</p>}
@@ -1562,11 +1603,18 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 type="file"
                                 accept="image/*"
                                 onChange={handleBackCCCDChange}
-                                required
                             />
-                            {backCCCD && (
+                            {(tempImages.imgCitizenIdentification2 || applicationData.imgCitizenIdentification2) && (
                                 <div className="image-preview-container mt-2">
-                                    <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
+                                    <img
+                                        src={
+                                            tempImages.imgCitizenIdentification2
+                                                ? URL.createObjectURL(tempImages.imgCitizenIdentification2)
+                                                : applicationData.imgCitizenIdentification2
+                                        }
+                                        alt="Mặt sau CCCD"
+                                        className="img-preview"
+                                    />
                                 </div>
                             )}
                             {formErrors.imgCitizenIdentification2 && <p className="error">{formErrors.imgCitizenIdentification2}</p>}
@@ -1581,11 +1629,18 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleGraduationCertificateChange(e, true)}
-                                    required
                                 />
-                                {diplomaMajor && (
+                                {(tempImages.imgDiplomaMajor || applicationData.imgDiplomaMajor) && (
                                     <div className="image-preview-container mt-2">
-                                        <img src={diplomaMajor} alt="Bằng tốt nghiệp" className="img-preview" />
+                                        <img
+                                            src={
+                                                tempImages.imgDiplomaMajor
+                                                    ? URL.createObjectURL(tempImages.imgDiplomaMajor)
+                                                    : applicationData.imgDiplomaMajor
+                                            }
+                                            alt="Bằng tốt nghiệp"
+                                            className="img-preview"
+                                        />
                                     </div>
                                 )}
                                 {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}
@@ -1604,8 +1659,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript1 || applicationData.imgAcademicTranscript1) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript1
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript1)
+                                                            : applicationData.imgAcademicTranscript1
+                                                    }
+                                                    alt="Học bạ học kỳ 1 lớp 10"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester2Year10 && (
@@ -1615,8 +1682,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript2 || applicationData.imgAcademicTranscript2) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript2
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript2)
+                                                            : applicationData.imgAcademicTranscript2
+                                                    }
+                                                    alt="Học bạ học kỳ 2 lớp 10"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showFinalYear10 && (
@@ -1626,8 +1705,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript3 || applicationData.imgAcademicTranscript3) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript3
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript3)
+                                                            : applicationData.imgAcademicTranscript3
+                                                    }
+                                                    alt="Học bạ cuối năm lớp 10"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester1Year11 && (
@@ -1637,8 +1728,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript4 || applicationData.imgAcademicTranscript4) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript4
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript4)
+                                                            : applicationData.imgAcademicTranscript4
+                                                    }
+                                                    alt="Học bạ học kỳ 1 lớp 11"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester2Year11 && (
@@ -1648,8 +1751,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript5 || applicationData.imgAcademicTranscript5) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript5
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript5)
+                                                            : applicationData.imgAcademicTranscript5
+                                                    }
+                                                    alt="Học bạ học kỳ 2 lớp 11"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showFinalYear11 && (
@@ -1659,8 +1774,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript6 || applicationData.imgAcademicTranscript6) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript6
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript6)
+                                                            : applicationData.imgAcademicTranscript6
+                                                    }
+                                                    alt="Học bạ cuối năm lớp 11"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester1Year12 && (
@@ -1670,8 +1797,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript7 || applicationData.imgAcademicTranscript7) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript7
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript7)
+                                                            : applicationData.imgAcademicTranscript7
+                                                    }
+                                                    alt="Học bạ học kỳ 1 lớp 12"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                                 {showFinalYear12 && (
@@ -1681,8 +1820,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             type="file"
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
-                                            required
                                         />
+                                        {(tempImages.imgAcademicTranscript9 || applicationData.imgAcademicTranscript9) && (
+                                            <div className="image-preview-container mt-2">
+                                                <img
+                                                    src={
+                                                        tempImages.imgAcademicTranscript9
+                                                            ? URL.createObjectURL(tempImages.imgAcademicTranscript9)
+                                                            : applicationData.imgAcademicTranscript9
+                                                    }
+                                                    alt="Học bạ cuối năm lớp 12"
+                                                    className="img-preview"
+                                                />
+                                            </div>
+                                        )}
                                     </Col>
                                 )}
                             </Row>

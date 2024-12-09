@@ -188,7 +188,7 @@ const PlanAdmission = () => {
                     ) : (
                         <tr>
                             <td colSpan="8" className="text-center">
-                                Không có ngành học nào
+                                Không có kế hoạch tuyển sinh nào
                             </td>
                         </tr>
                     )}

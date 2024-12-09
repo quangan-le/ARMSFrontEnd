@@ -35,7 +35,7 @@ const AdmissionRegistrationDetailAC = () => {
 
             try {
                 const majorResponse = await api.get(
-                    `/admin-officer/Major/get-major-details?MajorId=${applicationData.major}&AdmissionInformationID=${applicationData.aiId}`
+                    `/admin-officer/Major/get-major-details?MajorId=${applicationData.major1}`
                 );
                 setMajorDetails({
                     major: majorResponse.data,
@@ -97,11 +97,11 @@ const AdmissionRegistrationDetailAC = () => {
     ];
 
     const getSubjects = () => {
-        if (!applicationData?.academicTranscripts) {
+        if (!applicationData?.academicTranscriptsMajor1) {
             return [];
         }
 
-        return applicationData.academicTranscripts
+        return applicationData.academicTranscriptsMajor1
             .filter((item) => item.typeOfAcademicTranscript < 3) // Lấy 3 môn đầu tiên
             .map((item) => ({
                 name: item.subjectName,
@@ -109,12 +109,12 @@ const AdmissionRegistrationDetailAC = () => {
             }));
     };
 
-    const renderTable = (typeOfTranscriptMajor) => {
+    const renderTable = (typeOfTranscriptMajor1) => {
         // Lấy danh sách môn học
         const subjects = getSubjects();
 
         // Lấy danh sách kỳ từ fieldMapping
-        const periods = fieldMapping[typeOfTranscriptMajor];
+        const periods = fieldMapping[typeOfTranscriptMajor1];
 
         return (
             <table className="table table-bordered">
@@ -132,7 +132,7 @@ const AdmissionRegistrationDetailAC = () => {
                             <td>{subject.name}</td>
                             {periods.map((_, periodIndex) => {
                                 const index = indexMap[subject.baseIndex][periodIndex];
-                                const transcript = applicationData.academicTranscripts.find(
+                                const transcript = applicationData.academicTranscriptsMajor1.find(
                                     (item) => item.typeOfAcademicTranscript === index
                                 );
                                 return <td key={periodIndex}>{transcript ? transcript.subjectPoint : "-"}</td>;
@@ -172,14 +172,14 @@ const AdmissionRegistrationDetailAC = () => {
         fetchPriorityBonusPoint();
     }, [applicationData?.priorityDetailPriorityID]);
 
-    const calculateAverageScores = (typeOfDiplomaMajor) => {
-        if (!applicationData?.academicTranscripts) {
+    const calculateAverageScores = (typeOfDiplomaMajor1) => {
+        if (!applicationData?.academicTranscriptsMajor1) {
             return { averageScores: {}, totalAverageScore: 0 }; // Trả về mặc định
         }
 
-        if (typeOfDiplomaMajor === 5) {
+        if (typeOfDiplomaMajor1 === 5) {
             // Xét điểm THPT
-            const subjects = applicationData.academicTranscripts;
+            const subjects = applicationData.academicTranscriptsMajor1;
 
             const averageScores = {};
             subjects.forEach((item) => {
@@ -199,7 +199,7 @@ const AdmissionRegistrationDetailAC = () => {
             return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         } else {
             // Xét học bạ (typeOfDiplomaMajor == 3)
-            const subjects = applicationData.academicTranscripts;
+            const subjects = applicationData.academicTranscriptsMajor1;
 
             // Tạo một object để lưu điểm của từng môn
             const scoresBySubject = {};
@@ -230,10 +230,10 @@ const AdmissionRegistrationDetailAC = () => {
         }
     };
 
-    const majorResults = calculateAverageScores(applicationData?.typeOfDiplomaMajor ?? null);
+    const majorResults = calculateAverageScores(applicationData?.typeOfDiplomaMajor1 ?? null);
 
-    const getHeaderTitle = (typeOfDiplomaMajor) => {
-        return typeOfDiplomaMajor === 5 ? "Điểm" : "Điểm trung bình";
+    const getHeaderTitle = (typeOfDiplomaMajor1) => {
+        return typeOfDiplomaMajor1 === 5 ? "Điểm" : "Điểm trung bình";
     };
 
     // Duyệt, từ chối
@@ -242,13 +242,13 @@ const AdmissionRegistrationDetailAC = () => {
             if (status === 1) {
                 await api.put('/admin-council/RegisterAdmission/update-student-register-status', {
                     spId: applicationData.spId,
-                    typeofStatusMajor: 1,
+                    typeofStatusMajor1: 1,
                 });
                 toast.success("Duyệt nguyện vọng thành công!");
             } else {
                 await api.put('/admin-council/RegisterAdmission/update-student-register-status', {
                     spId: applicationData.spId,
-                    typeofStatusMajor: 0,
+                    typeofStatusMajor1: 0,
                 });
                 toast.success("Từ chối nguyện vọng thành công!");
             }
@@ -331,21 +331,23 @@ const AdmissionRegistrationDetailAC = () => {
                                 </Col>
 
                                 <Col xs={12} md={6}>
-                                    {applicationData.typeOfDiplomaMajor === 3 &&
-                                        applicationData.typeOfTranscriptMajor !== undefined && (
+                                    {applicationData.typeOfDiplomaMajor1 === 3 &&
+                                        applicationData.typeOfTranscriptMajor1 !== undefined && (
                                             <>
                                                 <h6>Bảng điểm xét tuyển</h6>
-                                                {renderTable(true, applicationData.typeOfTranscriptMajor)}
+                                                {renderTable(applicationData.typeOfTranscriptMajor1)}
                                             </>
                                         )}
-                                    {(applicationData.typeOfDiplomaMajor === 3 || applicationData.typeOfDiplomaMajor === 5) && (
+                                </Col>
+                                <Col xs={12} md={6}>
+                                {(applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5) && (
                                         <>
                                             <h6>Tổng điểm xét tuyển</h6>
                                             <table className="table table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th>Môn học</th>
-                                                        <th>{getHeaderTitle(applicationData.typeOfDiplomaMajor)}</th>
+                                                        <th>{getHeaderTitle(applicationData.typeOfDiplomaMajor1)}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -371,7 +373,7 @@ const AdmissionRegistrationDetailAC = () => {
                                                         <td><strong>Điểm chuẩn</strong></td>
                                                         <td>
                                                             {majorDetails?.major && (
-                                                                applicationData.typeOfDiplomaMajor === 5
+                                                                applicationData.typeOfDiplomaMajor1 === 5
                                                                     ? majorDetails.major.totalScore
                                                                     : majorDetails.major.totalScoreAcademic
                                                             )}
@@ -382,7 +384,7 @@ const AdmissionRegistrationDetailAC = () => {
                                                         <td>
                                                             {majorDetails?.major && (
                                                                 parseFloat(majorResults.totalAverageScore) >=
-                                                                    (applicationData.typeOfDiplomaMajor === 5
+                                                                    (applicationData.typeOfDiplomaMajor1 === 5
                                                                         ? majorDetails.major.totalScore
                                                                         : majorDetails.major.totalScoreAcademic)
                                                                     ? "Đạt"
@@ -394,8 +396,6 @@ const AdmissionRegistrationDetailAC = () => {
                                             </table>
                                         </>
                                     )}
-                                </Col>
-                                <Col xs={12} md={6}>
                                  
                                 </Col>
                                 <span className="label my-2">Giấy tờ xác thực hồ sơ đăng ký</span>
@@ -427,14 +427,14 @@ const AdmissionRegistrationDetailAC = () => {
                                             <div className="image-container">
                                                 <img
                                                     src={applicationData.imgAcademicTranscript1}
-                                                    alt={(applicationData.typeOfDiplomaMajor === 4)
+                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4)
                                                         ? "Bảng điểm"
                                                         : "Ảnh học bạ HKI lớp 10"}
                                                     className="img-fluid"
                                                 />
                                             </div>
                                             <p className="image-title text-center mt-2">
-                                                {(applicationData.typeOfDiplomaMajor === 4)
+                                                {(applicationData.typeOfDiplomaMajor1 === 4)
                                                     ? "Bảng điểm"
                                                     : "Ảnh học bạ HKI - Lớp 10"}
                                             </p>
@@ -557,7 +557,7 @@ const AdmissionRegistrationDetailAC = () => {
                                 <Col xs={12} md={5}>
                                     <div className="info-item">
                                         <span className="label">Nguyện vọng</span>
-                                        <span className="value">{applicationData.majorName}</span>
+                                        <span className="value">{applicationData.majorName1}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Trạng thái hồ sơ</span>
@@ -588,15 +588,15 @@ const AdmissionRegistrationDetailAC = () => {
                                     <div className="info-item">
                                         <span className="label me-3 text-nowrap">Trạng thái xét duyệt</span>
                                         <span className="value">
-                                            {applicationData.typeofStatusMajor === null
+                                            {applicationData.typeofStatusMajor1 === null
                                                 ? ""
-                                                : applicationData.typeofStatusMajor === 0
+                                                : applicationData.typeofStatusMajor1 === 0
                                                     ? "Từ chối"
-                                                    : applicationData.typeofStatusMajor === 1
+                                                    : applicationData.typeofStatusMajor1 === 1
                                                         ? "Đã duyệt"
-                                                        : applicationData.typeofStatusMajor === 2
+                                                        : applicationData.typeofStatusMajor1 === 2
                                                             ? "Đang xử lý"
-                                                            : applicationData.typeofStatusMajor === 3
+                                                            : applicationData.typeofStatusMajor1 === 3
                                                                 ? "N/A"
                                                                 : ""}
                                         </span>
@@ -606,12 +606,12 @@ const AdmissionRegistrationDetailAC = () => {
                                     {applicationData.typeofStatusProfile === 1 && majorDetails && majorDetails.major && (
                                         <>
                                             <div>
-                                                {applicationData.typeOfDiplomaMajor === 3 || applicationData.typeOfDiplomaMajor === 5 ? (
+                                                {applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5 ? (
                                                     majorResults.totalAverageScore >=
-                                                        (applicationData.typeOfDiplomaMajor === 5
+                                                        (applicationData.typeOfDiplomaMajor1 === 5
                                                             ? majorDetails.major.totalScore
                                                             : majorDetails.major.totalScoreAcademic) ? (
-                                                        applicationData.typeofStatusMajor === 2 ? (
+                                                        applicationData.typeofStatusMajor1 === 2 ? (
                                                             <>
                                                                 <Button variant="success" className="me-3" onClick={() => handleUpdate(1)}>Duyệt</Button>
                                                                 <Button variant="danger" onClick={() => handleUpdate(0)}>Từ chối</Button>
@@ -624,7 +624,7 @@ const AdmissionRegistrationDetailAC = () => {
                                                     )
                                                 ) : (
                                                     // Trường hợp không xét điểm
-                                                    applicationData.typeofStatusMajor === 2 ? (
+                                                    applicationData.typeofStatusMajor1 === 2 ? (
                                                         <>
                                                             <Button variant="success" className="me-3" onClick={() => handleUpdate(1)}>Duyệt</Button>
                                                             <Button variant="danger" onClick={() => handleUpdate(0)}>Từ chối</Button>

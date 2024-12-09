@@ -107,6 +107,7 @@ const ApplicationSearch = () => {
                     }
                 }
             );
+            console.log(dataResponse.data);
             setApplicationData(dataResponse.data);
             setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor));
             handleClose(dataResponse.data);

@@ -1441,7 +1441,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                             <Col md={6}>
                                 <Form.Group controlId="imgpriority">
                                     <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                    {(tempImages.imgpriority || applicationData.imgpriority) ? (
+                                    {/* {(tempImages.imgpriority || applicationData.imgpriority) ? (
                                         <div>
                                             <img
                                                 src={
@@ -1465,7 +1465,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             onChange={handleFileChangePriority}
                                             required
                                         />
-                                    )}
+                                    )} */}
                                 </Form.Group>
                                 {formErrors.imgpriority && <p className="error">{formErrors.imgpriority}</p>}
                             </Col>
@@ -1580,7 +1580,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 accept="image/*"
                                 onChange={handleFrontCCCDChange}
                             />
-                            {(tempImages.imgCitizenIdentification1 || applicationData.imgCitizenIdentification1) && (
+                            {/* {(tempImages.imgCitizenIdentification1 || applicationData.imgCitizenIdentification1) && (
                                 <div className="image-preview-container mt-2">
                                     <img
                                         src={
@@ -1592,7 +1592,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                         className="img-preview"
                                     />
                                 </div>
-                            )}
+                            )} */}
                             {formErrors.imgCitizenIdentification1 && <p className="error">{formErrors.imgCitizenIdentification1}</p>}
                         </Form.Group>
                     </Col>
@@ -1604,7 +1604,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 accept="image/*"
                                 onChange={handleBackCCCDChange}
                             />
-                            {(tempImages.imgCitizenIdentification2 || applicationData.imgCitizenIdentification2) && (
+                            {/* {(tempImages.imgCitizenIdentification2 || applicationData.imgCitizenIdentification2) && (
                                 <div className="image-preview-container mt-2">
                                     <img
                                         src={
@@ -1616,7 +1616,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                         className="img-preview"
                                     />
                                 </div>
-                            )}
+                            )} */}
                             {formErrors.imgCitizenIdentification2 && <p className="error">{formErrors.imgCitizenIdentification2}</p>}
                         </Form.Group>
                     </Col>
@@ -1630,7 +1630,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                     accept="image/*"
                                     onChange={(e) => handleGraduationCertificateChange(e, true)}
                                 />
-                                {(tempImages.imgDiplomaMajor || applicationData.imgDiplomaMajor) && (
+                                {/* {(tempImages.imgDiplomaMajor || applicationData.imgDiplomaMajor) && (
                                     <div className="image-preview-container mt-2">
                                         <img
                                             src={
@@ -1642,7 +1642,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             className="img-preview"
                                         />
                                     </div>
-                                )}
+                                )} */}
                                 {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}
                             </Form.Group>
                         </Col>
@@ -1660,7 +1660,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
                                         />
-                                        {(tempImages.imgAcademicTranscript1 || applicationData.imgAcademicTranscript1) && (
+                                        {/* {(tempImages.imgAcademicTranscript1 || applicationData.imgAcademicTranscript1) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1672,7 +1672,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showSemester2Year10 && (
@@ -1683,7 +1683,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
                                         />
-                                        {(tempImages.imgAcademicTranscript2 || applicationData.imgAcademicTranscript2) && (
+                                        {/* {(tempImages.imgAcademicTranscript2 || applicationData.imgAcademicTranscript2) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1695,7 +1695,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showFinalYear10 && (
@@ -1706,7 +1706,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
                                         />
-                                        {(tempImages.imgAcademicTranscript3 || applicationData.imgAcademicTranscript3) && (
+                                        {/* {(tempImages.imgAcademicTranscript3 || applicationData.imgAcademicTranscript3) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1718,7 +1718,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showSemester1Year11 && (
@@ -1729,7 +1729,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
                                         />
-                                        {(tempImages.imgAcademicTranscript4 || applicationData.imgAcademicTranscript4) && (
+                                        {/* {(tempImages.imgAcademicTranscript4 || applicationData.imgAcademicTranscript4) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1741,7 +1741,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showSemester2Year11 && (
@@ -1752,7 +1752,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
                                         />
-                                        {(tempImages.imgAcademicTranscript5 || applicationData.imgAcademicTranscript5) && (
+                                        {/* {(tempImages.imgAcademicTranscript5 || applicationData.imgAcademicTranscript5) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1764,7 +1764,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showFinalYear11 && (
@@ -1775,7 +1775,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
                                         />
-                                        {(tempImages.imgAcademicTranscript6 || applicationData.imgAcademicTranscript6) && (
+                                        {/* {(tempImages.imgAcademicTranscript6 || applicationData.imgAcademicTranscript6) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1787,7 +1787,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showSemester1Year12 && (
@@ -1798,7 +1798,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
                                         />
-                                        {(tempImages.imgAcademicTranscript7 || applicationData.imgAcademicTranscript7) && (
+                                        {/* {(tempImages.imgAcademicTranscript7 || applicationData.imgAcademicTranscript7) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1810,7 +1810,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                                 {showFinalYear12 && (
@@ -1821,7 +1821,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
                                         />
-                                        {(tempImages.imgAcademicTranscript9 || applicationData.imgAcademicTranscript9) && (
+                                        {/* {(tempImages.imgAcademicTranscript9 || applicationData.imgAcademicTranscript9) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1833,7 +1833,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )}
+                                        )} */}
                                     </Col>
                                 )}
                             </Row>

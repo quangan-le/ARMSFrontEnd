@@ -1010,37 +1010,37 @@ const Application = () => {
 
         // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         setFormData(updatedFormData);
-console.log(updatedFormData)
-        // const selectedCampusPost = {
-        //     campus: selectedCampus.id
-        // };
-        // try {
-        //     const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
-        //     const spId = response.data;
-        //     if (!spId) {
-        //         throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
-        //     }
-        //     sessionStorage.setItem('spId', spId);
 
-        //     const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-        //     // Chuyển hướng sang trang thanh toán
-        //     const paymentUrl = paymentResponse.data.paymentUrl;
-        //     if (paymentUrl) {
-        //         window.location.href = paymentUrl;
-        //     } else {
-        //         toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
-        //     }
-        // } catch (error) {
-        //     if (error.response && error.response.data) {
-        //         const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
-        //         toast.error(errorMessage);
-        //     } else {
-        //         toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
-        //     }
-        //     sessionStorage.removeItem('spId');
-        // } finally {
-        //     setIsLoading(false);
-        // }
+        const selectedCampusPost = {
+            campus: selectedCampus.id
+        };
+        try {
+            const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
+            const spId = response.data;
+            if (!spId) {
+                throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
+            }
+            sessionStorage.setItem('spId', spId);
+
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            // Chuyển hướng sang trang thanh toán
+            const paymentUrl = paymentResponse.data.paymentUrl;
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+            } else {
+                toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
+                toast.error(errorMessage);
+            } else {
+                toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
+            }
+            sessionStorage.removeItem('spId');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

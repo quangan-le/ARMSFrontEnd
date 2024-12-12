@@ -321,22 +321,29 @@ const ApplicationSearch = () => {
     // Thông báo gửi hồ sơ bản cứng
     const [admissionInfo, setAdmissionInfo] = useState(null);
     const [campusDetail, setCampusDetail] = useState(null);
-
+    const [formattedAmount, setFormattedAmount] = useState(null);
+    const formatCurrency = (amount) => {
+        return amount.toLocaleString('vi-VN') + ' VND';
+    };
     useEffect(() => {
-        if (maxStep === 4) {
-            const fetchCampuses = async () => {
-                try {
-                    const response = await api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`);
-                    setAdmissionInfo(response.data);
-                    const responseCampus = await api.get(`/Campus/get-campus?campusid=${selectedCampus.id}`);
-                    setCampusDetail(responseCampus.data.address);
-                } catch (error) {
-                    console.error('Lỗi lấy thông tin tuyển sinh: ', error);
+        const fetchCampuses = async () => {
+            try {
+                const response = await api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`);
+                setAdmissionInfo(response.data);
+                const admissionFee = response.data?.feeRegister;
+                if (admissionFee) {
+                    setFormattedAmount(formatCurrency(admissionFee));
+                } else {
+                    setFormattedAmount("Không rõ");
                 }
-            };
-            fetchCampuses();
-        }
-    }, [maxStep, selectedCampus.id]);
+                const responseCampus = await api.get(`/Campus/get-campus?campusid=${selectedCampus.id}`);
+                setCampusDetail(responseCampus.data.address);
+            } catch (error) {
+                console.error('Lỗi lấy thông tin tuyển sinh: ', error);
+            }
+        };
+        fetchCampuses();
+    }, [selectedCampus.id]);
 
     const [isEditing, setIsEditing] = useState(false);  // Trạng thái chỉnh sửa
     const handleEditClick = () => {
@@ -712,6 +719,21 @@ const ApplicationSearch = () => {
                                                     </div>
                                                 </Col>
                                             </Row>
+                                            <h4 className='text-orange mt-3'>Thông tin thanh toán</h4>
+                                            <Col md={12}>
+                                                <div className="info-item">
+                                                    <span className="label2">Phí thanh toán</span>
+                                                    <span className="value">
+                                                        {formattedAmount || 'Đang tải...'}
+                                                    </span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="label2">Trạng thái thanh toán</span>
+                                                    <span className={`value ${applicationData.typeofStatusProfile !== 7 ? 'text-success' : 'text-danger'}`}>
+                                                        {applicationData.typeofStatusProfile !== 7 ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                                    </span>
+                                                </div>
+                                            </Col>
                                         </Row>
                                         <Col className="d-flex justify-content-end">
                                             {(applicationData.typeofStatusProfile === 0 || applicationData.typeofStatusProfile === 7) && (
@@ -723,15 +745,16 @@ const ApplicationSearch = () => {
                                                     Cập nhật hồ sơ
                                                 </Button>
                                             )}
-                                            <Button
-                                                variant="light"
-                                                onClick={handlePayment}
-                                                className="bg-primary text-white px-4 py-2"
-                                                style={{ width: "auto" }}
-                                                disabled={applicationData.typeofStatusProfile !== 7}
-                                            >
-                                                Thanh toán phí đăng ký
-                                            </Button>
+                                            {applicationData.typeofStatusProfile === 7 && (
+                                                <Button
+                                                    variant="light"
+                                                    onClick={handlePayment}
+                                                    className="bg-primary text-white px-4 py-2"
+                                                    style={{ width: "auto" }}
+                                                >
+                                                    Thanh toán phí đăng ký
+                                                </Button>
+                                            )}
                                         </Col>
                                     </div>
                                 )}

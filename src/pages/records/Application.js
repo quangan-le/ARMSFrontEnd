@@ -960,8 +960,6 @@ const Application = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isPaymentStep, setIsPaymentStep] = useState(false); // Chuyển sang bước thanh toán
-    const [spId, setSpId] = useState(null); // Lưu spId sau khi nộp hồ sơ
-    const [paymentInfo, setPaymentInfo] = useState(null); // Thông tin thanh toán (giá tiền, hướng dẫn)
 
     // Gửi dữ liệu và upload ảnh
     const handleSubmit = async (e) => {
@@ -1023,7 +1021,6 @@ const Application = () => {
                 throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
             }
             sessionStorage.setItem('spId', spId);
-            setSpId(spId);
             setIsPaymentStep(true);
             toast.success('Đăng ký hồ sơ thành công!');
         } catch (error) {
@@ -1038,6 +1035,31 @@ const Application = () => {
             setIsLoading(false);
         }
     };
+
+    const [formattedAmount, setFormattedAmount] = useState(null);
+    const [loadingAmount, setLoadingAmount] = useState(true);
+    const formatCurrency = (amount) => {
+        return amount.toLocaleString('vi-VN') + ' VND';
+    };
+    useEffect(() => {
+        const fetchAdmissionFee = async () => {
+            try {
+                setLoadingAmount(true);
+                const response = await api.get(`/AdmissionInformation/get-admission-information?CampusId=${selectedCampus.id}`);
+                const admissionFee = response.data?.feeRegister;
+                if (admissionFee) {
+                    setFormattedAmount(formatCurrency(admissionFee));
+                } else {
+                    setFormattedAmount("Không rõ");
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoadingAmount(false);
+            }
+        };
+        fetchAdmissionFee();
+    }, [selectedCampus.id]);
 
     // Hướng dẫn thanh toán
     const handlePayment = async () => {
@@ -1086,20 +1108,17 @@ const Application = () => {
                     <div className="register-section d-flex justify-content-center align-items-center flex-column flex-md-row">
                         <h4 className="text-black mb-2 mb-md-0">Đăng ký tư vấn ngay tại đây</h4>
                         <Link to="/#dang-ky" className="text-white d-inline ms-3 fs-4">ĐĂNG KÝ TƯ VẤN!</Link>
-                        <p><strong>Mã hồ sơ:</strong> {spId}</p>
-                        <p><strong>Ngành đăng ký:</strong> {selectedMajorName}</p>
-                        <p><strong>Lệ phí đăng ký:</strong> 1 triệu</p>
                     </div>
                 </Row>
             </div>
             {isWithinAdmissionTime ? (
                 isPaymentStep ? (
-                    <Container className="mt-5 mb-3 px-4">
+                    <Container className="mt-5 mb-3 px-5">
                         <h3 className="mb-4">Hướng dẫn thanh toán và tra cứu hồ sơ</h3>
                         <p>Quý phụ huynh và sinh viên vui lòng thực hiện thanh toán học phí theo các bước dưới đây để hoàn tất quá trình nộp hồ sơ:</p>
                         <ol>
                             <li>
-                                Nhấn vào nút <strong>"Thanh toán hóa đơn"</strong> bên dưới để truy cập cổng thanh toán VNPay.
+                                Nhấn vào nút <strong>"Thanh toán phí đăng ký"</strong> bên dưới để truy cập cổng thanh toán VNPay.
                             </li>
                             <li>
                                 Lựa chọn phương thức thanh toán phù hợp (thẻ ATM nội địa, ví điện tử, hoặc QR Code).
@@ -1116,21 +1135,15 @@ const Application = () => {
                             <strong className="text-success">Nếu thanh toán thành công:</strong>
                         </p>
                         <ol>
-                            <li>Truy cập trang <Link to="/tra-cuu-ho-so" className="text-primary fw-bold">Tra cứu hồ sơ</Link>.</li>
-                            <li>Nhập căn cước công dân: <strong>{spId}</strong>.</li>
+                            <li>Tại trang <Link to="/tra-cuu-ho-so" className="text-primary fw-bold">Tra cứu hồ sơ</Link>, vui lòng nhập số căn cước công dân để xác minh thông tin người tra cứu.</li>
+                            <li>Kiểm tra OTP được gửi về email của bạn và nhập mã vào hệ thống để xác nhận.</li>
                             <li>Xem trạng thái hồ sơ và các thông tin chi tiết đã được cập nhật.</li>
                         </ol>
 
                         <p className="mt-4">
-                            <strong className="text-danger">Nếu thanh toán thất bại:</strong>
+                            <strong className="text-danger">Nếu thanh toán thất bại:</strong> Trạng thái hồ sơ hiển thị <strong>"Chưa thanh toán"</strong>, bạn sẽ thấy nút <strong>"Thanh toán phí đăng ký"</strong>.
+                            Nhấn vào đó để tiếp tục thanh toán.
                         </p>
-                        <ol>
-                            <li>
-                                Trạng thái hồ sơ hiển thị <strong>"Chưa thanh toán"</strong>, bạn sẽ thấy nút <strong>"Thanh toán lại"</strong>.
-                                Nhấn vào đó để tiếp tục thanh toán.
-                            </li>
-                        </ol>
-
                         <p className="mt-4">
                             <strong className="text-danger">Lưu ý quan trọng:</strong>
                         </p>
@@ -1138,22 +1151,29 @@ const Application = () => {
                             <li>Kiểm tra thông tin thanh toán thật kỹ trước khi xác nhận để tránh sai sót.</li>
                             <li>
                                 Trong trường hợp gặp lỗi hoặc thanh toán thất bại nhiều lần, vui lòng liên hệ bộ phận hỗ trợ qua hotline:
-                                <a href="tel:0123456789" className="text-primary fw-bold"> 0123-456-789</a>.
+                                <a href="tel:02485820808" className="text-primary fw-bold"> (024) 8582 0808</a>.
                             </li>
+                            <li>Việc đăng ký này xem như là sự đồng thuận của người nộp hồ sơ đăng ký với nhà trường, người nộp hồ sơ sẽ phải thanh toán khoản phí đăng ký, và khoản phí này sẽ không được hoàn lại trong bất kì trường hợp nào.</li>
                         </ul>
 
                         <p className="mt-4">
                             <strong>Thông tin thanh toán:</strong>
                         </p>
                         <ul>
-                            <li><strong>Mã hồ sơ:</strong> {spId}</li>
                             <li><strong>Ngành học:</strong> {selectedMajorName}</li>
-                            <li><strong>Số tiền cần thanh toán:</strong> {formattedAmount} VNĐ</li>
-                        </ul>
+                            <li>
+                                <strong>Số tiền cần thanh toán:</strong>{' '}
+                                {loadingAmount ? 'Đang tải...' : '' || formattedAmount}
+                            </li>                        
+                            </ul>
 
                         <div className="text-center mt-4">
-                            <Button variant="primary" size="lg" onClick={handlePayment}>
-                                Thanh toán hóa đơn
+                            <Button
+                                className="bg-orange text-white px-4 py-2"
+                                variant="light"
+                                onClick={handlePayment}
+                            >
+                                Thanh toán phí đăng ký
                             </Button>
                         </div>
                     </Container>

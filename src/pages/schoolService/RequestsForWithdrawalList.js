@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import api from "../../apiService.js";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Download } from 'react-bootstrap-icons';
 
 const RequestsForWithdrawalList = () => {
     const [requestWDs, setRequests] = useState([]);
@@ -65,9 +66,8 @@ const RequestsForWithdrawalList = () => {
 
     const handleConfirm = async () => {
         if (!selectedRequest) return;
-
         try {
-            const response = await api.post(
+            const response = await api.put(
                 `/SchoolService/RequestWithDrawal/accept-request-withdrawal`,
                 {
                     reply: feedback,
@@ -89,9 +89,8 @@ const RequestsForWithdrawalList = () => {
 
     const handleReject = async () => {
         if (!selectedRequest) return;
-
         try {
-            const response = await api.post(
+            const response = await api.put(
                 `/SchoolService/RequestWithDrawal/accept-request-withdrawal`,
                 {
                     reply: feedback,
@@ -162,8 +161,12 @@ const RequestsForWithdrawalList = () => {
                             <td>{index + 1}</td>
                             <td>{request.account.studentCode}</td>
                             <td>{request.account.fullname}</td>
-                            <td>{request.fileReasonRequestChangeMajor}</td>
-                            <td style={{ color: request.status === 0 ? 'green' : request.status === 1 ? 'red' : request.status === 2 ? 'lightblue' : 'black' }}>
+                            <td>
+                                <a href={request.fileReasonRequestChangeMajor} target="_blank" rel="noopener noreferrer">
+                                    Tải file<Download className="ms-2" />
+                                </a>
+                            </td>
+                            <td style={{ color: request.status === 0 ? 'green' : request.status === 1 ? 'red' : request.status === 2 ? 'blue' : 'black' }}>
                                 {
                                     request.status === 0 ? "Chấp nhận" :
                                         request.status === 1 ? "Từ chối" :
@@ -233,16 +236,21 @@ const RequestsForWithdrawalList = () => {
                             <p><strong>Họ tên:</strong> {selectedRequest.account.fullname}</p>
                             <p><strong>Mã sinh viên:</strong> {selectedRequest.account.studentCode}</p>
                             <p><strong>Nội dung yêu cầu:</strong> {selectedRequest.description}</p>
-                            <p><strong>Đơn yêu cầu:</strong> {selectedRequest.fileReasonRequestChangeMajor}</p>
+                            <p><strong>Đơn yêu cầu: </strong>
+                                <a href={selectedRequest.fileReasonRequestChangeMajor} target="_blank" rel="noopener noreferrer">
+                                    Tải file<Download className="ms-2" />
+                                </a>
+                            </p>
 
-                             <Form.Group className="mb-3">
-                                <Form.Label>Nội dung phản hồi</Form.Label>
+                            <Form.Group className="mb-3">
+                                <Form.Label><strong>Nội dung phản hồi</strong></Form.Label>
                                 {selectedRequest.status === 2 ? (
                                     <Form.Control
                                         as="textarea"
                                         rows={3}
                                         value={feedback}
                                         onChange={(e) => setFeedback(e.target.value)}
+                                        required
                                     />
                                 ) : (
                                     <p>{selectedRequest.reply}</p>

@@ -860,7 +860,7 @@ const Application = () => {
                 }
                 break;
             case "typeOfDiplomaMajor":
-                if (!value) {
+                if (value === null || value === undefined || value === "") {
                     error = "Loại xét tuyển không được để trống.";
                 }
                 break;

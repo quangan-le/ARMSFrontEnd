@@ -378,7 +378,46 @@ const MajorsListViewAC = () => {
                                         ))}
                                     </Row>
                                 </Form.Group>
-
+                                <Form.Group className="mb-3">
+                                    <Row>
+                                        {selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3) && (
+                                            <>
+                                                <Col md={2}>
+                                                    <Form.Label>Điểm xét học bạ:</Form.Label>
+                                                    <Form.Control
+                                                        type="number"
+                                                        name="totalScoreAcademic"
+                                                        value={selectedMajors.totalScoreAcademic}
+                                                        onChange={(e) =>
+                                                            setSelectedMajors({
+                                                                ...selectedMajors,
+                                                                totalScoreAcademic: e.target.value,
+                                                            })
+                                                        }
+                                                    />
+                                                </Col>
+                                                <Col md={4}>
+                                                </Col>
+                                            </>
+                                        )}
+                                        {selectedMajors.typeAdmissions.some(item => item.typeDiploma === 5) && (
+                                            <Col md={2}>
+                                                <Form.Label>Điểm xét THPT:</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    name="totalScore"
+                                                    value={selectedMajors.totalScore}
+                                                    onChange={(e) =>
+                                                        setSelectedMajors({
+                                                            ...selectedMajors,
+                                                            totalScore: e.target.value,
+                                                        })
+                                                    }
+                                                />
+                                            </Col>
+                                        )}
+                                    </Row>
+                                </Form.Group>
                                 {selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3) && (
                                     <Form.Group className="mb-3">
                                         <Row>

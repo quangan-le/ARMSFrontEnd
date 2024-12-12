@@ -173,6 +173,7 @@ const Application = () => {
     // Ngành học
     const [majors, setMajors] = useState([]);
     const [selectedMajor, setSelectedMajor] = useState('');
+    const [selectedMajorName, setSelectedMajorName] = useState('');
     const [typeAdmissions, setTypeAdmissions] = useState([]);
     const [selectedAdmissionType, setSelectedAdmissionType] = useState(null);
     const [typeOfTranscriptMajor, setTypeOfTranscriptMajor] = useState(null);
@@ -321,6 +322,7 @@ const Application = () => {
         setShowGraduationImage(!!selectedMajorId); // Hiển thị trường tải ảnh nếu có ngành được chọn
 
         const selectedMajor = majors.find((major) => major.majorID === selectedMajorId);
+        setSelectedMajorName(selectedMajor ? selectedMajor.majorName : '')
         setTypeAdmissions(selectedMajor?.typeAdmissions || []);
         setShowSubjectSelection(false);
 
@@ -957,6 +959,10 @@ const Application = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
+    const [isPaymentStep, setIsPaymentStep] = useState(false); // Chuyển sang bước thanh toán
+    const [spId, setSpId] = useState(null); // Lưu spId sau khi nộp hồ sơ
+    const [paymentInfo, setPaymentInfo] = useState(null); // Thông tin thanh toán (giá tiền, hướng dẫn)
+
     // Gửi dữ liệu và upload ảnh
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -1010,10 +1016,6 @@ const Application = () => {
 
         // Cập nhật lại formData với các URL ảnh và các điểm của academicTranscripts
         setFormData(updatedFormData);
-
-        const selectedCampusPost = {
-            campus: selectedCampus.id
-        };
         try {
             const response = await api.post('/RegisterAdmission/add-register-admission', updatedFormData);
             const spId = response.data;
@@ -1021,15 +1023,9 @@ const Application = () => {
                 throw new Error('Không lấy được spId, vui lòng kiểm tra lại.');
             }
             sessionStorage.setItem('spId', spId);
-
-            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
-            // Chuyển hướng sang trang thanh toán
-            const paymentUrl = paymentResponse.data.paymentUrl;
-            if (paymentUrl) {
-                window.location.href = paymentUrl;
-            } else {
-                toast.error('Không lấy được đường dẫn thanh toán, vui lòng kiểm tra lại.');
-            }
+            setSpId(spId);
+            setIsPaymentStep(true);
+            toast.success('Đăng ký hồ sơ thành công!');
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessage = error.response.data.message || 'Lỗi khi nộp hồ sơ, vui lòng thử lại!';
@@ -1038,6 +1034,28 @@ const Application = () => {
                 toast.error('Lỗi khi nộp hồ sơ, vui lòng thử lại!');
             }
             sessionStorage.removeItem('spId');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Hướng dẫn thanh toán
+    const handlePayment = async () => {
+        setIsLoading(true);
+        const selectedCampusPost = {
+            campus: selectedCampus.id
+        };
+        try {
+            const paymentResponse = await api.post('/VNPay/pay-register-admission', selectedCampusPost);
+            const paymentUrl = paymentResponse.data.paymentUrl;
+
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+            } else {
+                toast.error('Không lấy được đường dẫn thanh toán, vui lòng thử lại.');
+            }
+        } catch (error) {
+            toast.error('Lỗi khi thanh toán, vui lòng thử lại!');
         } finally {
             setIsLoading(false);
         }
@@ -1068,656 +1086,725 @@ const Application = () => {
                     <div className="register-section d-flex justify-content-center align-items-center flex-column flex-md-row">
                         <h4 className="text-black mb-2 mb-md-0">Đăng ký tư vấn ngay tại đây</h4>
                         <Link to="/#dang-ky" className="text-white d-inline ms-3 fs-4">ĐĂNG KÝ TƯ VẤN!</Link>
+                        <p><strong>Mã hồ sơ:</strong> {spId}</p>
+                        <p><strong>Ngành đăng ký:</strong> {selectedMajorName}</p>
+                        <p><strong>Lệ phí đăng ký:</strong> 1 triệu</p>
                     </div>
                 </Row>
             </div>
             {isWithinAdmissionTime ? (
-                <Container className="mt-5 mb-3 px-4">
-                    <Form onSubmit={handleSubmit}>
-                        <h4 className='text-orange'>Thông tin thí sinh</h4>
-                        <Row>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="fullname">
-                                    <Form.Label>Họ và tên</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập họ và tên"
-                                        value={formData.fullname}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.fullname && <p className="error">{formErrors.fullname}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="dob">
-                                    <Form.Label>Ngày sinh</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={formData.dob}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.dob && <p className="error">{formErrors.dob}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="gender">
-                                    <Form.Label>Giới tính</Form.Label>
-                                    <Form.Control as="select" value={formData.gender} onChange={handleChange}>
-                                        <option value="">Chọn giới tính</option>
-                                        <option value="true">Nam</option>
-                                        <option value="false">Nữ</option>
-                                    </Form.Control>
-                                    {formErrors.gender && <p className="error">{formErrors.gender}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="nation">
-                                    <Form.Label>Dân tộc</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập dân tộc"
-                                        value={formData.nation}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.nation && <p className="error">{formErrors.nation}</p>}
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                isPaymentStep ? (
+                    <Container className="mt-5 mb-3 px-4">
+                        <h3 className="mb-4">Hướng dẫn thanh toán và tra cứu hồ sơ</h3>
+                        <p>Quý phụ huynh và sinh viên vui lòng thực hiện thanh toán học phí theo các bước dưới đây để hoàn tất quá trình nộp hồ sơ:</p>
+                        <ol>
+                            <li>
+                                Nhấn vào nút <strong>"Thanh toán hóa đơn"</strong> bên dưới để truy cập cổng thanh toán VNPay.
+                            </li>
+                            <li>
+                                Lựa chọn phương thức thanh toán phù hợp (thẻ ATM nội địa, ví điện tử, hoặc QR Code).
+                            </li>
+                            <li>
+                                Điền đầy đủ thông tin thanh toán theo hướng dẫn tại cổng VNPay và xác nhận thanh toán.
+                            </li>
+                            <li>
+                                Sau khi thanh toán, bạn có thể tra cứu trạng thái hồ sơ để xác nhận hoàn tất.
+                            </li>
+                        </ol>
 
-                        <Row className="mt-3">
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="citizenIentificationNumber">
-                                    <Form.Label>Số CMND/CCCD</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập số CMND/CCCD"
-                                        value={formData.citizenIentificationNumber}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.citizenIentificationNumber && <p className="error">{formErrors.citizenIentificationNumber}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="ciDate">
-                                    <Form.Label>Ngày cấp</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={formData.ciDate}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.ciDate && <p className="error">{formErrors.ciDate}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} className="mt-2">
-                                <Form.Group controlId="ciAddress">
-                                    <Form.Label>Nơi cấp</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập nơi cấp"
-                                        value={formData.ciAddress}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.ciAddress && <p className="error">{formErrors.ciAddress}</p>}
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                        <p className="mt-4">
+                            <strong className="text-success">Nếu thanh toán thành công:</strong>
+                        </p>
+                        <ol>
+                            <li>Truy cập trang <Link to="/tra-cuu-ho-so" className="text-primary fw-bold">Tra cứu hồ sơ</Link>.</li>
+                            <li>Nhập căn cước công dân: <strong>{spId}</strong>.</li>
+                            <li>Xem trạng thái hồ sơ và các thông tin chi tiết đã được cập nhật.</li>
+                        </ol>
 
-                        <Row className="mt-3">
-                            <Form.Label>Nơi thường trú</Form.Label>
-                            <Col md={3} xs={12} className="mb-3">
-                                <Form.Group controlId="province">
-                                    <Form.Control
-                                        as="select"
-                                        value={formData.province}
-                                        onChange={handleProvinceChange}
-                                    >
-                                        <option value="">Tỉnh/Thành phố</option>
-                                        {provinces.map((province) => (
-                                            <option key={province.code} value={province.code}>
-                                                {province.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                    {formErrors.province && <p className="error">{formErrors.province}</p>}
-                                </Form.Group>
-                            </Col>
+                        <p className="mt-4">
+                            <strong className="text-danger">Nếu thanh toán thất bại:</strong>
+                        </p>
+                        <ol>
+                            <li>
+                                Trạng thái hồ sơ hiển thị <strong>"Chưa thanh toán"</strong>, bạn sẽ thấy nút <strong>"Thanh toán lại"</strong>.
+                                Nhấn vào đó để tiếp tục thanh toán.
+                            </li>
+                        </ol>
 
-                            <Col md={3} xs={12} className="mb-3">
-                                <Form.Group controlId="district">
-                                    <Form.Control
-                                        as="select"
-                                        value={formData.district}
-                                        onChange={handleDistrictChange}
-                                        disabled={!selectedProvince}
-                                    >
-                                        <option value="">Quận/Huyện</option>
-                                        {districts.map((district) => (
-                                            <option key={district.code} value={district.code}>
-                                                {district.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                    {formErrors.district && <p className="error">{formErrors.district}</p>}
-                                </Form.Group>
-                            </Col>
+                        <p className="mt-4">
+                            <strong className="text-danger">Lưu ý quan trọng:</strong>
+                        </p>
+                        <ul>
+                            <li>Kiểm tra thông tin thanh toán thật kỹ trước khi xác nhận để tránh sai sót.</li>
+                            <li>
+                                Trong trường hợp gặp lỗi hoặc thanh toán thất bại nhiều lần, vui lòng liên hệ bộ phận hỗ trợ qua hotline:
+                                <a href="tel:0123456789" className="text-primary fw-bold"> 0123-456-789</a>.
+                            </li>
+                        </ul>
 
-                            <Col md={3} xs={12} className="mb-3">
-                                <Form.Group controlId="ward">
-                                    <Form.Control
-                                        as="select"
-                                        value={formData.ward}
-                                        onChange={handleWardChange}
-                                        disabled={!selectedDistrict}
-                                    >
-                                        <option value="">Xã/Phường/Thị trấn</option>
-                                        {wards.map((ward) => (
-                                            <option key={ward.code} value={ward.code}>
-                                                {ward.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                    {formErrors.ward && <p className="error">{formErrors.ward}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} xs={12} className="mb-3">
-                                <Form.Group controlId="specificAddress">
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập số nhà, đường, ngõ..."
-                                        value={formData.specificAddress}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.specificAddress && <p className="error">{formErrors.specificAddress}</p>}
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="phoneStudent">
-                                    <Form.Label>Số điện thoại thí sinh</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập số điện thoại"
-                                        value={formData.phoneStudent}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.phoneStudent && <p className="error">{formErrors.phoneStudent}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="emailStudent">
-                                    <Form.Label>Email thí sinh</Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        placeholder="Nhập email"
-                                        value={formData.emailStudent}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.emailStudent && <p className="error">{formErrors.emailStudent}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="fullnameParents">
-                                    <Form.Label>Họ và tên phụ huynh</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập họ và tên phụ huynh"
-                                        value={formData.fullnameParents}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.fullnameParents && <p className="error">{formErrors.fullnameParents}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="phoneParents">
-                                    <Form.Label>Số điện thoại phụ huynh</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập số điện thoại phụ huynh"
-                                        value={formData.phoneParents}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.phoneParents && <p className="error">{formErrors.phoneParents}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="schoolName">
-                                    <Form.Label>Trường học</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Trường THPT FPT"
-                                        value={formData.schoolName}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.schoolName && <p className="error">{formErrors.schoolName}</p>}
-                                </Form.Group>
-                            </Col>
+                        <p className="mt-4">
+                            <strong>Thông tin thanh toán:</strong>
+                        </p>
+                        <ul>
+                            <li><strong>Mã hồ sơ:</strong> {spId}</li>
+                            <li><strong>Ngành học:</strong> {selectedMajorName}</li>
+                            <li><strong>Số tiền cần thanh toán:</strong> {formattedAmount} VNĐ</li>
+                        </ul>
 
-                            <Col md={3} className="mt-2">
-                                <Form.Group controlId="yearOfGraduation">
-                                    <Form.Label>Năm tốt nghiệp</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        placeholder="2024"
-                                        value={formData.yearOfGraduation}
-                                        onChange={handleChange}
-                                    />
-                                    {formErrors.yearOfGraduation && <p className="error">{formErrors.yearOfGraduation}</p>}
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
-                        <div>
-                            <Row className='mb-2'>
-                                <Col md={3}>
-                                    <Form.Group controlId="campusId">
-                                        <Form.Label>Cơ sở</Form.Label>
+                        <div className="text-center mt-4">
+                            <Button variant="primary" size="lg" onClick={handlePayment}>
+                                Thanh toán hóa đơn
+                            </Button>
+                        </div>
+                    </Container>
+                ) : (
+                    <Container className="mt-5 mb-3 px-4">
+                        <Form onSubmit={handleSubmit}>
+                            <h4 className='text-orange'>Thông tin thí sinh</h4>
+                            <Row>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="fullname">
+                                        <Form.Label>Họ và tên</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={selectedCampus?.name || ''}
-                                            disabled
-                                            className="bg-light"
+                                            placeholder="Nhập họ và tên"
+                                            value={formData.fullname}
+                                            onChange={handleChange}
                                         />
+                                        {formErrors.fullname && <p className="error">{formErrors.fullname}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="dob">
+                                        <Form.Label>Ngày sinh</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={formData.dob}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.dob && <p className="error">{formErrors.dob}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="gender">
+                                        <Form.Label>Giới tính</Form.Label>
+                                        <Form.Control as="select" value={formData.gender} onChange={handleChange}>
+                                            <option value="">Chọn giới tính</option>
+                                            <option value="true">Nam</option>
+                                            <option value="false">Nữ</option>
+                                        </Form.Control>
+                                        {formErrors.gender && <p className="error">{formErrors.gender}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="nation">
+                                        <Form.Label>Dân tộc</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập dân tộc"
+                                            value={formData.nation}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.nation && <p className="error">{formErrors.nation}</p>}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="citizenIentificationNumber">
+                                        <Form.Label>Số CMND/CCCD</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập số CMND/CCCD"
+                                            value={formData.citizenIentificationNumber}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.citizenIentificationNumber && <p className="error">{formErrors.citizenIentificationNumber}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="ciDate">
+                                        <Form.Label>Ngày cấp</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={formData.ciDate}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.ciDate && <p className="error">{formErrors.ciDate}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6} className="mt-2">
+                                    <Form.Group controlId="ciAddress">
+                                        <Form.Label>Nơi cấp</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập nơi cấp"
+                                            value={formData.ciAddress}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.ciAddress && <p className="error">{formErrors.ciAddress}</p>}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Form.Label>Nơi thường trú</Form.Label>
+                                <Col md={3} xs={12} className="mb-3">
+                                    <Form.Group controlId="province">
+                                        <Form.Control
+                                            as="select"
+                                            value={formData.province}
+                                            onChange={handleProvinceChange}
+                                        >
+                                            <option value="">Tỉnh/Thành phố</option>
+                                            {provinces.map((province) => (
+                                                <option key={province.code} value={province.code}>
+                                                    {province.name}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                        {formErrors.province && <p className="error">{formErrors.province}</p>}
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={3} xs={12} className="mb-3">
+                                    <Form.Group controlId="district">
+                                        <Form.Control
+                                            as="select"
+                                            value={formData.district}
+                                            onChange={handleDistrictChange}
+                                            disabled={!selectedProvince}
+                                        >
+                                            <option value="">Quận/Huyện</option>
+                                            {districts.map((district) => (
+                                                <option key={district.code} value={district.code}>
+                                                    {district.name}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                        {formErrors.district && <p className="error">{formErrors.district}</p>}
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={3} xs={12} className="mb-3">
+                                    <Form.Group controlId="ward">
+                                        <Form.Control
+                                            as="select"
+                                            value={formData.ward}
+                                            onChange={handleWardChange}
+                                            disabled={!selectedDistrict}
+                                        >
+                                            <option value="">Xã/Phường/Thị trấn</option>
+                                            {wards.map((ward) => (
+                                                <option key={ward.code} value={ward.code}>
+                                                    {ward.name}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                        {formErrors.ward && <p className="error">{formErrors.ward}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} xs={12} className="mb-3">
+                                    <Form.Group controlId="specificAddress">
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập số nhà, đường, ngõ..."
+                                            value={formData.specificAddress}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.specificAddress && <p className="error">{formErrors.specificAddress}</p>}
                                     </Form.Group>
                                 </Col>
                             </Row>
                             <Row>
-                                <h6 className='mt-2'>Nguyện vọng</h6>
-                                <Col md={3}>
-                                    <Form.Group controlId="major" className='mb-2'>
-                                        <Form.Label>Ngành học</Form.Label>
-                                        <Form.Control as="select" value={selectedMajor} onChange={handleMajorChange}>
-                                            <option value="">Chọn ngành</option>
-                                            {majors.map(major => (
-                                                <option key={major.majorID} value={major.majorID}>
-                                                    {major.majorName}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                        {formErrors.major && <p className="error">{formErrors.major}</p>}
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="phoneStudent">
+                                        <Form.Label>Số điện thoại thí sinh</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập số điện thoại"
+                                            value={formData.phoneStudent}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.phoneStudent && <p className="error">{formErrors.phoneStudent}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="emailStudent">
+                                        <Form.Label>Email thí sinh</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            placeholder="Nhập email"
+                                            value={formData.emailStudent}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.emailStudent && <p className="error">{formErrors.emailStudent}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="fullnameParents">
+                                        <Form.Label>Họ và tên phụ huynh</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập họ và tên phụ huynh"
+                                            value={formData.fullnameParents}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.fullnameParents && <p className="error">{formErrors.fullnameParents}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="phoneParents">
+                                        <Form.Label>Số điện thoại phụ huynh</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập số điện thoại phụ huynh"
+                                            value={formData.phoneParents}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.phoneParents && <p className="error">{formErrors.phoneParents}</p>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="schoolName">
+                                        <Form.Label>Trường học</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Trường THPT FPT"
+                                            value={formData.schoolName}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.schoolName && <p className="error">{formErrors.schoolName}</p>}
                                     </Form.Group>
                                 </Col>
 
-                                {typeAdmissions.length > 0 && (
+                                <Col md={3} className="mt-2">
+                                    <Form.Group controlId="yearOfGraduation">
+                                        <Form.Label>Năm tốt nghiệp</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder="2024"
+                                            value={formData.yearOfGraduation}
+                                            onChange={handleChange}
+                                        />
+                                        {formErrors.yearOfGraduation && <p className="error">{formErrors.yearOfGraduation}</p>}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <h4 className='text-orange mt-4'>Thông tin đăng ký cơ sở</h4>
+                            <div>
+                                <Row className='mb-2'>
                                     <Col md={3}>
-                                        <Form.Group controlId="typeOfDiplomaMajor" className='mb-2'>
-                                            <Form.Label>Loại xét tuyển</Form.Label>
-                                            <Form.Control as="select"
-                                                value={selectedAdmissionType !== null && selectedAdmissionType !== undefined ? selectedAdmissionType : ''}
-                                                onChange={handleAdmissionTypeChange}
-                                            >
-                                                <option value="">Chọn loại xét tuyển</option>
-                                                {typeAdmissions.map((admission, index) => (
-                                                    <option key={index} value={admission.typeDiploma}>
-                                                        {TypeOfDiploma[admission.typeDiploma]}
+                                        <Form.Group controlId="campusId">
+                                            <Form.Label>Cơ sở</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={selectedCampus?.name || ''}
+                                                disabled
+                                                className="bg-light"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <h6 className='mt-2'>Nguyện vọng</h6>
+                                    <Col md={3}>
+                                        <Form.Group controlId="major" className='mb-2'>
+                                            <Form.Label>Ngành học</Form.Label>
+                                            <Form.Control as="select" value={selectedMajor} onChange={handleMajorChange}>
+                                                <option value="">Chọn ngành</option>
+                                                {majors.map(major => (
+                                                    <option key={major.majorID} value={major.majorID}>
+                                                        {major.majorName}
                                                     </option>
                                                 ))}
                                             </Form.Control>
-                                            {formErrors.typeOfDiplomaMajor && <p className="error">{formErrors.typeOfDiplomaMajor}</p>}
+                                            {formErrors.major && <p className="error">{formErrors.major}</p>}
                                         </Form.Group>
                                     </Col>
-                                )}
 
-                                {showSubjectSelection && (
-                                    <Row>
-                                        <Form.Label>Khối xét tuyển</Form.Label>
+                                    {typeAdmissions.length > 0 && (
                                         <Col md={3}>
-                                            <Form.Group controlId="subjectSelection" className='mb-2'>
+                                            <Form.Group controlId="typeOfDiplomaMajor" className='mb-2'>
+                                                <Form.Label>Loại xét tuyển</Form.Label>
                                                 <Form.Control as="select"
-                                                    value={selectedGroupData?.subjectGroup || ''}
-                                                    onChange={handleSubjectGroupChange1}
+                                                    value={selectedAdmissionType !== null && selectedAdmissionType !== undefined ? selectedAdmissionType : ''}
+                                                    onChange={handleAdmissionTypeChange}
                                                 >
-                                                    <option value="">Chọn khối</option>
-                                                    {subjectGroups.map(subject => (
-                                                        <option key={subject.subjectGroup} value={subject.subjectGroup}>
-                                                            {subject.subjectGroupName}
+                                                    <option value="">Chọn loại xét tuyển</option>
+                                                    {typeAdmissions.map((admission, index) => (
+                                                        <option key={index} value={admission.typeDiploma}>
+                                                            {TypeOfDiploma[admission.typeDiploma]}
                                                         </option>
                                                     ))}
                                                 </Form.Control>
+                                                {formErrors.typeOfDiplomaMajor && <p className="error">{formErrors.typeOfDiplomaMajor}</p>}
                                             </Form.Group>
                                         </Col>
-                                        <Col md={9}>
-                                            <Form.Group controlId="subjectScores" className="mb-2">
-                                                <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                    {displayedFields.map((field, index) => {
-                                                        let transcript;
-                                                        if (selectedAdmissionType === 5) {
-                                                            // Xét điểm THPT
-                                                            const [subject, index] = field.name.split("_");
+                                    )}
 
-                                                            transcript = academicTranscriptsMajor.find(
-                                                                item => item.typeOfAcademicTranscript === Number(index)
+                                    {showSubjectSelection && (
+                                        <Row>
+                                            <Form.Label>Khối xét tuyển</Form.Label>
+                                            <Col md={3}>
+                                                <Form.Group controlId="subjectSelection" className='mb-2'>
+                                                    <Form.Control as="select"
+                                                        value={selectedGroupData?.subjectGroup || ''}
+                                                        onChange={handleSubjectGroupChange1}
+                                                    >
+                                                        <option value="">Chọn khối</option>
+                                                        {subjectGroups.map(subject => (
+                                                            <option key={subject.subjectGroup} value={subject.subjectGroup}>
+                                                                {subject.subjectGroupName}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col md={9}>
+                                                <Form.Group controlId="subjectScores" className="mb-2">
+                                                    <div className="score-inputs" style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                        {displayedFields.map((field, index) => {
+                                                            let transcript;
+                                                            if (selectedAdmissionType === 5) {
+                                                                // Xét điểm THPT
+                                                                const [subject, index] = field.name.split("_");
+
+                                                                transcript = academicTranscriptsMajor.find(
+                                                                    item => item.typeOfAcademicTranscript === Number(index)
+                                                                );
+                                                            } else {
+                                                                // Xét học bạ
+                                                                const selectedSubjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+                                                                const subjectIndex = selectedSubjects.indexOf(field.subject);
+                                                                const fieldIndex = fieldMapping[typeOfTranscriptMajor]?.indexOf(field.name.split("_")[1]);
+
+                                                                // Tính toán typeOfAcademicTranscript
+                                                                const typeOfAcademicTranscript =
+                                                                    subjectIndex !== -1 && fieldIndex !== -1 ? indexMap[subjectIndex][fieldIndex] : null;
+
+                                                                transcript = academicTranscriptsMajor.find(
+                                                                    item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
+                                                                );
+                                                            }
+
+                                                            return (
+                                                                <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
+                                                                    <Form.Control
+                                                                        className="mb-2"
+                                                                        type="number"
+                                                                        placeholder={`${field.subject} (${field.field})`}
+                                                                        name={field.name}
+                                                                        value={transcript ? transcript.subjectPoint : ""}
+                                                                        onChange={handleScoreChange1}
+                                                                    />
+                                                                </div>
                                                             );
-                                                        } else {
-                                                            // Xét học bạ
-                                                            const selectedSubjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
-                                                            const subjectIndex = selectedSubjects.indexOf(field.subject);
-                                                            const fieldIndex = fieldMapping[typeOfTranscriptMajor]?.indexOf(field.name.split("_")[1]);
-
-                                                            // Tính toán typeOfAcademicTranscript
-                                                            const typeOfAcademicTranscript =
-                                                                subjectIndex !== -1 && fieldIndex !== -1 ? indexMap[subjectIndex][fieldIndex] : null;
-
-                                                            transcript = academicTranscriptsMajor.find(
-                                                                item => item.typeOfAcademicTranscript === typeOfAcademicTranscript
-                                                            );
-                                                        }
-
-                                                        return (
-                                                            <div key={index} className="score-input" style={{ width: `${field.columnWidthPercentage}%`, padding: '0 4px' }}>
-                                                                <Form.Control
-                                                                    className="mb-2"
-                                                                    type="number"
-                                                                    placeholder={`${field.subject} (${field.field})`}
-                                                                    name={field.name}
-                                                                    value={transcript ? transcript.subjectPoint : ""}
-                                                                    onChange={handleScoreChange1}
-                                                                />
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </Form.Group>
-                                            {formErrors.academicTranscriptsMajor && <p className="error">{formErrors.academicTranscriptsMajor}</p>}
-                                        </Col>
-                                    </Row>
-                                )}
-                            </Row>
-                            <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
-                            <Row className="mt-3">
-                                <Col md={6}>
-                                    <Row>
-                                        <Form.Label>Chọn đối tượng ưu tiên</Form.Label>
-                                    </Row>
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group controlId="priorityDetailPriorityID">
-                                                <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
-                                                    <option value="">Chọn đối tượng</option>
-                                                    {priorityData.map((priority) => (
-                                                        <option key={priority.priorityID} value={priority.priorityID}>
-                                                            {priority.priorityName} ({priority.typeOfPriority})
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={4}>
-                                            <Button variant="light" className="read-more-btn" onClick={() => setShowPriorityModal(true)}>
-                                                Mô tả chi tiết
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                {selectedPriority && (
+                                                        })}
+                                                    </div>
+                                                </Form.Group>
+                                                {formErrors.academicTranscriptsMajor && <p className="error">{formErrors.academicTranscriptsMajor}</p>}
+                                            </Col>
+                                        </Row>
+                                    )}
+                                </Row>
+                                <h4 className='text-orange mt-3'>Thông tin ưu tiên (nếu có)</h4>
+                                <Row className="mt-3">
                                     <Col md={6}>
-                                        <Form.Group controlId="imgpriority">
-                                            <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                            <Form.Control type="file" accept="image/*" onChange={handleFileChangePriority} required />
-                                        </Form.Group>
-                                        {formErrors.imgpriority && <p className="error">{formErrors.imgpriority}</p>}
+                                        <Row>
+                                            <Form.Label>Chọn đối tượng ưu tiên</Form.Label>
+                                        </Row>
+                                        <Row>
+                                            <Col md={6}>
+                                                <Form.Group controlId="priorityDetailPriorityID">
+                                                    <Form.Control as="select" value={selectedPriority} onChange={handlePriorityChange}>
+                                                        <option value="">Chọn đối tượng</option>
+                                                        {priorityData.map((priority) => (
+                                                            <option key={priority.priorityID} value={priority.priorityID}>
+                                                                {priority.priorityName} ({priority.typeOfPriority})
+                                                            </option>
+                                                        ))}
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col md={4}>
+                                                <Button variant="light" className="read-more-btn" onClick={() => setShowPriorityModal(true)}>
+                                                    Mô tả chi tiết
+                                                </Button>
+                                            </Col>
+                                        </Row>
                                     </Col>
-                                )}
-                            </Row>
-                        </div>
+                                    {selectedPriority && (
+                                        <Col md={6}>
+                                            <Form.Group controlId="imgpriority">
+                                                <Form.Label>Giấy tờ ưu tiên</Form.Label>
+                                                <Form.Control type="file" accept="image/*" onChange={handleFileChangePriority} required />
+                                            </Form.Group>
+                                            {formErrors.imgpriority && <p className="error">{formErrors.imgpriority}</p>}
+                                        </Col>
+                                    )}
+                                </Row>
+                            </div>
 
-                        <Modal show={showPriorityModal} onHide={() => setShowPriorityModal(false)} size="lg">
-                            <Modal.Header closeButton>
-                                <Modal.Title>Mô tả chi tiết các đối tượng ưu tiên</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                {priorityData.map((priority) => (
-                                    <div key={priority.priorityID} className="mb-3">
-                                        <h5>{priority.priorityName} - {priority.typeOfPriority}</h5>
-                                        <p>{priority.priorityDescription}</p>
-                                        <p>Điểm cộng: {priority.bonusPoint}</p>
-                                        <hr />
-                                    </div>
-                                ))}
-                            </Modal.Body>
-                            <Modal.Footer>
-                                <Button variant="secondary" onClick={() => setShowPriorityModal(false)}>
-                                    Đóng
-                                </Button>
-                            </Modal.Footer>
-                        </Modal>
+                            <Modal show={showPriorityModal} onHide={() => setShowPriorityModal(false)} size="lg">
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Mô tả chi tiết các đối tượng ưu tiên</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    {priorityData.map((priority) => (
+                                        <div key={priority.priorityID} className="mb-3">
+                                            <h5>{priority.priorityName} - {priority.typeOfPriority}</h5>
+                                            <p>{priority.priorityDescription}</p>
+                                            <p>Điểm cộng: {priority.bonusPoint}</p>
+                                            <hr />
+                                        </div>
+                                    ))}
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={() => setShowPriorityModal(false)}>
+                                        Đóng
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
 
-                        <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
-                        <Row>
-                            <Col md={6} className='mt-2'>
-                                <Form.Group controlId="recipientResults">
-                                    <Form.Label>Người nhận</Form.Label>
-                                    <Form.Check
-                                        type="radio"
-                                        label="Thí sinh"
-                                        name="recipientResults"
-                                        id="recipientResults"
-                                        value="true"
-                                        checked={formData.recipientResults === true}
-                                        onChange={handleChange}
-                                    />
-                                    <Form.Check
-                                        type="radio"
-                                        label="Phụ huynh/Người bảo trợ"
-                                        name="recipientResults"
-                                        id="recipientResults"
-                                        value="false"
-                                        checked={formData.recipientResults === false}
-                                        className="pt-3"
-                                        onChange={handleChange}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6} className='mt-2'>
-                                <Form.Group controlId="addressRecipientResults">
-                                    <Form.Label>Địa chỉ nhận</Form.Label>
-                                    <Form.Check
-                                        type="radio"
-                                        label="Địa chỉ thường trú"
-                                        name="address"
-                                        id="permanentAddress"
-                                        checked={formData.permanentAddress === true}
-                                        onChange={() => {
-                                            setFormData(prevData => ({
-                                                ...prevData,
-                                                permanentAddress: true,
-                                                addressRecipientResults: "" // Xóa địa chỉ khác nếu chọn địa chỉ thường trú
-                                            }));
-                                            setShowOtherAddress(false);
-                                            // Xóa lỗi liên quan đến addressRecipientResults
-                                            setFormErrors((prevErrors) => ({
-                                                ...prevErrors,
-                                                addressRecipientResults: "", // Xóa lỗi
-                                            }));
-                                        }}
-                                    />
-                                    <div className='d-flex align-items-end'>
+                            <h4 className='text-orange mt-3'>Thông tin nhận giấy báo kết quả</h4>
+                            <Row>
+                                <Col md={6} className='mt-2'>
+                                    <Form.Group controlId="recipientResults">
+                                        <Form.Label>Người nhận</Form.Label>
                                         <Form.Check
                                             type="radio"
-                                            label="Khác"
-                                            name="address"
-                                            id="otherAddress"
-                                            checked={formData.permanentAddress === false}
-                                            onChange={() => {
-                                                setFormData(prevData => ({ ...prevData, permanentAddress: false }));
-                                                setShowOtherAddress(true);
-                                            }}
-                                            className="pt-3"
+                                            label="Thí sinh"
+                                            name="recipientResults"
+                                            id="recipientResults"
+                                            value="true"
+                                            checked={formData.recipientResults === true}
+                                            onChange={handleChange}
                                         />
-                                        {showOtherAddress && (
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Nhập địa chỉ khác"
-                                                className="ms-2"
-                                                value={formData.addressRecipientResults || ""}
-                                                onChange={handleChange}
+                                        <Form.Check
+                                            type="radio"
+                                            label="Phụ huynh/Người bảo trợ"
+                                            name="recipientResults"
+                                            id="recipientResults"
+                                            value="false"
+                                            checked={formData.recipientResults === false}
+                                            className="pt-3"
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6} className='mt-2'>
+                                    <Form.Group controlId="addressRecipientResults">
+                                        <Form.Label>Địa chỉ nhận</Form.Label>
+                                        <Form.Check
+                                            type="radio"
+                                            label="Địa chỉ thường trú"
+                                            name="address"
+                                            id="permanentAddress"
+                                            checked={formData.permanentAddress === true}
+                                            onChange={() => {
+                                                setFormData(prevData => ({
+                                                    ...prevData,
+                                                    permanentAddress: true,
+                                                    addressRecipientResults: "" // Xóa địa chỉ khác nếu chọn địa chỉ thường trú
+                                                }));
+                                                setShowOtherAddress(false);
+                                                // Xóa lỗi liên quan đến addressRecipientResults
+                                                setFormErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    addressRecipientResults: "", // Xóa lỗi
+                                                }));
+                                            }}
+                                        />
+                                        <div className='d-flex align-items-end'>
+                                            <Form.Check
+                                                type="radio"
+                                                label="Khác"
+                                                name="address"
+                                                id="otherAddress"
+                                                checked={formData.permanentAddress === false}
+                                                onChange={() => {
+                                                    setFormData(prevData => ({ ...prevData, permanentAddress: false }));
+                                                    setShowOtherAddress(true);
+                                                }}
+                                                className="pt-3"
                                             />
-                                        )}
-                                    </div>
-                                    {formErrors.addressRecipientResults && <p className="error">{formErrors.addressRecipientResults}</p>}
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <h4 className='text-orange mt-3'>Tải lên giấy tờ xác thực hồ sơ đăng ký học</h4>
-                        <Row>
-                            <Col md={3} className='mt-2'>
-                                <Form.Group>
-                                    <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFrontCCCDChange}
-                                        required
-                                    />
-                                    {frontCCCD && (
-                                        <div className="image-preview-container mt-2">
-                                            <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
+                                            {showOtherAddress && (
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Nhập địa chỉ khác"
+                                                    className="ms-2"
+                                                    value={formData.addressRecipientResults || ""}
+                                                    onChange={handleChange}
+                                                />
+                                            )}
                                         </div>
-                                    )}
-                                    {formErrors.imgCitizenIdentification1 && <p className="error">{formErrors.imgCitizenIdentification1}</p>}
-                                </Form.Group>
-                            </Col>
-                            <Col md={3} className='mt-2'>
-                                <Form.Group>
-                                    <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleBackCCCDChange}
-                                        required
-                                    />
-                                    {backCCCD && (
-                                        <div className="image-preview-container mt-2">
-                                            <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
-                                        </div>
-                                    )}
-                                    {formErrors.imgCitizenIdentification2 && <p className="error">{formErrors.imgCitizenIdentification2}</p>}
-                                </Form.Group>
-                            </Col>
-
-                            {showGraduationImage && (
+                                        {formErrors.addressRecipientResults && <p className="error">{formErrors.addressRecipientResults}</p>}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <h4 className='text-orange mt-3'>Tải lên giấy tờ xác thực hồ sơ đăng ký học</h4>
+                            <Row>
                                 <Col md={3} className='mt-2'>
                                     <Form.Group>
-                                        <Form.Label>Bằng tốt nghiệp xét tuyển</Form.Label>
+                                        <Form.Label>Ảnh CMND/CCCD mặt trước</Form.Label>
                                         <Form.Control
                                             type="file"
                                             accept="image/*"
-                                            onChange={handleGraduationCertificateChange}
+                                            onChange={handleFrontCCCDChange}
                                             required
                                         />
-                                        {diplomaMajor && (
+                                        {frontCCCD && (
                                             <div className="image-preview-container mt-2">
-                                                <img src={diplomaMajor} alt="Bằng tốt nghiệp" className="img-preview" />
+                                                <img src={frontCCCD} alt="Mặt trước CCCD" className="img-preview" />
                                             </div>
                                         )}
-                                        {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}
+                                        {formErrors.imgCitizenIdentification1 && <p className="error">{formErrors.imgCitizenIdentification1}</p>}
                                     </Form.Group>
                                 </Col>
-                            )}
-                        </Row>
-                        <Row>
-                            <Col md={12}>
-                                <Form.Group>
-                                    <Row className="mt-2">
-                                        {showSemester1Year10 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ học kỳ 1 lớp 10</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
-                                                    required
-                                                />
-                                            </Col>
+                                <Col md={3} className='mt-2'>
+                                    <Form.Group>
+                                        <Form.Label>Ảnh CMND/CCCD mặt sau</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleBackCCCDChange}
+                                            required
+                                        />
+                                        {backCCCD && (
+                                            <div className="image-preview-container mt-2">
+                                                <img src={backCCCD} alt="Mặt sau CCCD" className="img-preview" />
+                                            </div>
                                         )}
-                                        {showSemester2Year10 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ học kỳ 2 lớp 10</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                        {showFinalYear10 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ cuối năm lớp 10</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                        {showSemester1Year11 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ học kỳ 1 lớp 11</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                        {showSemester2Year11 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ học kỳ 2 lớp 11</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                        {showFinalYear11 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ cuối năm lớp 11</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                        {showSemester1Year12 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ học kỳ 1 lớp 12</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                        {showFinalYear12 && (
-                                            <Col md={3} className="mt-2">
-                                                <Form.Label>Ảnh học bạ cuối năm lớp 12</Form.Label>
-                                                <Form.Control
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
-                                                    required
-                                                />
-                                            </Col>
-                                        )}
-                                    </Row>
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <div className="d-flex justify-content-center">
-                            <Button variant="light" type="submit" className="read-more-btn mt-3">
-                                Gửi hồ sơ đăng ký
-                            </Button>
-                        </div>
-                    </Form>
-                </Container>
+                                        {formErrors.imgCitizenIdentification2 && <p className="error">{formErrors.imgCitizenIdentification2}</p>}
+                                    </Form.Group>
+                                </Col>
+
+                                {showGraduationImage && (
+                                    <Col md={3} className='mt-2'>
+                                        <Form.Group>
+                                            <Form.Label>Bằng tốt nghiệp xét tuyển</Form.Label>
+                                            <Form.Control
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleGraduationCertificateChange}
+                                                required
+                                            />
+                                            {diplomaMajor && (
+                                                <div className="image-preview-container mt-2">
+                                                    <img src={diplomaMajor} alt="Bằng tốt nghiệp" className="img-preview" />
+                                                </div>
+                                            )}
+                                            {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}
+                                        </Form.Group>
+                                    </Col>
+                                )}
+                            </Row>
+                            <Row>
+                                <Col md={12}>
+                                    <Form.Group>
+                                        <Row className="mt-2">
+                                            {showSemester1Year10 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ học kỳ 1 lớp 10</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showSemester2Year10 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ học kỳ 2 lớp 10</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showFinalYear10 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ cuối năm lớp 10</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showSemester1Year11 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ học kỳ 1 lớp 11</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showSemester2Year11 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ học kỳ 2 lớp 11</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showFinalYear11 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ cuối năm lớp 11</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showSemester1Year12 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ học kỳ 1 lớp 12</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                            {showFinalYear12 && (
+                                                <Col md={3} className="mt-2">
+                                                    <Form.Label>Ảnh học bạ cuối năm lớp 12</Form.Label>
+                                                    <Form.Control
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
+                                                        required
+                                                    />
+                                                </Col>
+                                            )}
+                                        </Row>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <div className="d-flex justify-content-center">
+                                <Button variant="light" type="submit" className="read-more-btn mt-3">
+                                    Gửi hồ sơ đăng ký
+                                </Button>
+                            </div>
+                        </Form>
+                    </Container>
+                )
             ) : (
                 <Container className="my-5 py-5 px-4 text-center">
                     <h3 className="text-danger mt-5 pt-5">Đã hết thời gian tuyển sinh</h3>

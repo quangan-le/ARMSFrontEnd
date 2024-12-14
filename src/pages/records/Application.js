@@ -561,7 +561,6 @@ const Application = () => {
                 imgpriority: null,
             }));
         }
-        console.log(formErrors);
     };
     const handleFileChangePriority = async (e) => {
         const file = e.target.files[0];
@@ -1006,7 +1005,7 @@ const Application = () => {
                     // Cập nhật updatedFormData với URL ảnh đã upload
                     updatedFormData[key] = url;
                 } catch (error) {
-                    console.error(`Error uploading ${key}:`, error);
+                    console.error(`Lỗi cập nhật ảnh lên firebase ${key}:`, error);
                 }
             }
         });

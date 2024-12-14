@@ -59,12 +59,16 @@ const BlogDetail = () => {
                 <Col md={8}>
                     <h2 className="news-title">{blogData?.title || 'Đang tải...'}</h2>
                     <p className="text-muted">Ngày đăng: {new Date(blogData?.dateCreate).toLocaleDateString() || 'Đang tải...'}</p>
-
                     <div className="news-content">
                         <p>{blogData?.description || 'Đang tải...'}</p>
                         <div dangerouslySetInnerHTML={{ __html: blogData?.content || '' }} />
                     </div>
-
+                    <div
+                        class="fb-like"
+                        data-share="true"
+                        data-width="450"
+                        data-show-faces="true">
+                    </div>
                     <div className="facebook-comments mt-4">
                         <h6>Bình luận Facebook</h6>
                         <div
@@ -73,6 +77,7 @@ const BlogDetail = () => {
                             data-width="100%"
                             data-numposts="5">
                         </div>
+                        <div class="fb-comments" data-href="https://developers.facebook.com/docs/plugins/comments#configurator" data-width="" data-numposts="5"></div>
                     </div>
                 </Col>
                 <Col md={4}>

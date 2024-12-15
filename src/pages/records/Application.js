@@ -328,7 +328,8 @@ const Application = () => {
 
         setFormData(prevData => ({
             ...prevData,
-            major: selectedMajorId
+            major: selectedMajorId,
+            typeOfDiplomaMajor: null,
         }));
 
         // Kiểm tra lỗi và cập nhật

@@ -69,6 +69,46 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         imgAcademicTranscript9: null,
     });
 
+    // Ngành học
+    const [majors, setMajors] = useState([]);
+    const [selectedMajor, setSelectedMajor] = useState('');
+    const [typeAdmissions, setTypeAdmissions] = useState([]);
+    const [selectedAdmissionType, setSelectedAdmissionType] = useState(null);
+    const [typeOfTranscriptMajor, setTypeOfTranscriptMajor] = useState(null);
+    const [subjectGroups, setSubjectGroups] = useState([]);
+    const [selectedGroupData, setSelectedGroupData] = useState(null);
+    const [showSubjectSelection, setShowSubjectSelection] = useState(false);
+    const [academicTranscriptsMajor, setAcademicTranscriptsMajor] = useState([]);
+    // Form nhập điểm động
+    const [displayedFields, setDisplayedFields] = useState([]);
+
+    // Định nghĩa các state hiển thị ảnh học bạ cho từng kỳ
+    const [showSemester1Year10, setShowSemester1Year10] = useState(false);
+    const [showSemester2Year10, setShowSemester2Year10] = useState(false);
+    const [showFinalYear10, setShowFinalYear10] = useState(false);
+
+    const [showSemester1Year11, setShowSemester1Year11] = useState(false);
+    const [showSemester2Year11, setShowSemester2Year11] = useState(false);
+    const [showFinalYear11, setShowFinalYear11] = useState(false);
+
+    const [showSemester1Year12, setShowSemester1Year12] = useState(false);
+    const [showFinalYear12, setShowFinalYear12] = useState(false);
+    // Ảnh bằng tốt nghiệp
+    const [showGraduationImage, setShowGraduationImage] = useState(false);
+    useEffect(() => {
+        const fetchMajors = async () => {
+            if (!applicationData?.campusId) return;
+
+            try {
+                const response = await api.get(`/Major/get-majors-college?campus=${applicationData.campusId}`);
+                setMajors(response.data);
+            } catch (error) {
+                console.error('Lỗi khi lấy giá trị ngành học', error);
+            }
+        };
+        fetchMajors();
+    }, [applicationData?.campusId]);
+
     useEffect(() => {
         if (!applicationData) {
             navigate("/tra-cuu-ho-so"); // Điều hướng về trang tra cứu hồ sơ nếu không có dữ liệu
@@ -78,7 +118,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 const date = new Date(dateString); // Chuyển đổi chuỗi thành đối tượng Date
                 return date.toISOString().split("T")[0]; // Lấy phần YYYY-MM-DD
             };
-            console.log(applicationData);
             setFormData({
                 fullname: applicationData.fullname || "",
                 dob: formatDate(applicationData.dob), // Chuyển đổi định dạng ngày
@@ -138,11 +177,33 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             });
             setSelectedProvince(applicationData.province || "");
             setSelectedDistrict(applicationData.district || "");
-            setSelectedMajor(applicationData.major || "")
-        }
-    }, [applicationData, navigate]);
+            setSelectedMajor(applicationData.major || "");
+            const initializeData = async () => {
+                if (selectedMajor && majors.length > 0) {
+                    // Gọi handleMajorChange
+                    await handleMajorChange({ target: { value: selectedMajor } });
 
-    const { selectedCampus } = useOutletContext();
+                    // Gọi handleAdmissionTypeChange và chờ hoàn tất
+                    const typeId = applicationData.typeOfDiplomaMajor;
+                    setSelectedAdmissionType(typeId);
+                    const updatedSubjectGroups = await handleAdmissionTypeChange({ target: { value: typeId } });
+
+                    // Đảm bảo subjectGroups đã có giá trị
+                    const academicTranscripts = applicationData?.academicTranscriptsMajor || [];
+                    const subjects = Array.from(new Set(academicTranscripts.map(item => item.subjectName)));
+                    const subjectGroupName = subjects.join(" – "); // Sử dụng en dash
+                    const selectedGroup = updatedSubjectGroups.find(group => group.subjectGroupName === subjectGroupName);
+                    if (selectedGroup) {
+                        handleSubjectGroupChange({ target: { value: selectedGroup.subjectGroup } });
+                    } else {
+                        console.error("Không tìm thấy mã tổ hợp phù hợp!");
+                    }
+                }
+            };
+            initializeData();
+        }
+    }, [applicationData, majors, navigate]);
+
     const [formErrors, setFormErrors] = useState({});
 
     // Xử lý lấy danh sách tỉnh huyện
@@ -270,32 +331,10 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         fetchCampuses();
     }, []);
 
-    // Ngành học
-    const [majors, setMajors] = useState([]);
-    const [selectedMajor, setSelectedMajor] = useState('');
-    const [typeAdmissions, setTypeAdmissions] = useState([]);
-    const [selectedAdmissionType, setSelectedAdmissionType] = useState(null);
-    const [typeOfTranscriptMajor, setTypeOfTranscriptMajor] = useState(null);
-    const [subjectGroups, setSubjectGroups] = useState([]);
-    const [selectedGroupData, setSelectedGroupData] = useState(null);
-    const [showSubjectSelection, setShowSubjectSelection] = useState(false);
-    const [academicTranscriptsMajor, setAcademicTranscriptsMajor] = useState([]);
-    // Form nhập điểm động
-    const [displayedFields, setDisplayedFields] = useState([]);
-
-    // Định nghĩa các state hiển thị ảnh học bạ cho từng kỳ
-    const [showSemester1Year10, setShowSemester1Year10] = useState(false);
-    const [showSemester2Year10, setShowSemester2Year10] = useState(false);
-    const [showFinalYear10, setShowFinalYear10] = useState(false);
-
-    const [showSemester1Year11, setShowSemester1Year11] = useState(false);
-    const [showSemester2Year11, setShowSemester2Year11] = useState(false);
-    const [showFinalYear11, setShowFinalYear11] = useState(false);
-
-    const [showSemester1Year12, setShowSemester1Year12] = useState(false);
-    const [showFinalYear12, setShowFinalYear12] = useState(false);
-    // Ảnh bằng tốt nghiệp
-    const [showGraduationImage, setShowGraduationImage] = useState(false);
+    const getCampusName = (campusId) => {
+        const campus = campuses.find((c) => c.campusId === campusId);
+        return campus ? campus.campusName : "Không xác định";
+    };
 
     const TypeOfDiploma = {
         0: 'Tốt nghiệp THCS',
@@ -325,38 +364,50 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         );
     };
 
-    // Hàm lấy các trường nhập điểm duy nhất từ hai loại xét học bạ
+    // Hàm lấy các trường nhập điểm duy nhất từ loại xét học bạ
     const getUniqueFields = (type1) => {
         const fields1 = fieldMapping[type1] || [];
         return Array.from(new Set(fields1));
     };
 
-    // Cập nhật formData và ngành học khi selectedCampus thay đổi
-    useEffect(() => {
-        if (selectedCampus?.id) {
-            setFormData((prevData) => ({
-                ...prevData,
-                campusId: selectedCampus.id,
-                campusName: selectedCampus.name,
-            }));
-            setSelectedMajor('');
-            setTypeAdmissions([]);
-            setSelectedAdmissionType(null);
-            setShowSubjectSelection(false);
-            setSubjectGroups([]);
-            setAcademicTranscriptsMajor([]);
-            const fetchMajors = async () => {
-                try {
-                    const response = await api.get(`/Major/get-majors-college?campus=${selectedCampus.id}`);
-                    setMajors(response.data);
-                } catch (error) {
-                    console.error('Lỗi khi lấy giá trị ngành học', error);
-                }
-            };
 
-            fetchMajors();
-        }
-    }, [selectedCampus]);
+    // // Sử dụng useEffect để theo dõi sự thay đổi của subjectGroups và tìm kiếm selectedGroupData
+    // useEffect(() => {
+    //     if (subjectGroups.length > 0) {
+    //         const academicTranscripts = applicationData.academicTranscriptsMajor || [];
+    //          // Lấy danh sách môn học đã lưu
+    //          const subjects = Array.from(new Set(academicTranscripts.map(item => item.subjectName)));
+    //          const selectedGroup = subjects.join(' - ');
+
+    //          const selectedGroupData = subjectGroups.find(group => group.subjectGroup === selectedGroup);
+    //          setSelectedGroupData(selectedGroupData);
+
+    //          // Tạo các trường nhập điểm (subject và typeOfAcademicTranscript)
+    //          const generatedFields = subjects.map((subject) => {
+    //              const fields = fieldMapping[typeOfTranscript] || [];
+    //              return fields.map((field, index) => ({
+    //                  subject,
+    //                  field,
+    //                  name: `${subject}_${field}`,
+    //                  columnWidthPercentage: typeOfTranscript === 3 ? 20 : 33,
+    //              }));
+    //          }).flat();
+
+    //          setDisplayedFields(generatedFields);
+
+    //          // Lấy điểm số từ academicTranscripts và điền vào trường nhập
+    //          const initialTranscripts = generatedFields.map((field) => {
+    //              const transcript = academicTranscripts.find(
+    //                  (item) => item.subjectName === field.subject && item.typeOfAcademicTranscript === field.typeOfAcademicTranscript
+    //              );
+    //              return {
+    //                  ...field,
+    //                  value: transcript ? transcript.subjectPoint : "", // Điền điểm nếu có
+    //              };
+    //          });
+    //          setAcademicTranscriptsMajor(initialTranscripts);
+    //     }
+    // }, [subjectGroups, applicationData.academicTranscriptsMajor]);
 
     // Khi người dùng chọn ngành cho nguyện vọng
     const handleMajorChange = async (e) => {
@@ -375,7 +426,8 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
 
         setFormData(prevData => ({
             ...prevData,
-            major: selectedMajorId
+            major: selectedMajorId,
+            typeOfDiplomaMajor: null,
         }));
 
         // Kiểm tra lỗi và cập nhật
@@ -394,8 +446,8 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         setAcademicTranscriptsMajor([]);
         setSelectedGroupData([]);
 
-        const selectedMajor = majors.find((major) => major.majorID === selectedMajor);
-        const selectedAdmissionType = selectedMajor?.typeAdmissions.find(admission => admission.typeDiploma === typeId);
+        const major = majors.find((major) => major.majorID === selectedMajor);
+        const selectedAdmissionType = major?.typeAdmissions.find(admission => admission.typeDiploma === typeId);
         const typeOfTranscript = selectedAdmissionType?.typeOfTranscript ?? null;
 
         setTypeOfTranscriptMajor(typeOfTranscript);
@@ -405,11 +457,15 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             typeOfTranscriptMajor: typeOfTranscript
         }));
         if (typeId === 3 || typeId === 5) {
-            setSubjectGroups(selectedMajor?.subjectGroupDTOs || []);
             setShowSubjectSelection(true);
+
+            const newSubjectGroups = major?.subjectGroupDTOs || [];
+            setSubjectGroups(newSubjectGroups);
+            return Promise.resolve(newSubjectGroups); // Trả về Promise khi subjectGroups được cập nhật
         } else {
             setShowSubjectSelection(false);
             setSubjectGroups([]);
+            return Promise.resolve([]);
         }
 
         // Validate and clear errors
@@ -469,7 +525,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         [1, 4, 7, 10, 13],
         [2, 5, 8, 11, 14]
     ];
-    // Xử lý thay đổi điểm cho nguyện vọng 1
+    // Xử lý thay đổi điểm cho nguyện vọng
     const handleScoreChange = (e) => {
         const { name, value } = e.target;
         // Xét điểm THPT
@@ -1302,7 +1358,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 <Form.Label>Cơ sở</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={selectedCampus?.name || ''}
+                                    value={getCampusName(formData?.campusId) || ""}
                                     disabled
                                     className="bg-light"
                                 />
@@ -1325,7 +1381,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 {formErrors.major && <p className="error">{formErrors.major}</p>}
                             </Form.Group>
                         </Col>
-
                         {typeAdmissions.length > 0 && (
                             <Col md={3}>
                                 <Form.Group controlId="typeOfDiplomaMajor" className='mb-2'>

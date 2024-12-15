@@ -77,7 +77,6 @@ const BlogDetail = () => {
                             data-width="100%"
                             data-numposts="5">
                         </div>
-                        <div class="fb-comments" data-href="https://developers.facebook.com/docs/plugins/comments#configurator" data-width="" data-numposts="5"></div>
                     </div>
                 </Col>
                 <Col md={4}>

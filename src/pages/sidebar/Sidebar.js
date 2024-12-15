@@ -186,6 +186,14 @@ const Sidebar = ({ role }) => {
               >
                 <Calendar className="me-2" /> Kế hoạch tuyển sinh
               </NavLink>
+              <NavLink
+                to="/admissions-council/thanh-toan-hoa-don"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
+                <Calendar className="me-2" /> Thanh toán hóa đơn
+              </NavLink>
               {/* <NavLink
                 to="/admissions-council/thong-tin-tuyen-sinh"
                 className={({ isActive }) =>

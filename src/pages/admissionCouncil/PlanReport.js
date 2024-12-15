@@ -129,7 +129,7 @@ const PlanReport = () => {
                 <Link to={`/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/${AI}`}>
                     <button className="btn btn-orange my-3">Quay lại</button>
                 </Link>
-                <Link to={`/admin-council/RegisterAdmission/list-register-admission/${ATId}`}>
+                <Link to={`/admin-council/ke-hoach-tuyen-sinh/danh-sach-dang-ky/${AI}/${ATId}`}>
                     <button className="btn btn-primary mx-3">Hồ sơ xét tuyển </button>
                 </Link>
         </Container>

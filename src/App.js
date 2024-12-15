@@ -34,6 +34,7 @@ import AdmissionRegistrationDetailAC from "./pages/admissionCouncil/AdmissionReg
 import AdmissionRegistrationListAC from "./pages/admissionCouncil/AdmissionRegistrationListAC.js";
 import AdmissionRegistrationListACInPlan from "./pages/admissionCouncil/AdmissionRegistrationListACInPlan.js";
 import MajorsListViewAC from "./pages/admissionCouncil/MajorsListViewAC.js";
+import PaymentsList from "./pages/admissionCouncil/PaymentsList.js";
 import PlanAdmission from "./pages/admissionCouncil/PlanAdmission.js";
 import PlanAdmissionDetail from "./pages/admissionCouncil/PlanAdmissionDetail.js";
 import PlanReport from "./pages/admissionCouncil/PlanReport.js";
@@ -69,10 +70,10 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    const chatboxDiv = document.getElementById('cpsdzukzsfckmjsftnaqh');
-    const hiddenDiv = document.getElementById('hidden-cpsdzukzsfckmjsftnaqh');
-    const chatboxDivId = 'cpsdzukzsfckmjsftnaqh';
-    const hiddenDivId = 'hidden-cpsdzukzsfckmjsftnaqh';
+    const chatboxDiv = document.getElementById('acsenbzuyzqpuomagcbl');
+    const hiddenDiv = document.getElementById('hidden-acsenbzuyzqpuomagcbl');
+    const chatboxDivId = 'acsenbzuyzqpuomagcbl';
+    const hiddenDivId = 'hidden-acsenbzuyzqpuomagcbl';
 
     if (location.pathname === '/dang-nhap') {
 
@@ -91,6 +92,7 @@ function App() {
         hiddenDiv.id = chatboxDivId;
         hiddenDiv.style.display = 'block';
       }
+      
       const script = document.createElement('script');
       script.innerHTML = `!function(s,u,b,i,z){
           var o,t,r,y;s
@@ -101,7 +103,7 @@ function App() {
             var t,n;
             s._subiz_init_2094850928430||r[k]&&(t=u.createElement(b),n=u.getElementsByTagName(b)[0],
             t.async=1,t.src="https://"+r[k]+"/sbz/app.js?accid="+z,n.parentNode.insertBefore(t,n),
-            setTimeout(y,2e3,k+1))})(0))}(window,document,"script","subiz","acsdzucyfyshkppajwex");`;
+            setTimeout(y,2e3,k+1))})(0))}(window,document,"script","subiz","acsenbzuyzqpuomagcbl");`;
 
       script.async = true;
       document.body.appendChild(script);
@@ -160,8 +162,9 @@ function App() {
         <Route path="/admissions-council/chi-tiet-ke-hoach-tuyen-sinh/:admissionInformationID" element={<PlanAdmissionDetail />} />
         <Route path="/admissions-council/danh-sach-dang-ky-tuyen-sinh" element={<AdmissionRegistrationListAC />} />
         <Route path="/admissions-council/chi-tiet-dang-ky-tuyen-sinh/:spId" element={<AdmissionRegistrationDetailAC />} />
-        <Route path="/admin-council/RegisterAdmission/list-register-admission/:AI/:ATId" element={<AdmissionRegistrationListACInPlan />} />
-        <Route path="/admin-council/RegisterAdmission/plan-report/:AI/:ATId" element={<PlanReport />} />
+        <Route path="/admin-council/ke-hoach-tuyen-sinh/danh-sach-dang-ky/:AI/:ATId" element={<AdmissionRegistrationListACInPlan />} />
+        <Route path="/admissions-council/ke-hoach-tuyen-sinh/thong-ke/:AI/:ATId" element={<PlanReport />} />
+        <Route path="/admissions-council/thanh-toan-hoa-don" element={<PaymentsList />} />
       </Route>
     </Routes>
   }

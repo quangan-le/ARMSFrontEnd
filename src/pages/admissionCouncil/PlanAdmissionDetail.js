@@ -517,10 +517,10 @@ const PlanAdmissionDetail = () => {
                                             <Dropdown.Item onClick={() => handleShowDetailModal('Detail-II', round)}>
                                             Ngành xét tuyển
                                             </Dropdown.Item>
-                                            <Dropdown.Item as={Link} to={`/admin-council/RegisterAdmission/list-register-admission/${admissionInformationID}/${round.admissionTimeId}`}>
+                                            <Dropdown.Item as={Link} to={`/admin-council/ke-hoach-tuyen-sinh/danh-sach-dang-ky/${admissionInformationID}/${round.admissionTimeId}`}>
                                             Hồ sơ đã nộp
                                             </Dropdown.Item>
-                                            <Dropdown.Item as={Link} to={`/admin-council/RegisterAdmission/plan-report/${admissionInformationID}/${round.admissionTimeId}`}>
+                                            <Dropdown.Item as={Link} to={`/admissions-council/ke-hoach-tuyen-sinh/thong-ke/${admissionInformationID}/${round.admissionTimeId}`}>
                                             Thống kê
                                             </Dropdown.Item>
                                         </Dropdown.Menu>

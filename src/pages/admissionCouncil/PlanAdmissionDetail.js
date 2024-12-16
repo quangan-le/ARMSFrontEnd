@@ -305,9 +305,37 @@ const PlanAdmissionDetail = () => {
         });
     };
 
-
     const handleSubmitMajor = async (e) => {
         e.preventDefault();
+        // Validation logic
+        if (formDataMajor.target <= 0 || !Number.isInteger(formDataMajor.target)) {
+            toast.error("Chỉ tiêu phải là số nguyên lớn hơn 0.");
+            return;
+        }
+
+        if (
+            formDataMajor.totalScore <= 0 ||
+            formDataMajor.totalScore > 30 ||
+            !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScore)
+        ) {
+            toast.error("Điểm xét THPT phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+
+        if (
+            formDataMajor.totalScoreAcademic <= 0 ||
+            formDataMajor.totalScoreAcademic > 30 ||
+            !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScoreAcademic)
+        ) {
+            toast.error("Điểm xét học bạ phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+
+        if (formDataMajor.typeAdmissions.length === 0) {
+            toast.error("Phải chọn ít nhất một hình thức xét tuyển.");
+            return;
+        }
+
         const updatedFormData = {
             ...formDataMajor,
             admissionTimeId: ATId,
@@ -512,16 +540,16 @@ const PlanAdmissionDetail = () => {
 
                                         <Dropdown.Menu>
                                             <Dropdown.Item onClick={() => handleShowEditModal('II', round)}>
-                                            Chỉnh sửa
+                                                Chỉnh sửa
                                             </Dropdown.Item>
                                             <Dropdown.Item onClick={() => handleShowDetailModal('Detail-II', round)}>
-                                            Ngành xét tuyển
+                                                Ngành xét tuyển
                                             </Dropdown.Item>
                                             <Dropdown.Item as={Link} to={`/admin-council/ke-hoach-tuyen-sinh/danh-sach-dang-ky/${admissionInformationID}/${round.admissionTimeId}`}>
-                                            Hồ sơ đã nộp
+                                                Hồ sơ đã nộp
                                             </Dropdown.Item>
                                             <Dropdown.Item as={Link} to={`/admissions-council/ke-hoach-tuyen-sinh/thong-ke/${admissionInformationID}/${round.admissionTimeId}`}>
-                                            Thống kê
+                                                Thống kê
                                             </Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>

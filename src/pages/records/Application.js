@@ -1038,6 +1038,8 @@ const Application = () => {
 
     const [formattedAmount, setFormattedAmount] = useState(null);
     const [loadingAmount, setLoadingAmount] = useState(true);
+    const [campusDetail, setCampusDetail] = useState(null);
+
     const formatCurrency = (amount) => {
         return amount.toLocaleString('vi-VN') + ' VND';
     };
@@ -1052,6 +1054,8 @@ const Application = () => {
                 } else {
                     setFormattedAmount("Không rõ");
                 }
+                const responseCampus = await api.get(`/Campus/get-campus?campusid=${selectedCampus.id}`);
+                setCampusDetail(responseCampus.data.address);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -1129,6 +1133,11 @@ const Application = () => {
                             <li>
                                 Sau khi thanh toán, bạn có thể tra cứu trạng thái hồ sơ để xác nhận hoàn tất.
                             </li>
+                            <li>
+                                Bổ sung bản photo công chứng CCCD và bằng tốt nghiệp tạm thời đến địa chỉ của trường tại
+                                <strong> {campusDetail || ""}</strong>
+                                để nhà trường làm căn cứ cho việc đối chiếu hồ sơ.
+                            </li>
                         </ol>
 
                         <p className="mt-4">
@@ -1164,8 +1173,8 @@ const Application = () => {
                             <li>
                                 <strong>Số tiền cần thanh toán:</strong>{' '}
                                 {loadingAmount ? 'Đang tải...' : '' || formattedAmount}
-                            </li>                        
-                            </ul>
+                            </li>
+                        </ul>
 
                         <div className="text-center mt-4">
                             <Button

@@ -456,6 +456,13 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             typeOfDiplomaMajor: typeId,
             typeOfTranscriptMajor: typeOfTranscript
         }));
+        // Validate and clear errors
+        const fieldError = await validateField("typeOfDiplomaMajor", typeId);
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            typeOfDiplomaMajor: fieldError,
+        }));
+
         if (typeId === 3 || typeId === 5) {
             setShowSubjectSelection(true);
 
@@ -467,13 +474,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             setSubjectGroups([]);
             return Promise.resolve([]);
         }
-
-        // Validate and clear errors
-        const fieldError = await validateField("typeOfDiplomaMajor", typeId);
-        setFormErrors((prevErrors) => ({
-            ...prevErrors,
-            typeOfDiplomaMajor: fieldError,
-        }));
     };
 
     const handleSubjectGroupChange = (e) => {

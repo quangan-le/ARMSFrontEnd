@@ -115,14 +115,18 @@ const MajorsListViewAC = () => {
         return groups;
     }, {});
 
-    const handleSaveChanges = async () => {
+    const handleSaveChanges = async () => { 
         try {
             const majorDTO = {
+                admissionTimeId: selectedMajors.admissionTimeId,
                 majorID: selectedMajors.majorID,  // ID ngành học
-                admissionInformationID: selectedMajors.admissionInformationID,  // ID thông tin tuyển sinh
-                target: selectedMajors.target,  // Mục tiêu tuyển sinh
                 status: selectedMajors.status,  // Trạng thái tuyển sinh
+                target: selectedMajors.target,  // Mục tiêu tuyển sinh
+                totalScore: major.totalScore,
+                totalScoreAcademic: major.totalScoreAcademic,
                 typeAdmissions: selectedMajors.typeAdmissions,  // Thông tin tuyển sinh
+
+                admissionInformationID: selectedMajors.admissionInformationID,  // ID thông tin tuyển sinh
                 subjectGroupsJson: JSON.stringify(selectedSubjects)
             };
             const response = await api.put(`/admission-council/Major/update-major`, majorDTO);

@@ -1135,7 +1135,7 @@ const Application = () => {
                             </li>
                             <li>
                                 Bổ sung bản photo công chứng CCCD và bằng tốt nghiệp tạm thời đến địa chỉ của trường tại
-                                <strong> {campusDetail || ""}</strong>
+                                <strong> {campusDetail || ""} {" "}</strong> 
                                 để nhà trường làm căn cứ cho việc đối chiếu hồ sơ.
                             </li>
                         </ol>

@@ -208,7 +208,7 @@ const ApplicationSearch = () => {
 
     const renderTable = (majorTranscripts, typeOfTranscriptMajor) => {
         if (!majorTranscripts || !Array.isArray(majorTranscripts) || majorTranscripts.length === 0) {
-            return <p>Không có dữ liệu điểm cho ngành này</p>;
+            return null;
         }
         // Lấy danh sách môn học
         const subjects = getSubjects(majorTranscripts);

@@ -682,6 +682,8 @@ const IntermediateApplication = () => {
 
     const [formattedAmount, setFormattedAmount] = useState(null);
     const [loadingAmount, setLoadingAmount] = useState(true);
+    const [campusDetail, setCampusDetail] = useState(null);
+    
     const formatCurrency = (amount) => {
         return amount.toLocaleString('vi-VN') + ' VND';
     };
@@ -696,6 +698,8 @@ const IntermediateApplication = () => {
                 } else {
                     setFormattedAmount("Không rõ");
                 }
+                const responseCampus = await api.get(`/Campus/get-campus?campusid=${selectedCampus.id}`);
+                setCampusDetail(responseCampus.data.address);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -772,6 +776,11 @@ const IntermediateApplication = () => {
                             </li>
                             <li>
                                 Sau khi thanh toán, bạn có thể tra cứu trạng thái hồ sơ để xác nhận hoàn tất.
+                            </li>
+                            <li>
+                                Bổ sung bản photo công chứng CCCD và bằng tốt nghiệp tạm thời đến địa chỉ của trường tại
+                                <strong> {campusDetail || ""} {" "}</strong> 
+                                để nhà trường làm căn cứ cho việc đối chiếu hồ sơ.
                             </li>
                         </ol>
 

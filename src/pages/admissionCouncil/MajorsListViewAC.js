@@ -122,8 +122,8 @@ const MajorsListViewAC = () => {
                 majorID: selectedMajors.majorID,  // ID ngành học
                 status: selectedMajors.status,  // Trạng thái tuyển sinh
                 target: selectedMajors.target,  // Mục tiêu tuyển sinh
-                totalScore: major.totalScore,
-                totalScoreAcademic: major.totalScoreAcademic,
+                totalScore: selectedMajors.totalScore,
+                totalScoreAcademic: selectedMajors.totalScoreAcademic,
                 typeAdmissions: selectedMajors.typeAdmissions,  // Thông tin tuyển sinh
 
                 admissionInformationID: selectedMajors.admissionInformationID,  // ID thông tin tuyển sinh

@@ -307,32 +307,39 @@ const PlanAdmissionDetail = () => {
 
     const handleSubmitMajor = async (e) => {
         e.preventDefault();
-        // Validation logic
-        if (formDataMajor.target <= 0 || !Number.isInteger(formDataMajor.target)) {
+        const target = parseInt(formDataMajor.target, 10); // Chuyển đổi sang số nguyên
+        if (isNaN(target) || target <= 0) {
             toast.error("Chỉ tiêu phải là số nguyên lớn hơn 0.");
             return;
         }
-
-        if (
-            formDataMajor.totalScore <= 0 ||
-            formDataMajor.totalScore > 30 ||
-            !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScore)
-        ) {
-            toast.error("Điểm xét THPT phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+        
+        if (formDataMajor.typeAdmissions.length === 0) {
+            toast.error("Phải chọn ít nhất một hình thức xét tuyển.");
             return;
         }
 
+        // Kiểm tra và validate điểm xét học bạ (typeDiploma = 3)
         if (
-            formDataMajor.totalScoreAcademic <= 0 ||
-            formDataMajor.totalScoreAcademic > 30 ||
-            !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScoreAcademic)
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3) &&
+            (
+                formDataMajor.totalScoreAcademic <= 0 ||
+                formDataMajor.totalScoreAcademic > 30 ||
+                !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScoreAcademic)
+            )
         ) {
             toast.error("Điểm xét học bạ phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
             return;
         }
-
-        if (formDataMajor.typeAdmissions.length === 0) {
-            toast.error("Phải chọn ít nhất một hình thức xét tuyển.");
+        // Kiểm tra và validate điểm xét THPT (typeDiploma = 5)
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 5) &&
+            (
+                formDataMajor.totalScore <= 0 ||
+                formDataMajor.totalScore > 30 ||
+                !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScore)
+            )
+        ) {
+            toast.error("Điểm xét THPT phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
             return;
         }
 
@@ -954,12 +961,17 @@ const PlanAdmissionDetail = () => {
                                             type="number"
                                             name="totalScoreAcademic"
                                             value={formDataMajor.totalScoreAcademic}
-                                            onChange={(e) =>
-                                                setFormDataMajor({
-                                                    ...formDataMajor,
-                                                    totalScoreAcademic: e.target.value,
-                                                })
-                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // Chỉ chấp nhận số thập phân với dấu `.` hoặc rỗng
+                                                if (/^\d*\.?\d{0,2}$/.test(value)) {
+
+                                                    setFormDataMajor({
+                                                        ...formDataMajor,
+                                                        totalScoreAcademic: value,
+                                                    });
+                                                }
+                                            }}
                                         />
                                     </Col>
                                     <Col md={4}>
@@ -973,12 +985,16 @@ const PlanAdmissionDetail = () => {
                                         type="number"
                                         name="totalScore"
                                         value={formDataMajor.totalScore}
-                                        onChange={(e) =>
-                                            setFormDataMajor({
-                                                ...formDataMajor,
-                                                totalScore: e.target.value,
-                                            })
-                                        }
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            // Chỉ chấp nhận số thập phân với dấu `.` hoặc rỗng
+                                            if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                                setFormDataMajor({
+                                                    ...formDataMajor,
+                                                    totalScore: value,
+                                                });
+                                            }
+                                        }}
                                     />
                                 </Col>
                             )}

@@ -202,6 +202,35 @@ const NewsList = () => {
         setShowModalCreate(true);
     };
 
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedBlogId, setSelectedBlogId] = useState(null);
+    // Hiển thị modal xác nhận xóa
+    const handleOpenDeleteModal = (blogId) => {
+        setSelectedBlogId(blogId);
+        setShowDeleteModal(true);
+    };
+
+    // Đóng modal
+    const handleCloseDeleteModal = () => {
+        setSelectedBlogId(null);
+        setShowDeleteModal(false);
+    };
+
+    // Xử lý xóa blog
+    const handleConfirmDelete = async () => {
+        setShowDeleteModal(false);
+        try {
+            await api.delete(`/school-service/Blog/delete-blog/${selectedBlogId}`);
+            toast.success("Bài viết đã được xóa thành công!");
+            fetchBlogs(); // Tải lại danh sách blog
+        } catch (error) {
+            console.error("Lỗi khi xóa bài viết:", error);
+            toast.error("Xóa bài viết thất bại.");
+        } finally {
+            setSelectedBlogId(null);
+        }
+    };
+
     return (
         <Container>
             <ToastContainer position="top-right" autoClose={3000} />
@@ -249,7 +278,7 @@ const NewsList = () => {
 
             </Row>
 
-            <Table bordered>
+            <Table striped bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
@@ -293,14 +322,24 @@ const NewsList = () => {
                                 <td>{news.description}</td>
                                 <td>{new Date(news.dateCreate).toLocaleDateString('vi-VN')}</td>
                                 <td>
-                                    <Button
-                                        variant="orange"
-                                        className="text-white"
-                                        style={{ whiteSpace: 'nowrap' }}
-                                        onClick={() => handleEditModal(news)}
-                                    >
-                                        Chỉnh sửa
-                                    </Button>
+                                    <div className="d-flex justify-content-center gap-2">
+                                        <Button
+                                            variant="orange"
+                                            className="text-white"
+                                            style={{ whiteSpace: 'nowrap' }}
+                                            onClick={() => handleEditModal(news)}
+                                        >
+                                            Chỉnh sửa
+                                        </Button>
+                                        <Button
+                                            variant="danger"
+                                            className="text-white"
+                                            style={{ whiteSpace: 'nowrap' }}
+                                            onClick={() => handleOpenDeleteModal(news.id)}
+                                        >
+                                            Xóa
+                                        </Button>
+                                    </div>
                                 </td>
                             </tr>
                         ))
@@ -541,6 +580,23 @@ const NewsList = () => {
                         ) : (
                             'Lưu'
                         )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            {/* Modal xác nhận xóa */}
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="text-center w-100 text-orange">Xác nhận xóa</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center">
+                    <p>Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.</p>
+                </Modal.Body>
+                <Modal.Footer className="d-flex justify-content-center gap-2">
+                    <Button variant="secondary" onClick={handleCloseDeleteModal} style={{ flex: 1 }}>
+                        Hủy
+                    </Button>
+                    <Button variant="danger" onClick={handleConfirmDelete} style={{ flex: 1 }}>
+                        Xóa
                     </Button>
                 </Modal.Footer>
             </Modal>

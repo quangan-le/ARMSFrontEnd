@@ -60,7 +60,7 @@ const PlanAdmissionDetail = () => {
         //setDetailData(null);
     };
     const getDiplomaName = (typeDiploma) => {
-        switch (typeDiploma) {
+        switch (typeDiploma) { 
             case 0: return "Tốt nghiệp THCS";
             case 1: return "Tốt nghiệp THPT";
             case 2: return "Tốt nghiệp CĐ/ĐH";

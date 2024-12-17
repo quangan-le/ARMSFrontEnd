@@ -1075,12 +1075,16 @@ const AdmissionRegistrationEdit = () => {
             return;
         }
 
+        // Kiểm tra TypeOfDiplomaMajor để xử lý academicTranscriptsMajor
+        const shouldClearAcademicTranscripts =
+            formData.typeOfDiplomaMajor !== 3 && formData.typeOfDiplomaMajor !== 5;
+
         // Khởi tạo updatedFormData với dữ liệu ban đầu
         const updatedFormData = {
             ...formData,
             spId: spId,
             gender: formData.gender === "true",
-            academicTranscriptsMajor1: academicTranscriptsMajor,
+            academicTranscriptsMajor1: shouldClearAcademicTranscripts ? [] : academicTranscriptsMajor,
         };
 
         const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {

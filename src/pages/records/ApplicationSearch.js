@@ -245,6 +245,76 @@ const ApplicationSearch = () => {
         );
     };
 
+    const getDiplomaName = (typeDiploma) => {
+        switch (typeDiploma) {
+            case 0: return "Tốt nghiệp THCS";
+            case 1: return "Tốt nghiệp THPT";
+            case 2: return "Tốt nghiệp CĐ/ĐH";
+            case 3: return "Xét học bạ THPT";
+            case 4: return "Liên thông";
+            case 5: return "Xét điểm thi THPT";
+            default: return "Khác";
+        }
+    };
+    const getTranscriptName = (typeOfTranscript) => {
+        switch (typeOfTranscript) {
+            case 0: return "Xét học bạ 12";
+            case 1: return "Xét học bạ 3 năm";
+            case 2: return "Xét học bạ lớp 10, lớp 11, HK1 lớp 12";
+            case 3: return "Xét học bạ 5 kỳ";
+            case 4: return "Xét học bạ 3 kỳ";
+            default: return null;
+        }
+    };
+
+    // Định nghĩa các state hiển thị ảnh học bạ cho từng kỳ
+    const [majors, setMajors] = useState([]);
+    useEffect(() => {
+        const fetchMajors = async () => {
+            if (!applicationData?.campusId) return;
+
+            try {
+                const response = await api.get(`/Major/get-majors-college?campus=${applicationData.campusId}`);
+                setMajors(response.data);
+            } catch (error) {
+                console.error('Lỗi khi lấy giá trị ngành học', error);
+            }
+        };
+        fetchMajors();
+    }, [applicationData?.campusId]);
+
+    // Hàm lấy các trường nhập điểm duy nhất từ loại xét học bạ
+    const getUniqueFields = (type1) => {
+        const fields1 = fieldMapping[type1] || [];
+        return Array.from(new Set(fields1));
+    };
+    const [showSemester1Year10, setShowSemester1Year10] = useState(false);
+    const [showSemester2Year10, setShowSemester2Year10] = useState(false);
+    const [showFinalYear10, setShowFinalYear10] = useState(false);
+
+    const [showSemester1Year11, setShowSemester1Year11] = useState(false);
+    const [showSemester2Year11, setShowSemester2Year11] = useState(false);
+    const [showFinalYear11, setShowFinalYear11] = useState(false);
+
+    const [showSemester1Year12, setShowSemester1Year12] = useState(false);
+    const [showFinalYear12, setShowFinalYear12] = useState(false);
+    useEffect(() => {
+        const selectedMajorData = majors.find((major) => major.majorID === applicationData.major);
+        const selectedType = selectedMajorData?.typeAdmissions.find(
+            (type) => type.typeDiploma === applicationData.typeOfDiplomaMajor
+        );
+        // Cập nhật displayedFields dựa trên các loại xét học bạ đã chọn
+        const fields = getUniqueFields(selectedType?.typeOfTranscript);
+        // Xác định có cần hiện form nhập ảnh học bạ
+        setShowSemester1Year10(fields.includes('HK1-10'));
+        setShowSemester2Year10(fields.includes('HK2-10'));
+        setShowFinalYear10(fields.includes('CN10'));
+        setShowSemester1Year11(fields.includes('HK1-11'));
+        setShowSemester2Year11(fields.includes('HK2-11'));
+        setShowFinalYear11(fields.includes('CN11'));
+        setShowSemester1Year12(fields.includes('HK1-12'));
+        setShowFinalYear12(fields.includes('CN12'));
+    }, [applicationData, majors]);
 
     // Nhập học
     const [selectedEnrollmentForm, setSelectedEnrollmentForm] = useState(null); // File đơn nhập học
@@ -576,6 +646,15 @@ const ApplicationSearch = () => {
                                                     <span className="label">Nguyện vọng</span>
                                                     <span className="value">{applicationData.majorName}</span>
                                                 </div>
+                                                <div className="info-item">
+                                                    <span className="label">Hình thức xét tuyển</span>
+                                                    <span className="value">
+                                                        {getDiplomaName(applicationData.typeOfDiplomaMajor)}{" "}
+                                                        {applicationData.typeOfAcademicTranscript !== null &&
+                                                            getTranscriptName(applicationData.typeOfAcademicTranscript) ?
+                                                            `- ${getTranscriptName(applicationData.typeOfAcademicTranscript)}` : ""}
+                                                    </span>
+                                                </div>
                                             </Col>
                                             <Col xs={12} md={6}>
                                                 {applicationData.academicTranscriptsMajor &&
@@ -605,26 +684,26 @@ const ApplicationSearch = () => {
                                                         <p className="image-title text-center mt-2">Bằng nộp xét tuyển</p>
                                                     </Col>
                                                 )}
-                                                {applicationData.imgAcademicTranscript1 && (
+                                                {applicationData.imgAcademicTranscript1 && showSemester1Year10 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img
                                                                 src={applicationData.imgAcademicTranscript1}
                                                                 alt={
                                                                     (applicationData.typeOfDiplomaMajor === 4 || applicationData.typeOfDiplomaMajor === null)
-                                                                    ? "Bảng điểm"
-                                                                    : "Ảnh học bạ HKI lớp 10"}
+                                                                        ? "Bảng điểm"
+                                                                        : "Ảnh học bạ HKI lớp 10"}
                                                                 className="img-fluid"
                                                             />
                                                         </div>
                                                         <p className="image-title text-center mt-2">
-                                                        {(applicationData.typeOfDiplomaMajor === 4 || applicationData.typeOfDiplomaMajor === null)
+                                                            {(applicationData.typeOfDiplomaMajor === 4 || applicationData.typeOfDiplomaMajor === null)
                                                                 ? "Bảng điểm"
                                                                 : "Ảnh học bạ HKI - Lớp 10"}
                                                         </p>
                                                     </Col>
                                                 )}
-                                                {applicationData.imgAcademicTranscript2 && (
+                                                {applicationData.imgAcademicTranscript2 && showSemester2Year10 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript2} alt="Ảnh học bạ HKII lớp 10" className="img-fluid" />
@@ -633,7 +712,7 @@ const ApplicationSearch = () => {
                                                     </Col>
                                                 )}
 
-                                                {applicationData.imgAcademicTranscript3 && (
+                                                {applicationData.imgAcademicTranscript3 && showFinalYear10 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript3} alt="Ảnh học bạ CN - Lớp 10" className="img-fluid" />
@@ -642,7 +721,7 @@ const ApplicationSearch = () => {
                                                     </Col>
                                                 )}
 
-                                                {applicationData.imgAcademicTranscript4 && (
+                                                {applicationData.imgAcademicTranscript4 && showSemester1Year11 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript4} alt="Ảnh học bạ HKI - Lớp 11" className="img-fluid" />
@@ -651,7 +730,7 @@ const ApplicationSearch = () => {
                                                     </Col>
                                                 )}
 
-                                                {applicationData.imgAcademicTranscript5 && (
+                                                {applicationData.imgAcademicTranscript5 && showSemester2Year11 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript5} alt="Ảnh học bạ HKII - Lớp 11" className="img-fluid" />
@@ -660,7 +739,7 @@ const ApplicationSearch = () => {
                                                     </Col>
                                                 )}
 
-                                                {applicationData.imgAcademicTranscript6 && (
+                                                {applicationData.imgAcademicTranscript6 && showFinalYear11 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript6} alt="Ảnh học bạ CN - Lớp 11" className="img-fluid" />
@@ -669,7 +748,7 @@ const ApplicationSearch = () => {
                                                     </Col>
                                                 )}
 
-                                                {applicationData.imgAcademicTranscript7 && (
+                                                {applicationData.imgAcademicTranscript7 && showSemester1Year12 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript7} alt="Ảnh học bạ HKI - Lớp 12" className="img-fluid" />
@@ -678,7 +757,7 @@ const ApplicationSearch = () => {
                                                     </Col>
                                                 )}
 
-                                                {applicationData.imgAcademicTranscript9 && (
+                                                {applicationData.imgAcademicTranscript9 && showFinalYear12 && (
                                                     <Col xs={6} sm={4} md={3} className="mb-2">
                                                         <div className="image-container">
                                                             <img src={applicationData.imgAcademicTranscript9} alt="Ảnh học bạ CN - Lớp 12" className="img-fluid" />

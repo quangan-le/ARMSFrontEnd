@@ -36,7 +36,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         addressRecipientResults: "",
         imgCitizenIdentification1: "",
         imgCitizenIdentification2: "",
-        imgDiplomaMajor1: "",
+        imgDiplomaMajor: "",
         imgpriority: "",
         imgAcademicTranscript1: "",
         imgAcademicTranscript2: "",
@@ -58,7 +58,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         imgpriority: null,
         imgCitizenIdentification1: null,
         imgCitizenIdentification2: null,
-        imgDiplomaMajor1: null,
+        imgDiplomaMajor: null,
         imgAcademicTranscript1: null,
         imgAcademicTranscript2: null,
         imgAcademicTranscript3: null,
@@ -171,7 +171,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 addressRecipientResults: applicationData.addressRecipientResults || "",
                 imgCitizenIdentification1: applicationData.imgCitizenIdentification1 || "",
                 imgCitizenIdentification2: applicationData.imgCitizenIdentification2 || "",
-                imgDiplomaMajor1: applicationData.imgDiplomaMajor || "",
+                imgDiplomaMajor: applicationData.imgDiplomaMajor || "",
                 imgpriority: applicationData.imgpriority || "",
                 imgAcademicTranscript1: applicationData.imgAcademicTranscript1 || "",
                 imgAcademicTranscript2: applicationData.imgAcademicTranscript2 || "",
@@ -747,7 +747,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
     // Ảnh tốt nghiệp
     const handleGraduationCertificateChange = async (e) => {
         const file = e.target.files[0];
-        const key = "imgDiplomaMajor1";
+        const key = "imgDiplomaMajor";
         if (file) {
             const updatedTempImages = {
                 ...tempImages,
@@ -845,7 +845,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = "CCCD/CMND không được để trống.";
                 } else if (!/^\d{12}$/.test(value)) {
                     error = "CCCD phải có 12 chữ số.";
-                } 
+                }
                 break;
             case "ciDate":
                 if (!value) {
@@ -884,7 +884,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = "Số điện thoại không được để trống.";
                 } else if (!phoneRegex.test(value)) {
                     error = "Số điện thoại phải có 10-11 chữ số.";
-                } else if (value !== applicationData.phoneStudent) { 
+                } else if (value !== applicationData.phoneStudent) {
                     try {
                         const response = await api.get("/RegisterAdmission/check-phone", {
                             params: { phone: value },
@@ -914,7 +914,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = `Email không được để trống.`;
                 } else if (!emailRegex.test(value)) {
                     error = `Email không đúng định dạng.`;
-                } else if (value !== applicationData.emailStudent) { 
+                } else if (value !== applicationData.emailStudent) {
                     try {
                         const response = await api.get("/RegisterAdmission/check-email", {
                             params: { email: value },
@@ -1016,8 +1016,8 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 }
                 break;
 
-            case "imgDiplomaMajor1":
-                if (tempImages?.imgDiplomaMajor1 && !allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
+            case "imgDiplomaMajor":
+                if (tempImages?.imgDiplomaMajor && !allowedFileTypes.includes(tempImages?.imgDiplomaMajor?.type)) {
                     error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
                 }
                 break;
@@ -1056,13 +1056,14 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             return;
         }
 
+        // Kiểm tra TypeOfDiplomaMajor để xử lý academicTranscriptsMajor
+        const shouldClearAcademicTranscripts =
+            formData.typeOfDiplomaMajor !== 3 && formData.typeOfDiplomaMajor !== 5;
+
         // Khởi tạo updatedFormData với dữ liệu ban đầu
         const updatedFormData = {
             ...formData,
-            academicTranscriptsMajor1: academicTranscriptsMajor,
-            typeOfDiplomaMajor1: formData.typeOfDiplomaMajor,
-            typeOfTranscriptMajor1: formData.typeOfTranscriptMajor,
-            major1: formData.major,
+            academicTranscriptsMajor: shouldClearAcademicTranscripts ? [] : academicTranscriptsMajor,
             gender: formData.gender === "true"
         };
 
@@ -1679,12 +1680,12 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                     accept="image/*"
                                     onChange={(e) => handleGraduationCertificateChange(e, true)}
                                 />
-                                {(tempImages.imgDiplomaMajor1 || applicationData.imgDiplomaMajor) && (
+                                {(tempImages.imgDiplomaMajor || applicationData.imgDiplomaMajor) && (
                                     <div className="image-preview-container mt-2">
                                         <img
                                             src={
-                                                tempImages.imgDiplomaMajor1
-                                                    ? URL.createObjectURL(tempImages.imgDiplomaMajor1)
+                                                tempImages.imgDiplomaMajor
+                                                    ? URL.createObjectURL(tempImages.imgDiplomaMajor)
                                                     : applicationData.imgDiplomaMajor
                                             }
                                             alt="Bằng tốt nghiệp"
@@ -1692,7 +1693,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                         />
                                     </div>
                                 )}
-                                {formErrors.imgDiplomaMajor1 && <p className="error">{formErrors.imgDiplomaMajor1}</p>}
+                                {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}
                             </Form.Group>
                         </Col>
                     )}

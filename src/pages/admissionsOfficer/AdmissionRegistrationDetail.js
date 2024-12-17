@@ -432,7 +432,7 @@ const AdmissionRegistrationDetail = () => {
                                             <div className="image-container">
                                                 <img
                                                     src={applicationData.imgAcademicTranscript1}
-                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4  || applicationData.typeOfDiplomaMajor1 === null)
+                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor1 === null)
                                                         ? "Bảng điểm"
                                                         : "Ảnh học bạ HKI lớp 10"}
                                                     className="img-fluid"
@@ -555,11 +555,12 @@ const AdmissionRegistrationDetail = () => {
                                     </Col>
                                 </Row>
                                 <h4 className='text-orange mt-2'>Thông tin xét tuyển</h4>
-                                <div className="info-item">
-                                    <span className="label2">Cơ sở nhập học</span>
-                                    <span className="value">{applicationData.campusName}</span>
-                                </div>
+
                                 <Col xs={12} md={6}>
+                                    <div className="info-item">
+                                        <span className="label">Cơ sở nhập học</span>
+                                        <span className="value">{applicationData.campusName}</span>
+                                    </div>
                                     <div className="info-item">
                                         <span className="label">Nguyện vọng</span>
                                         <span className="value">{applicationData.majorName1}</span>
@@ -590,6 +591,10 @@ const AdmissionRegistrationDetail = () => {
                                     </div>
                                 </Col>
                                 <Col xs={12} md={4}>
+                                    <div className="info-item">
+                                        <span className="label">Đợt xét tuyển</span>
+                                        <span className="value">{applicationData.aiId}</span>
+                                    </div>
                                     <div className="info-item">
                                         <span className="label me-3 text-nowrap">Trạng thái xét duyệt</span>
                                         <span className="value">
@@ -644,15 +649,15 @@ const AdmissionRegistrationDetail = () => {
                             <Col className="d-flex justify-content-end">
                                 {applicationData?.typeofStatusProfile === 0 && (
                                     <>
-                                        {/* <Button
+                                        <Button
                                             variant="light"
                                             onClick={() =>
                                                 navigate(`/admissions-officer/chinh-sua-ho-so/${applicationData.spId}`)
                                             }
-                                            className="btn-block bg-orange text-white"
+                                            className="bg-orange text-white mx-2"
                                         >
                                             Chỉnh sửa
-                                        </Button> */}
+                                        </Button>
 
                                         {majorDetails?.major && (
                                             <>

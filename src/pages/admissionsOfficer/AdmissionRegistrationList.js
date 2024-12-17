@@ -101,7 +101,7 @@ const AdmissionRegistrationList = () => {
                                 <td>{item.phoneStudent}</td>
                                 <td>{new Date(item.timeRegister).toLocaleDateString()}</td>
                                 <td>
-                                    {(item.typeOfDiplomaMajor1 === 4 || item.typeOfDiplomaMajor2 === 4) ? "Liên thông" : ""}
+                                    {(item.typeOfDiplomaMajor1 === 4) ? "Liên thông" : ""}
                                 </td>
                                 <td> {item.typeofStatusProfile === null
                                     ? "Chờ xét duyệt"

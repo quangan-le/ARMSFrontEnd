@@ -192,6 +192,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             setSelectedDistrict(applicationData.district || "");
             setSelectedMajor(applicationData.major || "");
             setSelectedPriority(applicationData.priorityDetailPriorityID ?? null);
+            setShowOtherAddress(applicationData.permanentAddress === false);
             const initializeData = async () => {
                 if (selectedMajor && majors.length > 0) {
                     // Gọi handleMajorChange
@@ -845,22 +846,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 } else if (!/^\d{12}$/.test(value)) {
                     error = "CCCD phải có 12 chữ số.";
                 } 
-                // else if (value !== applicationData.citizenIentificationNumber) {
-                //     try {
-                //         const response = await api.get("/RegisterAdmission/check-cccd", {
-                //             params: { CCCD: value },
-                //         });
-                //         if (!response.data.status) {
-                //             error = response.data.message || "CCCD không hợp lệ!";
-                //         }
-                //     } catch (err) {
-                //         if (err.response && err.response.status === 400) {
-                //             error = err.response.data.message || "Lỗi khi kiểm tra CCCD!";
-                //         } else {
-                //             error = "Không thể kiểm tra CCCD, vui lòng thử lại!";
-                //         }
-                //     }
-                // }
                 break;
             case "ciDate":
                 if (!value) {
@@ -1694,13 +1679,13 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                     accept="image/*"
                                     onChange={(e) => handleGraduationCertificateChange(e, true)}
                                 />
-                                {(tempImages.imgDiplomaMajor1 || applicationData.imgDiplomaMajor1) && (
+                                {(tempImages.imgDiplomaMajor1 || applicationData.imgDiplomaMajor) && (
                                     <div className="image-preview-container mt-2">
                                         <img
                                             src={
                                                 tempImages.imgDiplomaMajor1
                                                     ? URL.createObjectURL(tempImages.imgDiplomaMajor1)
-                                                    : applicationData.imgDiplomaMajor1
+                                                    : applicationData.imgDiplomaMajor
                                             }
                                             alt="Bằng tốt nghiệp"
                                             className="img-preview"

@@ -115,23 +115,71 @@ const MajorsListViewAC = () => {
         return groups;
     }, {});
 
-    const handleSaveChanges = async () => { 
+    const handleSaveChanges = async () => {
+        // Kiểm tra chỉ tiêu
+        const target = Number(selectedMajors.target); // Chuyển đổi sang kiểu số
+        if (!Number.isInteger(target) || target <= 0) {
+            toast.error("Chỉ tiêu phải là số nguyên lớn hơn 0.");
+            return;
+        }
+
+        if (selectedMajors.typeAdmissions.length === 0) {
+            toast.error("Phải chọn ít nhất một hình thức xét tuyển.");
+            return;
+        }
+        // Nếu chọn hình thức xét học bạ (typeDiploma = 3), phải chọn loại xét học bạ
+        if (
+            selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3) &&
+            !selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3 && item.typeOfTranscript != null)
+        ) {
+            toast.error("Vui lòng chọn loại xét học bạ.");
+            return;
+        }
+        // Kiểm tra và validate điểm xét học bạ (typeDiploma = 3)
+        if (
+            selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3) &&
+            (
+                selectedMajors.totalScoreAcademic <= 0 ||
+                selectedMajors.totalScoreAcademic > 30 ||
+                !/^\d+(\.\d{1,2})?$/.test(selectedMajors.totalScoreAcademic)
+            )
+        ) {
+            toast.error("Điểm xét học bạ phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+        // Kiểm tra và validate điểm xét THPT (typeDiploma = 5)
+        if (
+            selectedMajors.typeAdmissions.some(item => item.typeDiploma === 5) &&
+            (
+                selectedMajors.totalScore <= 0 ||
+                selectedMajors.totalScore > 30 ||
+                !/^\d+(\.\d{1,2})?$/.test(selectedMajors.totalScore)
+            )
+        ) {
+            toast.error("Điểm xét THPT phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+        // Nếu chọn hình thức xét học bạ (typeDiploma = 3) hoặc điểm THPT (typeDiploma = 5), phải chọn ít nhất một khối xét tuyển
+        if (
+            selectedMajors.typeAdmissions.some(item => item.typeDiploma === 3 || item.typeDiploma === 5) &&
+            selectedSubjects.length === 0
+        ) {
+            toast.error("Vui lòng chọn ít nhất một khối xét tuyển.");
+            return;
+        }
         try {
             const majorDTO = {
-                admissionTimeId: selectedMajors.admissionTimeId,
+                //admissionTimeId: selectedMajors.admissionTimeId,
                 majorID: selectedMajors.majorID,  // ID ngành học
                 status: selectedMajors.status,  // Trạng thái tuyển sinh
                 target: selectedMajors.target,  // Mục tiêu tuyển sinh
                 totalScore: selectedMajors.totalScore,
                 totalScoreAcademic: selectedMajors.totalScoreAcademic,
                 typeAdmissions: selectedMajors.typeAdmissions,  // Thông tin tuyển sinh
-
-                admissionInformationID: selectedMajors.admissionInformationID,  // ID thông tin tuyển sinh
                 subjectGroupsJson: JSON.stringify(selectedSubjects)
             };
             const response = await api.put(`/admission-council/Major/update-major`, majorDTO);
             if (response.data.status) {
-
                 toast.success(response.data.message);
                 fetchMajors(); // Refresh the majors list after update
                 handleCloseModal(); // Close the modal
@@ -392,12 +440,16 @@ const MajorsListViewAC = () => {
                                                         type="number"
                                                         name="totalScoreAcademic"
                                                         value={selectedMajors.totalScoreAcademic}
-                                                        onChange={(e) =>
-                                                            setSelectedMajors({
-                                                                ...selectedMajors,
-                                                                totalScoreAcademic: e.target.value,
-                                                            })
-                                                        }
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            // Chỉ chấp nhận số thập phân với dấu `.` hoặc rỗng
+                                                            if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                                                setSelectedMajors({
+                                                                    ...selectedMajors,
+                                                                    totalScoreAcademic: value,
+                                                                });
+                                                            }
+                                                        }}
                                                     />
                                                 </Col>
                                                 <Col md={4}>
@@ -411,12 +463,16 @@ const MajorsListViewAC = () => {
                                                     type="number"
                                                     name="totalScore"
                                                     value={selectedMajors.totalScore}
-                                                    onChange={(e) =>
-                                                        setSelectedMajors({
-                                                            ...selectedMajors,
-                                                            totalScore: e.target.value,
-                                                        })
-                                                    }
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        // Chỉ chấp nhận số thập phân với dấu `.` hoặc rỗng
+                                                        if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                                            setSelectedMajors({
+                                                                ...selectedMajors,
+                                                                totalScore: value,
+                                                            });
+                                                        }
+                                                    }}
                                                 />
                                             </Col>
                                         )}

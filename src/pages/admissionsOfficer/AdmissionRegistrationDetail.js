@@ -251,7 +251,7 @@ const AdmissionRegistrationDetail = () => {
             else if (typeofStatusMajor === 0) {
                 const payload = {
                     spId: applicationData.spId,
-                    typeofStatusMajor,
+                    typeofStatusMajor1: typeofStatusMajor,
                 };
                 await api.put('/admin-officer/RegisterAdmission/update-student-register-status', payload);
                 toast.success("Từ chối hồ sơ thành công!");
@@ -432,14 +432,14 @@ const AdmissionRegistrationDetail = () => {
                                             <div className="image-container">
                                                 <img
                                                     src={applicationData.imgAcademicTranscript1}
-                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4)
+                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4  || applicationData.typeOfDiplomaMajor1 === null)
                                                         ? "Bảng điểm"
                                                         : "Ảnh học bạ HKI lớp 10"}
                                                     className="img-fluid"
                                                 />
                                             </div>
                                             <p className="image-title text-center mt-2">
-                                                {(applicationData.typeOfDiplomaMajor1 === 4)
+                                                {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor1 === null)
                                                     ? "Bảng điểm"
                                                     : "Ảnh học bạ HKI - Lớp 10"}
                                             </p>

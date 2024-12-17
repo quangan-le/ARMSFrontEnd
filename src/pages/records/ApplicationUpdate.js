@@ -36,7 +36,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         addressRecipientResults: "",
         imgCitizenIdentification1: "",
         imgCitizenIdentification2: "",
-        imgDiplomaMajor: "",
+        imgDiplomaMajor1: "",
         imgpriority: "",
         imgAcademicTranscript1: "",
         imgAcademicTranscript2: "",
@@ -58,7 +58,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         imgpriority: null,
         imgCitizenIdentification1: null,
         imgCitizenIdentification2: null,
-        imgDiplomaMajor: null,
+        imgDiplomaMajor1: null,
         imgAcademicTranscript1: null,
         imgAcademicTranscript2: null,
         imgAcademicTranscript3: null,
@@ -109,6 +109,31 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         fetchMajors();
     }, [applicationData?.campusId]);
 
+    const updateScoreByIndex = (typeOfAcademicTranscript, subjectPoint, subjectName) => {
+        setAcademicTranscriptsMajor((prevTranscripts) => {
+            const updatedTranscripts = [...prevTranscripts];
+
+            // Tìm index của transcript cần cập nhật
+            const existingIndex = updatedTranscripts.findIndex(
+                (item) => item.typeOfAcademicTranscript === typeOfAcademicTranscript
+            );
+
+            if (existingIndex !== -1) {
+                // Nếu đã tồn tại, cập nhật điểm
+                updatedTranscripts[existingIndex].subjectPoint = subjectPoint;
+            } else {
+                // Nếu chưa tồn tại, thêm mới
+                updatedTranscripts.push({
+                    subjectName: subjectName,
+                    subjectPoint: subjectPoint,
+                    typeOfAcademicTranscript: typeOfAcademicTranscript,
+                });
+            }
+
+            return updatedTranscripts;
+        });
+    };
+
     useEffect(() => {
         if (!applicationData) {
             navigate("/tra-cuu-ho-so"); // Điều hướng về trang tra cứu hồ sơ nếu không có dữ liệu
@@ -116,7 +141,10 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             const formatDate = (dateString) => {
                 if (!dateString) return ""; // Nếu không có giá trị, trả về chuỗi rỗng
                 const date = new Date(dateString); // Chuyển đổi chuỗi thành đối tượng Date
-                return date.toISOString().split("T")[0]; // Lấy phần YYYY-MM-DD
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Thêm số 0 trước nếu cần
+                const day = String(date.getDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`; // Trả về định dạng YYYY-MM-DD
             };
             setFormData({
                 fullname: applicationData.fullname || "",
@@ -136,14 +164,14 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 phoneParents: applicationData.phoneParents || "",
                 campusId: applicationData.campusId || "",
                 major: applicationData.major || "",
-                yearOfGraduation: applicationData.yearOfGraduation || "",
+                yearOfGraduation: applicationData.yearOfGraduation ? String(applicationData.yearOfGraduation) : "",
                 schoolName: applicationData.schoolName || "",
                 recipientResults: applicationData.recipientResults ?? true, // Đảm bảo giá trị boolean
                 permanentAddress: applicationData.permanentAddress ?? true, // Đảm bảo giá trị boolean
                 addressRecipientResults: applicationData.addressRecipientResults || "",
                 imgCitizenIdentification1: applicationData.imgCitizenIdentification1 || "",
                 imgCitizenIdentification2: applicationData.imgCitizenIdentification2 || "",
-                imgDiplomaMajor: applicationData.imgDiplomaMajor || "",
+                imgDiplomaMajor1: applicationData.imgDiplomaMajor || "",
                 imgpriority: applicationData.imgpriority || "",
                 imgAcademicTranscript1: applicationData.imgAcademicTranscript1 || "",
                 imgAcademicTranscript2: applicationData.imgAcademicTranscript2 || "",
@@ -160,24 +188,10 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 campusName: applicationData.campusName || "",
                 academicTranscriptsMajor: applicationData.academicTranscriptsMajor || [],
             });
-            setTempImages({
-                imgpriority: applicationData.imgpriority || null,
-                imgCitizenIdentification1: applicationData.imgCitizenIdentification1 || null,
-                imgCitizenIdentification2: applicationData.imgCitizenIdentification2 || null,
-                imgDiplomaMajor: applicationData.imgDiplomaMajor || null,
-                imgAcademicTranscript1: applicationData.imgAcademicTranscript1 || "",
-                imgAcademicTranscript2: applicationData.imgAcademicTranscript2 || "",
-                imgAcademicTranscript3: applicationData.imgAcademicTranscript3 || "",
-                imgAcademicTranscript4: applicationData.imgAcademicTranscript4 || "",
-                imgAcademicTranscript5: applicationData.imgAcademicTranscript5 || "",
-                imgAcademicTranscript6: applicationData.imgAcademicTranscript6 || "",
-                imgAcademicTranscript7: applicationData.imgAcademicTranscript7 || "",
-                imgAcademicTranscript8: applicationData.imgAcademicTranscript8 || "",
-                imgAcademicTranscript9: applicationData.imgAcademicTranscript9 || "",
-            });
             setSelectedProvince(applicationData.province || "");
             setSelectedDistrict(applicationData.district || "");
             setSelectedMajor(applicationData.major || "");
+            setSelectedPriority(applicationData.priorityDetailPriorityID ?? null);
             const initializeData = async () => {
                 if (selectedMajor && majors.length > 0) {
                     // Gọi handleMajorChange
@@ -188,21 +202,63 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     setSelectedAdmissionType(typeId);
                     const updatedSubjectGroups = await handleAdmissionTypeChange({ target: { value: typeId } });
 
-                    // Đảm bảo subjectGroups đã có giá trị
                     const academicTranscripts = applicationData?.academicTranscriptsMajor || [];
+                    // Loại xét học bạ
                     const subjects = Array.from(new Set(academicTranscripts.map(item => item.subjectName)));
                     const subjectGroupName = subjects.join(" – "); // Sử dụng en dash
                     const selectedGroup = updatedSubjectGroups.find(group => group.subjectGroupName === subjectGroupName);
                     if (selectedGroup) {
-                        handleSubjectGroupChange({ target: { value: selectedGroup.subjectGroup } });
+                        handleSubjectGroupChange(
+                            { target: { value: selectedGroup.subjectGroup } },
+                            updatedSubjectGroups
+                        );
                     } else {
                         console.error("Không tìm thấy mã tổ hợp phù hợp!");
+                    }
+
+                    // Get điểm
+                    if (academicTranscripts.length > 0) {
+                        academicTranscripts.forEach(({ typeOfAcademicTranscript, subjectPoint, subjectName }) => {
+                            updateScoreByIndex(typeOfAcademicTranscript, subjectPoint, subjectName);
+                        });
                     }
                 }
             };
             initializeData();
         }
     }, [applicationData, majors, navigate]);
+
+    useEffect(() => {
+        const updateFieldsBasedOnAdmissionType = async () => {
+            if (selectedAdmissionType !== null && typeOfTranscriptMajor !== null) {
+                const updatedSubjectGroups = await handleAdmissionTypeChange({ target: { value: selectedAdmissionType } });
+
+                const academicTranscripts = applicationData?.academicTranscriptsMajor || [];
+                const subjects = Array.from(new Set(academicTranscripts.map(item => item.subjectName)));
+                const subjectGroupName = subjects.join(" – ");
+                const selectedGroup = updatedSubjectGroups.find(group => group.subjectGroupName === subjectGroupName);
+
+                if (selectedGroup) {
+                    handleSubjectGroupChange(
+                        { target: { value: selectedGroup.subjectGroup } },
+                        updatedSubjectGroups
+                    );
+                } else {
+                    console.error("Không tìm thấy mã tổ hợp phù hợp!");
+                }
+
+                // Get điểm sau khi handleSubjectGroupChange xong
+                if (academicTranscripts.length > 0) {
+                    academicTranscripts.forEach(({ typeOfAcademicTranscript, subjectPoint, subjectName }) => {
+                        updateScoreByIndex(typeOfAcademicTranscript, subjectPoint, subjectName);
+                    });
+                }
+            }
+        };
+
+        // Gọi hàm updateFieldsBasedOnAdmissionType khi selectedAdmissionType và typeOfTranscriptMajor thay đổi
+        updateFieldsBasedOnAdmissionType();
+    }, [selectedAdmissionType, typeOfTranscriptMajor]);  // Dependency array, chỉ chạy lại khi selectedAdmissionType hoặc typeOfTranscriptMajor thay đổi
 
     const [formErrors, setFormErrors] = useState({});
 
@@ -370,45 +426,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         return Array.from(new Set(fields1));
     };
 
-
-    // // Sử dụng useEffect để theo dõi sự thay đổi của subjectGroups và tìm kiếm selectedGroupData
-    // useEffect(() => {
-    //     if (subjectGroups.length > 0) {
-    //         const academicTranscripts = applicationData.academicTranscriptsMajor || [];
-    //          // Lấy danh sách môn học đã lưu
-    //          const subjects = Array.from(new Set(academicTranscripts.map(item => item.subjectName)));
-    //          const selectedGroup = subjects.join(' - ');
-
-    //          const selectedGroupData = subjectGroups.find(group => group.subjectGroup === selectedGroup);
-    //          setSelectedGroupData(selectedGroupData);
-
-    //          // Tạo các trường nhập điểm (subject và typeOfAcademicTranscript)
-    //          const generatedFields = subjects.map((subject) => {
-    //              const fields = fieldMapping[typeOfTranscript] || [];
-    //              return fields.map((field, index) => ({
-    //                  subject,
-    //                  field,
-    //                  name: `${subject}_${field}`,
-    //                  columnWidthPercentage: typeOfTranscript === 3 ? 20 : 33,
-    //              }));
-    //          }).flat();
-
-    //          setDisplayedFields(generatedFields);
-
-    //          // Lấy điểm số từ academicTranscripts và điền vào trường nhập
-    //          const initialTranscripts = generatedFields.map((field) => {
-    //              const transcript = academicTranscripts.find(
-    //                  (item) => item.subjectName === field.subject && item.typeOfAcademicTranscript === field.typeOfAcademicTranscript
-    //              );
-    //              return {
-    //                  ...field,
-    //                  value: transcript ? transcript.subjectPoint : "", // Điền điểm nếu có
-    //              };
-    //          });
-    //          setAcademicTranscriptsMajor(initialTranscripts);
-    //     }
-    // }, [subjectGroups, applicationData.academicTranscriptsMajor]);
-
     // Khi người dùng chọn ngành cho nguyện vọng
     const handleMajorChange = async (e) => {
         const selectedMajorId = e.target.value;
@@ -476,9 +493,9 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         }
     };
 
-    const handleSubjectGroupChange = (e) => {
+    const handleSubjectGroupChange = (e, subjectGroupsData = subjectGroups) => {
         const selectedGroup = e.target.value;
-        const selectedGroupData = subjectGroups.find(group => group.subjectGroup === selectedGroup);
+        const selectedGroupData = subjectGroupsData.find(group => group.subjectGroup === selectedGroup);
         if (selectedGroupData) {
             setSelectedGroupData(selectedGroupData);
             setAcademicTranscriptsMajor([]);
@@ -658,7 +675,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 imgpriority: null,
             }));
         }
-        console.log(formErrors);
     };
     const handleFileChangePriority = async (e) => {
         const file = e.target.files[0];
@@ -678,13 +694,10 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                 imgpriority: priorityError,
             }));
         }
-        console.log(formErrors);
     };
 
     // Xử lý CCCD và bằng
     const [showOtherAddress, setShowOtherAddress] = useState(false);
-    const [frontCCCD, setFrontCCCD] = useState(null);
-    const [backCCCD, setBackCCCD] = useState(null);
     const [diplomaMajor, setDiplomaMajor] = useState(null);
 
     // Ảnh mặt trước
@@ -733,7 +746,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
     // Ảnh tốt nghiệp
     const handleGraduationCertificateChange = async (e) => {
         const file = e.target.files[0];
-        const key = "imgDiplomaMajor";
+        const key = "imgDiplomaMajor1";
         if (file) {
             const updatedTempImages = {
                 ...tempImages,
@@ -831,22 +844,23 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = "CCCD/CMND không được để trống.";
                 } else if (!/^\d{12}$/.test(value)) {
                     error = "CCCD phải có 12 chữ số.";
-                } else {
-                    try {
-                        const response = await api.get("/RegisterAdmission/check-cccd", {
-                            params: { CCCD: value },
-                        });
-                        if (!response.data.status) {
-                            error = response.data.message || "CCCD không hợp lệ!";
-                        }
-                    } catch (err) {
-                        if (err.response && err.response.status === 400) {
-                            error = err.response.data.message || "Lỗi khi kiểm tra CCCD!";
-                        } else {
-                            error = "Không thể kiểm tra CCCD, vui lòng thử lại!";
-                        }
-                    }
-                }
+                } 
+                // else if (value !== applicationData.citizenIentificationNumber) {
+                //     try {
+                //         const response = await api.get("/RegisterAdmission/check-cccd", {
+                //             params: { CCCD: value },
+                //         });
+                //         if (!response.data.status) {
+                //             error = response.data.message || "CCCD không hợp lệ!";
+                //         }
+                //     } catch (err) {
+                //         if (err.response && err.response.status === 400) {
+                //             error = err.response.data.message || "Lỗi khi kiểm tra CCCD!";
+                //         } else {
+                //             error = "Không thể kiểm tra CCCD, vui lòng thử lại!";
+                //         }
+                //     }
+                // }
                 break;
             case "ciDate":
                 if (!value) {
@@ -885,7 +899,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = "Số điện thoại không được để trống.";
                 } else if (!phoneRegex.test(value)) {
                     error = "Số điện thoại phải có 10-11 chữ số.";
-                } else {
+                } else if (value !== applicationData.phoneStudent) { 
                     try {
                         const response = await api.get("/RegisterAdmission/check-phone", {
                             params: { phone: value },
@@ -915,7 +929,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = `Email không được để trống.`;
                 } else if (!emailRegex.test(value)) {
                     error = `Email không đúng định dạng.`;
-                } else {
+                } else if (value !== applicationData.emailStudent) { 
                     try {
                         const response = await api.get("/RegisterAdmission/check-email", {
                             params: { email: value },
@@ -994,43 +1008,34 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                     error = "Vui lòng nhập địa chỉ nhận giấy báo khác.";
                 }
                 break;
-            // case "imgpriority":
-            //     // Nếu chọn đối tượng ưu tiên, cần kiểm tra giấy tờ ưu tiên
-            //     if (selectedPriority) {
-            //         const file = tempImages?.imgpriority; // Lấy file từ tempImages
-            //         if (!file) {
-            //             error = "Vui lòng tải lên giấy tờ ưu tiên.";
-            //         } else {
-            //             // Kiểm tra loại file
-            //             if (!allowedFileTypes.includes(file.type)) {
-            //                 error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //             }
-            //         }
-            //     }
-            //     break;
-            // case "imgCitizenIdentification1":
-            //     if (!tempImages?.imgCitizenIdentification1) {
-            //         error = "Ảnh mặt trước CMND/CCCD là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgpriority":
+                // Nếu chọn đối tượng ưu tiên, cần kiểm tra giấy tờ ưu tiên
+                if (selectedPriority) {
+                    const file = tempImages?.imgpriority; // Lấy file từ tempImages
+                    if (file) {
+                        if (!allowedFileTypes.includes(file.type)) {
+                            error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                        }
+                    }
+                }
+                break;
+            case "imgCitizenIdentification1":
+                if (tempImages?.imgCitizenIdentification1 && !allowedFileTypes.includes(tempImages?.imgCitizenIdentification1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgCitizenIdentification2":
-            //     if (!tempImages?.imgCitizenIdentification2) {
-            //         error = "Ảnh mặt sau CMND/CCCD là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgCitizenIdentification2":
+                if (tempImages?.imgCitizenIdentification2 && !allowedFileTypes.includes(tempImages?.imgCitizenIdentification2?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
 
-            // case "imgDiplomaMajor":
-            //     if (!tempImages?.imgDiplomaMajor) {
-            //         error = "Ảnh bằng tốt nghiệp xét tuyển là bắt buộc.";
-            //     } else if (!allowedFileTypes.includes(tempImages?.imgDiplomaMajor?.type)) {
-            //         error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
-            //     }
-            //     break;
+            case "imgDiplomaMajor1":
+                if (tempImages?.imgDiplomaMajor1 && !allowedFileTypes.includes(tempImages?.imgDiplomaMajor1?.type)) {
+                    error = "Chỉ chấp nhận tệp ảnh (jpg, jpeg, png).";
+                }
+                break;
             default:
                 break;
         }
@@ -1069,7 +1074,11 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
         // Khởi tạo updatedFormData với dữ liệu ban đầu
         const updatedFormData = {
             ...formData,
-            academicTranscriptsMajor
+            academicTranscriptsMajor1: academicTranscriptsMajor,
+            typeOfDiplomaMajor1: formData.typeOfDiplomaMajor,
+            typeOfTranscriptMajor1: formData.typeOfTranscriptMajor,
+            major1: formData.major,
+            gender: formData.gender === "true"
         };
 
         const uploadPromises = Object.entries(tempImages).map(async ([key, file]) => {
@@ -1094,7 +1103,6 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
             const response = await api.put('/RegisterAdmission/update-register-admission', updatedFormData);
             if (response && response.data) {
                 onEditSuccess();  // Chuyển về trạng thái view
-                toast.success('Cập nhật hồ sơ thành công');
             }
         } catch (error) {
             if (error.response && error.response.data) {
@@ -1177,6 +1185,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 placeholder="Nhập số CMND/CCCD"
                                 value={formData.citizenIentificationNumber}
                                 onChange={handleChange}
+                                readOnly
                             />
                             {formErrors.citizenIentificationNumber && <p className="error">{formErrors.citizenIentificationNumber}</p>}
                         </Form.Group>
@@ -1496,7 +1505,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                             <Col md={6}>
                                 <Form.Group controlId="imgpriority">
                                     <Form.Label>Giấy tờ ưu tiên</Form.Label>
-                                    {/* {(tempImages.imgpriority || applicationData.imgpriority) ? (
+                                    {(tempImages.imgpriority || applicationData.imgpriority) ? (
                                         <div>
                                             <img
                                                 src={
@@ -1520,7 +1529,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             onChange={handleFileChangePriority}
                                             required
                                         />
-                                    )} */}
+                                    )}
                                 </Form.Group>
                                 {formErrors.imgpriority && <p className="error">{formErrors.imgpriority}</p>}
                             </Col>
@@ -1635,7 +1644,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 accept="image/*"
                                 onChange={handleFrontCCCDChange}
                             />
-                            {/* {(tempImages.imgCitizenIdentification1 || applicationData.imgCitizenIdentification1) && (
+                            {(tempImages.imgCitizenIdentification1 || applicationData.imgCitizenIdentification1) && (
                                 <div className="image-preview-container mt-2">
                                     <img
                                         src={
@@ -1647,7 +1656,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                         className="img-preview"
                                     />
                                 </div>
-                            )} */}
+                            )}
                             {formErrors.imgCitizenIdentification1 && <p className="error">{formErrors.imgCitizenIdentification1}</p>}
                         </Form.Group>
                     </Col>
@@ -1659,7 +1668,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                 accept="image/*"
                                 onChange={handleBackCCCDChange}
                             />
-                            {/* {(tempImages.imgCitizenIdentification2 || applicationData.imgCitizenIdentification2) && (
+                            {(tempImages.imgCitizenIdentification2 || applicationData.imgCitizenIdentification2) && (
                                 <div className="image-preview-container mt-2">
                                     <img
                                         src={
@@ -1671,7 +1680,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                         className="img-preview"
                                     />
                                 </div>
-                            )} */}
+                            )}
                             {formErrors.imgCitizenIdentification2 && <p className="error">{formErrors.imgCitizenIdentification2}</p>}
                         </Form.Group>
                     </Col>
@@ -1685,20 +1694,20 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                     accept="image/*"
                                     onChange={(e) => handleGraduationCertificateChange(e, true)}
                                 />
-                                {/* {(tempImages.imgDiplomaMajor || applicationData.imgDiplomaMajor) && (
+                                {(tempImages.imgDiplomaMajor1 || applicationData.imgDiplomaMajor1) && (
                                     <div className="image-preview-container mt-2">
                                         <img
                                             src={
-                                                tempImages.imgDiplomaMajor
-                                                    ? URL.createObjectURL(tempImages.imgDiplomaMajor)
-                                                    : applicationData.imgDiplomaMajor
+                                                tempImages.imgDiplomaMajor1
+                                                    ? URL.createObjectURL(tempImages.imgDiplomaMajor1)
+                                                    : applicationData.imgDiplomaMajor1
                                             }
                                             alt="Bằng tốt nghiệp"
                                             className="img-preview"
                                         />
                                     </div>
-                                )} */}
-                                {formErrors.imgDiplomaMajor && <p className="error">{formErrors.imgDiplomaMajor}</p>}
+                                )}
+                                {formErrors.imgDiplomaMajor1 && <p className="error">{formErrors.imgDiplomaMajor1}</p>}
                             </Form.Group>
                         </Col>
                     )}
@@ -1715,7 +1724,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 1)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript1 || applicationData.imgAcademicTranscript1) && (
+                                        {(tempImages.imgAcademicTranscript1 || applicationData.imgAcademicTranscript1) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1727,7 +1736,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester2Year10 && (
@@ -1738,7 +1747,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 2)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript2 || applicationData.imgAcademicTranscript2) && (
+                                        {(tempImages.imgAcademicTranscript2 || applicationData.imgAcademicTranscript2) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1750,7 +1759,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showFinalYear10 && (
@@ -1761,7 +1770,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 3)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript3 || applicationData.imgAcademicTranscript3) && (
+                                        {(tempImages.imgAcademicTranscript3 || applicationData.imgAcademicTranscript3) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1773,7 +1782,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester1Year11 && (
@@ -1784,7 +1793,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 4)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript4 || applicationData.imgAcademicTranscript4) && (
+                                        {(tempImages.imgAcademicTranscript4 || applicationData.imgAcademicTranscript4) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1796,7 +1805,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester2Year11 && (
@@ -1807,7 +1816,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 5)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript5 || applicationData.imgAcademicTranscript5) && (
+                                        {(tempImages.imgAcademicTranscript5 || applicationData.imgAcademicTranscript5) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1819,7 +1828,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showFinalYear11 && (
@@ -1830,7 +1839,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 6)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript6 || applicationData.imgAcademicTranscript6) && (
+                                        {(tempImages.imgAcademicTranscript6 || applicationData.imgAcademicTranscript6) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1842,7 +1851,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showSemester1Year12 && (
@@ -1853,7 +1862,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 7)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript7 || applicationData.imgAcademicTranscript7) && (
+                                        {(tempImages.imgAcademicTranscript7 || applicationData.imgAcademicTranscript7) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1865,7 +1874,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                                 {showFinalYear12 && (
@@ -1876,7 +1885,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                             accept="image/*"
                                             onChange={(e) => handleAcademicTranscriptUpload(e, 9)}
                                         />
-                                        {/* {(tempImages.imgAcademicTranscript9 || applicationData.imgAcademicTranscript9) && (
+                                        {(tempImages.imgAcademicTranscript9 || applicationData.imgAcademicTranscript9) && (
                                             <div className="image-preview-container mt-2">
                                                 <img
                                                     src={
@@ -1888,7 +1897,7 @@ const ApplicationUpdate = ({ applicationData, onEditSuccess, onCloseEdit }) => {
                                                     className="img-preview"
                                                 />
                                             </div>
-                                        )} */}
+                                        )}
                                     </Col>
                                 )}
                             </Row>

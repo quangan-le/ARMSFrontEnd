@@ -307,14 +307,28 @@ const PlanAdmissionDetail = () => {
 
     const handleSubmitMajor = async (e) => {
         e.preventDefault();
-        const target = parseInt(formDataMajor.target, 10); // Chuyển đổi sang số nguyên
-        if (isNaN(target) || target <= 0) {
+        // Kiểm tra ngành học
+        if (!formDataMajor.majorID) {
+            toast.error("Vui lòng chọn ngành học.");
+            return;
+        }
+        // Kiểm tra chỉ tiêu
+        const target = Number(formDataMajor.target);
+        if (!Number.isInteger(target) || target <= 0) {
             toast.error("Chỉ tiêu phải là số nguyên lớn hơn 0.");
             return;
         }
-        
+
         if (formDataMajor.typeAdmissions.length === 0) {
             toast.error("Phải chọn ít nhất một hình thức xét tuyển.");
+            return;
+        }
+        // Nếu chọn hình thức xét học bạ (typeDiploma = 3), phải chọn loại xét học bạ
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3) &&
+            !formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3 && item.typeOfTranscript != null)
+        ) {
+            toast.error("Vui lòng chọn loại xét học bạ.");
             return;
         }
 
@@ -340,6 +354,14 @@ const PlanAdmissionDetail = () => {
             )
         ) {
             toast.error("Điểm xét THPT phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+        // Nếu chọn hình thức xét học bạ (typeDiploma = 3) hoặc điểm THPT (typeDiploma = 5), phải chọn ít nhất một khối xét tuyển
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3 || item.typeDiploma === 5) &&
+            selectedSubjects.length === 0
+        ) {
+            toast.error("Vui lòng chọn ít nhất một khối xét tuyển.");
             return;
         }
 
@@ -403,6 +425,56 @@ const PlanAdmissionDetail = () => {
         setShowModalCreateMajor(true);
     };
     const handleUpdateMajor = async () => {
+        // Kiểm tra chỉ tiêu
+        const target = Number(formDataMajor.target); // Chuyển đổi sang kiểu số
+        if (!Number.isInteger(target) || target <= 0) {
+            toast.error("Chỉ tiêu phải là số nguyên lớn hơn 0.");
+            return;
+        }
+        if (formDataMajor.typeAdmissions.length === 0) {
+            toast.error("Phải chọn ít nhất một hình thức xét tuyển.");
+            return;
+        }
+        // Nếu chọn hình thức xét học bạ (typeDiploma = 3), phải chọn loại xét học bạ
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3) &&
+            !formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3 && item.typeOfTranscript != null)
+        ) {
+            toast.error("Vui lòng chọn loại xét học bạ.");
+            return;
+        }
+        // Kiểm tra và validate điểm xét học bạ (typeDiploma = 3)
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3) &&
+            (
+                formDataMajor.totalScoreAcademic <= 0 ||
+                formDataMajor.totalScoreAcademic > 30 ||
+                !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScoreAcademic)
+            )
+        ) {
+            toast.error("Điểm xét học bạ phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+        // Kiểm tra và validate điểm xét THPT (typeDiploma = 5)
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 5) &&
+            (
+                formDataMajor.totalScore <= 0 ||
+                formDataMajor.totalScore > 30 ||
+                !/^\d+(\.\d{1,2})?$/.test(formDataMajor.totalScore)
+            )
+        ) {
+            toast.error("Điểm xét THPT phải là số thập phân từ 0 đến 30, tối đa 2 chữ số thập phân.");
+            return;
+        }
+        // Nếu chọn hình thức xét học bạ (typeDiploma = 3) hoặc điểm THPT (typeDiploma = 5), phải chọn ít nhất một khối xét tuyển
+        if (
+            formDataMajor.typeAdmissions.some(item => item.typeDiploma === 3 || item.typeDiploma === 5) &&
+            selectedSubjects.length === 0
+        ) {
+            toast.error("Vui lòng chọn ít nhất một khối xét tuyển.");
+            return;
+        }
         const updatedFormData = {
             ...formDataMajor,
             admissionTimeId: ATId,

@@ -37,6 +37,7 @@ const ApplicationSearch = () => {
     const { selectedCampus } = useOutletContext();
     const [cccd, setCccd] = useState('');
     const [otp, setOtp] = useState('');
+    const [token, setToken] = useState('');
     const [applicationData, setApplicationData] = useState(null);
     const [email, setEmail] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -92,8 +93,9 @@ const ApplicationSearch = () => {
                     otp: otp
                 }
             });
-            const token = response.data?.token;
-            if (!token) {
+            const tokenData = response.data?.token
+            setToken(response.data?.token);
+            if (!tokenData) {
                 toast.error('Token không tồn tại trong phản hồi.');
                 return;
             }
@@ -103,11 +105,10 @@ const ApplicationSearch = () => {
                 { citizenIentificationNumber: cccd },
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${tokenData}`
                     }
                 }
             );
-            console.log(dataResponse.data);
             setApplicationData(dataResponse.data);
             setMaxStep(getCurrentStep(dataResponse.data.typeofStatusProfile, dataResponse.data.typeofStatusMajor));
             handleClose(dataResponse.data);
@@ -353,8 +354,19 @@ const ApplicationSearch = () => {
         setIsEditing(false);  // Quay lại chế độ xem thông tin
     };
     // Callback sau khi chỉnh sửa thành công
-    const handleEditSuccess = () => {
-        setIsEditing(false);  // Chuyển về chế độ xem sau khi chỉnh sửa thành công
+    const handleEditSuccess = async () => {
+        toast.success('Cập nhật hồ sơ thành công');
+        setTimeout(() => setIsEditing(false), 1000); // Chuyển trạng thái sau 1 giây
+        const dataResponse = await api.post(
+            '/RegisterAdmission/search-register-admission',
+            { citizenIentificationNumber: cccd },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        setApplicationData(dataResponse.data);
     };
 
 
@@ -598,14 +610,15 @@ const ApplicationSearch = () => {
                                                         <div className="image-container">
                                                             <img
                                                                 src={applicationData.imgAcademicTranscript1}
-                                                                alt={(applicationData.typeOfDiplomaMajor === 4)
+                                                                alt={
+                                                                    (applicationData.typeOfDiplomaMajor === 4 || applicationData.typeOfDiplomaMajor === null)
                                                                     ? "Bảng điểm"
                                                                     : "Ảnh học bạ HKI lớp 10"}
                                                                 className="img-fluid"
                                                             />
                                                         </div>
                                                         <p className="image-title text-center mt-2">
-                                                            {(applicationData.typeOfDiplomaMajor === 4)
+                                                        {(applicationData.typeOfDiplomaMajor === 4 || applicationData.typeOfDiplomaMajor === null)
                                                                 ? "Bảng điểm"
                                                                 : "Ảnh học bạ HKI - Lớp 10"}
                                                         </p>

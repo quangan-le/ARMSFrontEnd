@@ -340,7 +340,7 @@ const AdmissionRegistrationDetailAC = () => {
                                         )}
                                 </Col>
                                 <Col xs={12} md={6}>
-                                {(applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5) && (
+                                    {(applicationData.typeOfDiplomaMajor1 === 3 || applicationData.typeOfDiplomaMajor1 === 5) && (
                                         <>
                                             <h6>Tổng điểm xét tuyển</h6>
                                             <table className="table table-bordered">
@@ -396,7 +396,7 @@ const AdmissionRegistrationDetailAC = () => {
                                             </table>
                                         </>
                                     )}
-                                 
+
                                 </Col>
                                 <span className="label my-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                 <Row>
@@ -427,20 +427,19 @@ const AdmissionRegistrationDetailAC = () => {
                                             <div className="image-container">
                                                 <img
                                                     src={applicationData.imgAcademicTranscript1}
-                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4)
+                                                    alt={(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor1 === null)
                                                         ? "Bảng điểm"
                                                         : "Ảnh học bạ HKI lớp 10"}
                                                     className="img-fluid"
                                                 />
                                             </div>
                                             <p className="image-title text-center mt-2">
-                                                {(applicationData.typeOfDiplomaMajor1 === 4)
+                                                {(applicationData.typeOfDiplomaMajor1 === 4 || applicationData.typeOfDiplomaMajor1 === null)
                                                     ? "Bảng điểm"
                                                     : "Ảnh học bạ HKI - Lớp 10"}
                                             </p>
                                         </Col>
                                     )}
-
                                     {applicationData.imgAcademicTranscript2 && (
                                         <Col xs={6} sm={4} md={3} className="mb-2">
                                             <div className="image-container">

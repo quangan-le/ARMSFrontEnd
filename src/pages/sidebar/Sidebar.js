@@ -51,6 +51,14 @@ const Sidebar = ({ role }) => {
               >
                 <Book className="me-2" /> Ngành đào tạo
               </NavLink>
+              <NavLink
+                to="/user/thanh-toan-hoa-don"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
+                <Calendar className="me-2" /> Thanh toán hóa đơn
+              </NavLink>
             </>
           )}
 
@@ -149,6 +157,14 @@ const Sidebar = ({ role }) => {
               >
                 <Chat className="me-2" /> Danh sách đăng ký tư vấn
               </NavLink>
+              <NavLink
+                to="/user/thanh-toan-hoa-don"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
+                <Calendar className="me-2" /> Thanh toán hóa đơn
+              </NavLink>
             </>
           )}
 
@@ -187,7 +203,7 @@ const Sidebar = ({ role }) => {
                 <Calendar className="me-2" /> Kế hoạch tuyển sinh
               </NavLink>
               <NavLink
-                to="/admissions-council/thanh-toan-hoa-don"
+                to="/user/thanh-toan-hoa-don"
                 className={({ isActive }) =>
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }

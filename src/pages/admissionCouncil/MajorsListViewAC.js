@@ -41,7 +41,7 @@ const MajorsListViewAC = () => {
     const fetchMajors = async () => {
         try {
             if (campusId) {
-                const response = await api.get(`/admin-officer/Major/get-majors`, {
+                const response = await api.get(`/admission-council/Major/get-majors`, {
                     params: {
                         CampusId: campusId,
                         Search: search,
@@ -71,8 +71,7 @@ const MajorsListViewAC = () => {
 
     const handleShowModal = async (major) => {
         try {
-
-            const response = await api.get(`/admin-officer/Major/get-major-details?MajorId=${major.majorID}&AdmissionInformationID=${major.admissionInformationID}`);
+            const response = await api.get(`/admission-council/Major/get-major-details?MajorId=${major.majorID}`);
             const majorData = response.data;
             setSelectedMajors(majorData);
 
@@ -83,10 +82,9 @@ const MajorsListViewAC = () => {
             }).filter(id => id !== null); // Lọc các id hợp lệ (không phải null)
 
             setSelectedSubjects(selectedIds);
-
             setShowModal(true);
         } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu bài viết:', error);
+            console.error('Lỗi khi lấy dữ liệu ngành học:', error);
         }
     };
 

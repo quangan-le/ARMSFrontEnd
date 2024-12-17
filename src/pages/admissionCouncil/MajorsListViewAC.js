@@ -167,7 +167,7 @@ const MajorsListViewAC = () => {
         }
         try {
             const majorDTO = {
-                //admissionTimeId: selectedMajors.admissionTimeId,
+                admissionTimeId: selectedMajors.admissionTimeId,
                 majorID: selectedMajors.majorID,  // ID ngành học
                 status: selectedMajors.status,  // Trạng thái tuyển sinh
                 target: selectedMajors.target,  // Mục tiêu tuyển sinh

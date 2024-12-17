@@ -16,7 +16,7 @@ const PaymentsList = () => {
     const fetchPayments = async () => {
         try {
             if (campusId) {
-                const response = await api.get(`/admission-council/PayFee/get-payments`, {
+                const response = await api.get(`/user/PayFee/get-payments`, {
                     params: {
                         CampusId: campusId,
                         Search: search,

@@ -207,14 +207,19 @@ const PlanAdmissionDetail = () => {
     const [majorOptions, setMajorOptions] = useState([]);
     const fetchMajors = async () => {
         try {
-            const response = await api.get("/admin/Major/get-majors?campus=hanoi");
-            const allMajors = response.data;
-            // Lọc danh sách ngành đã có
-            const filteredMajors = allMajors.filter(
-                (major) => !detailData.some((existingMajor) => existingMajor.majorID === major.majorID)
-            );
-
-            setMajorOptions(filteredMajors);
+            if (campusId) {
+                const response = await api.get(`/admission-council/Major/get-majors-ac`, {
+                    params: {
+                        campus: campusId
+                    },
+                });
+                const allMajors = response.data;
+                // Lọc danh sách ngành đã có
+                const filteredMajors = allMajors.filter(
+                    (major) => !detailData.some((existingMajor) => existingMajor.majorID === major.majorID)
+                );
+                setMajorOptions(filteredMajors);
+            }
         } catch (error) {
             console.error("Error fetching majors:", error);
         }

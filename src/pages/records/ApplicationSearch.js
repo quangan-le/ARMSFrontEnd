@@ -211,6 +211,28 @@ const ApplicationSearch = () => {
         if (!majorTranscripts || !Array.isArray(majorTranscripts) || majorTranscripts.length === 0) {
             return null;
         }
+        if (typeOfTranscriptMajor === null) {
+            // Trường hợp xét điểm THPT (typeOfDiplomaMajor === 5)
+            return (
+                <table className="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Môn học</th>
+                            <th>Điểm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {majorTranscripts.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.subjectName}</td>
+                                <td>{item.subjectPoint}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            );
+        }
+        // Trường hợp khác (xét học bạ)
         // Lấy danh sách môn học
         const subjects = getSubjects(majorTranscripts);
 
@@ -650,15 +672,22 @@ const ApplicationSearch = () => {
                                                     <span className="label">Hình thức xét tuyển</span>
                                                     <span className="value">
                                                         {getDiplomaName(applicationData.typeOfDiplomaMajor)}{" "}
-                                                        {applicationData.typeOfAcademicTranscript !== null &&
-                                                            getTranscriptName(applicationData.typeOfAcademicTranscript) ?
-                                                            `- ${getTranscriptName(applicationData.typeOfAcademicTranscript)}` : ""}
+                                                        {applicationData.typeOfTranscriptMajor !== null &&
+                                                            getTranscriptName(applicationData.typeOfTranscriptMajor) ?
+                                                            `- ${getTranscriptName(applicationData.typeOfTranscriptMajor)}` : ""}
                                                     </span>
                                                 </div>
                                             </Col>
                                             <Col xs={12} md={6}>
                                                 {applicationData.academicTranscriptsMajor &&
-                                                    renderTable(applicationData.academicTranscriptsMajor, applicationData.typeOfTranscriptMajor)}
+                                                    (applicationData.typeOfDiplomaMajor === 3 || applicationData.typeOfDiplomaMajor === 5) && (
+                                                        <>
+                                                            {renderTable(
+                                                                applicationData.academicTranscriptsMajor,
+                                                                applicationData.typeOfTranscriptMajor || null
+                                                            )}
+                                                        </>
+                                                    )}
                                             </Col>
                                             <span className="label mb-2">Giấy tờ xác thực hồ sơ đăng ký</span>
                                             <Row>

@@ -41,14 +41,14 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
   const [showNotification, setShowNotification] = useState(false);
   const fetchNotifications = async () => {
     try {
-        if (campusId) {
-            const response = await api.get(`/user/Notification/get-notifications`);
-            setNotifications(response.data);
-        }
+      if (campusId) {
+        const response = await api.get(`/user/Notification/get-notifications`);
+        setNotifications(response.data);
+      }
     } catch (error) {
-        console.error("Có lỗi xảy ra! vui lòng thử lại sau!", error);
+      console.error("Có lỗi xảy ra! vui lòng thử lại sau!", error);
     }
-};
+  };
   useEffect(() => {
     fetchNotifications();
   }, []);
@@ -80,9 +80,9 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
     setLoadingId(id);
     try {
       // Gọi API cập nhật trạng thái thông báo
-      const response = await api.put(`/user/Notification/update-notification?NotificationId=`+ id);
+      const response = await api.put(`/user/Notification/update-notification?NotificationId=` + id);
 
-      if (response.data.status===true) {
+      if (response.data.status === true) {
         // Cập nhật state khi API thành công
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) =>
@@ -91,7 +91,7 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
               : notification
           )
         );
-        
+
       } else {
         toast.error("Cập nhật thông báo thất bại!");
       }
@@ -105,7 +105,7 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
   const markAllAsRead = async () => {
     // Lọc những thông báo chưa đọc
     const unreadNotifications = notifications.filter((notification) => !notification.isRead);
-  
+
     try {
       for (const notification of unreadNotifications) {
         await markAsRead(notification.notificationId);
@@ -117,7 +117,7 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
   };
   return (
     <>
-    <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={3000} />
       <Navbar collapseOnSelect expand="lg" className="manager-header bg-body-tertiary px-4 py-2 header-fixed">
         <Navbar.Brand className="mx-5 fw-bold fs-3" style={{ color: 'orange' }}>
           ARMS
@@ -135,11 +135,11 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
           </Nav>
 
           <Nav>
-          <Dropdown
+            <Dropdown
               className="notification-dropdown me-4"
               show={showNotification}
               onToggle={handleNotificationToggle}
-          >
+            >
               {/* Nút chuông */}
               <Dropdown.Toggle
                 as="span"
@@ -155,51 +155,51 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
 
               {/* Danh sách thông báo */}
               <Dropdown.Menu align="end" style={{ maxHeight: "300px", overflowY: "auto" }}>
-              {notifications.length > 0 ? (
-                <>
-                  <Dropdown.Item
-                    className="d-flex justify-content-between align-items-center"
-                    style={{
-                      color: allNotificationsRead ? "#6c757d" : "green", 
-                      pointerEvents: allNotificationsRead ? "none" : "auto", 
-                    }}
-                    onClick={allNotificationsRead ? null : () => markAllAsRead()}
-                  >
-                    <span style={{ color: allNotificationsRead ? "#6c757d" : "green" }}>
-                      Đánh dấu đã đọc tất cả
-                    </span>
-                  </Dropdown.Item>
-                  <Dropdown.Divider />
-                  {notifications.map((notification) => (
+                {notifications.length > 0 ? (
+                  <>
                     <Dropdown.Item
-                      key={notification.notificationId}
                       className="d-flex justify-content-between align-items-center"
                       style={{
-                        backgroundColor: notification.isRead ? "#f8f9fa" : "white",
-                        color: notification.isRead ? "#6c757d" : "black",
+                        color: allNotificationsRead ? "#6c757d" : "green",
+                        pointerEvents: allNotificationsRead ? "none" : "auto",
                       }}
+                      onClick={allNotificationsRead ? null : () => markAllAsRead()}
                     >
-                      <span>{notification.content}</span>
-                      {!notification.isRead && (
-                        <Button
-                          variant="link"
-                          onClick={() => markAsRead(notification.notificationId)}
-                          style={{ color: "green" }}
-                        >
-                          {loadingId === notification.notificationId ? (
-                            <Spinner animation="border" size="sm" />
-                          ) : (
-                            <CheckCircle size={20} />
-                          )}
-                        </Button>
-                      )}
+                      <span style={{ color: allNotificationsRead ? "#6c757d" : "green" }}>
+                        Đánh dấu đã đọc tất cả
+                      </span>
                     </Dropdown.Item>
-                  ))}
-                </>
-              ) : (
-                <Dropdown.Item>Không có thông báo</Dropdown.Item>
-              )}
-            </Dropdown.Menu>
+                    <Dropdown.Divider />
+                    {notifications.map((notification) => (
+                      <Dropdown.Item
+                        key={notification.notificationId}
+                        className="d-flex justify-content-between align-items-center"
+                        style={{
+                          backgroundColor: notification.isRead ? "#f8f9fa" : "white",
+                          color: notification.isRead ? "#6c757d" : "black",
+                        }}
+                      >
+                        <span>{notification.content}</span>
+                        {!notification.isRead && (
+                          <Button
+                            variant="link"
+                            onClick={() => markAsRead(notification.notificationId)}
+                            style={{ color: "green" }}
+                          >
+                            {loadingId === notification.notificationId ? (
+                              <Spinner animation="border" size="sm" />
+                            ) : (
+                              <CheckCircle size={20} />
+                            )}
+                          </Button>
+                        )}
+                      </Dropdown.Item>
+                    ))}
+                  </>
+                ) : (
+                  <Dropdown.Item>Không có thông báo</Dropdown.Item>
+                )}
+              </Dropdown.Menu>
 
             </Dropdown>
             <Dropdown>

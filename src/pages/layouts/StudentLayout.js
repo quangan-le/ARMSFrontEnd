@@ -9,7 +9,7 @@ const StudentLayout = () => {
   const { currentUser, userLoggedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const hideHeaderFooter = location.pathname === "/dang-nhap";
+  const hideHeaderFooter = location.pathname === "/dang-nhap" || location.pathname === "/quen-mat-khau";
 
   // Quản lý state campus
   const [selectedCampus, setSelectedCampus] = useState({

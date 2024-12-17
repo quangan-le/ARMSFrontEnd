@@ -6,7 +6,11 @@ import {
   FileEarmarkText,
   FileLock,
   FileText, House, People,
-  Person, ShieldLock
+  Person, ShieldLock,
+  ClipboardCheck, 
+  Diagram3, 
+  CalendarEvent, 
+  CreditCard2Back
 } from 'react-bootstrap-icons';
 
 import { NavLink } from "react-router-dom";
@@ -78,7 +82,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Book className="me-2" /> Ngành tuyển sinh
+                <Diagram3 className="me-2" /> Ngành tuyển sinh
               </NavLink>
               <NavLink
                 to="/school-service/danh-sach-tin-tuc"
@@ -139,7 +143,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Calendar className="me-2" /> Yêu cầu đăng ký tuyển sinh
+                <ClipboardCheck className="me-2" /> Yêu cầu đăng ký tuyển sinh
               </NavLink>
               <NavLink
                 to="/admissions-officer/danh-sach-nganh-tuyen-sinh"
@@ -147,7 +151,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Book className="me-2" /> Ngành tuyển sinh
+                <Diagram3 className="me-2" /> Ngành tuyển sinh
               </NavLink>
               <NavLink
                 to="/admissions-officer/danh-sach-dang-ky-tu-van-tuyen-sinh"
@@ -163,7 +167,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Calendar className="me-2" /> Thanh toán hóa đơn
+                <CreditCard2Back className="me-2" /> Thanh toán hóa đơn
               </NavLink>
             </>
           )}
@@ -184,7 +188,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Calendar className="me-2" /> Yêu cầu đăng ký tuyển sinh
+                <ClipboardCheck className="me-2" /> Yêu cầu đăng ký tuyển sinh
               </NavLink>
               <NavLink
                 to="/admissions-council/danh-sach-nganh-tuyen-sinh"
@@ -192,7 +196,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Book className="me-2" /> Ngành tuyển sinh
+                <Diagram3  className="me-2" /> Ngành tuyển sinh
               </NavLink>
               <NavLink
                 to="/admissions-council/ke-hoach-tuyen-sinh"
@@ -200,7 +204,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Calendar className="me-2" /> Kế hoạch tuyển sinh
+                <CalendarEvent  className="me-2" /> Kế hoạch tuyển sinh
               </NavLink>
               <NavLink
                 to="/user/thanh-toan-hoa-don"
@@ -208,7 +212,7 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
-                <Calendar className="me-2" /> Thanh toán hóa đơn
+                <CreditCard2Back className="me-2" /> Thanh toán hóa đơn
               </NavLink>
               {/* <NavLink
                 to="/admissions-council/thong-tin-tuyen-sinh"

@@ -131,7 +131,7 @@ const Login = () => {
                                 placeholder="Nhập tên đăng nhập" />
                         </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="password">
+                        <Form.Group controlId="password">
                             <Form.Label>Mật khẩu</Form.Label>
                             <InputGroup>
                                 <Form.Control
@@ -147,6 +147,16 @@ const Login = () => {
                                 </InputGroup.Text>
                             </InputGroup>
                         </Form.Group>
+                        {/* Thêm nút Quên mật khẩu */}
+                        <div className="text-end mb-2">
+                            <Button
+                                variant="link"
+                                className="text-decoration-none"
+                                onClick={() => navigate('/quen-mat-khau')}
+                            >
+                                Quên mật khẩu?
+                            </Button>
+                        </div>
                         <div className="d-grid gap-2">
                             <Button style={{ backgroundColor: 'orange', borderColor: 'orange' }}
                                 type="submit"
@@ -176,6 +186,7 @@ const Login = () => {
                             Quay lại trang chủ
                         </Button>
                     </div>
+
                 </Col>
             </Row>
         </Container>

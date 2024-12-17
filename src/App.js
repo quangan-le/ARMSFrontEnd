@@ -54,6 +54,7 @@ import RequestForTransfer from "./pages/student/RequestForTransfer.js";
 import RequestForWithdraw from "./pages/student/RequestForWithdraw.js";
 import StudentProfile from "./pages/student/StudentProfile.js";
 import PaymentsList from "./pages/user/PaymentsList.js";
+import ForgotPassword from "./pages/login/ForgotPassword.js";
 
 
 function App() {
@@ -167,17 +168,17 @@ function App() {
         <Route path="/admin-council/ke-hoach-tuyen-sinh/danh-sach-dang-ky/:AI/:ATId" element={<AdmissionRegistrationListACInPlan />} />
         <Route path="/admissions-council/ke-hoach-tuyen-sinh/thong-ke/:AI/:ATId" element={<PlanReport />} />
         <Route path="/user/thanh-toan-hoa-don" element={<PaymentsList />} />
+        <Route path="/doi-mat-khau" element={<ChangePassword />} />
       </Route>
     </Routes>
   }
 
   return (
     <Routes>
-
       <Route element={<StudentLayout />}>
-
         <Route path="/" element={<HomePage />} />
         <Route path="/dang-nhap" element={<Login />} />
+        <Route path="/quen-mat-khau" element={<ForgotPassword />} />
         <Route path="/lich-su-thanh-lap" element={<History />} />
         <Route path="/phuong-cham-dao-tao" element={<Motto />} />
         <Route path="/thanh-tich" element={<Achievement />} />

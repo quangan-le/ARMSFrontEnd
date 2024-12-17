@@ -408,10 +408,10 @@ const Homepage = () => {
         <div className="registration-overlay"></div>
         <div className="registration-content d-flex justify-content-between align-items-center p-5">
           <div className="text-section text-orange">
-            <h2 className="fw-bold">ĐĂNG KÝ XÉT TUYỂN NGAY!</h2>
+            <h2 className="fw-bold">ĐĂNG KÝ TƯ VẤN NGAY!</h2>
           </div>
           <div className="form-section bg-orange p-4 text-white">
-            <h4 className="text-center">ĐĂNG KÝ XÉT TUYỂN</h4>
+            <h4 className="text-center">ĐĂNG KÝ TƯ VẤN</h4>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="fullName" className="form-label">Họ và tên</label>

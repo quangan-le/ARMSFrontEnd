@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Dropdown, Nav, Navbar, NavDropdown, Modal, Button } from 'react-bootstrap';
+import React, { useEffect, useState } from "react";
+import { Badge, Button, Dropdown, Modal, Nav, Navbar } from 'react-bootstrap';
 import { Bell, List, PersonCircle } from "react-bootstrap-icons";
 import { useNavigate } from 'react-router-dom';
 import api from "../../apiService.js";
@@ -39,14 +39,18 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
   // Thông báo
   const [notifications, setNotifications] = useState([]);
   const [showNotification, setShowNotification] = useState(false);
+  const fetchNotifications = async () => {
+    try {
+        if (campusId) {
+            const response = await api.get(`/user/Notification/get-notifications`);
+            setNotifications(response.data);
+        }
+    } catch (error) {
+        console.error("Có lỗi xảy ra! vui lòng thử lại sau!", error);
+    }
+};
   useEffect(() => {
-    const mockNotifications = [
-      { id: 1, message: "Thông báo 1" },
-      { id: 2, message: "Thông báo 1" },
-      { id: 3, message: "Thông báo 1" },
-      { id: 4, message: "Thông báo 1" }
-    ];
-    setNotifications(mockNotifications);
+    fetchNotifications();
   }, []);
 
   const handleNotificationToggle = () => {
@@ -89,8 +93,26 @@ const ManagerHeader = ({ toggleSidebar, role, campusId }) => {
               Cơ sở: {campusName}
             </Nav.Item>
           </Nav>
+
           <Nav>
-            <Bell size={24} className="mx-3 text-orange" />
+          <Dropdown className="notification-dropdown me-4" show={showNotification}
+                onToggle={handleNotificationToggle}
+                onMouseEnter={() => setShowNotification(true)}
+                onMouseLeave={() => setShowNotification(false)}>
+                <Dropdown.Toggle as="span" className="notification-icon" >
+                  <Bell size={24} />
+                  <Badge pill bg="danger" className="notification-badge">
+                    {notifications.length}
+                  </Badge>
+                </Dropdown.Toggle>
+                <Dropdown.Menu align="end" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {notifications.map((notification) => (
+                    <Dropdown.Item key={notification.id}>
+                      {notification.content}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+            </Dropdown>
             <Dropdown>
               <Dropdown.Toggle as="span" style={{ cursor: "pointer" }}>
                 <PersonCircle size={30} className="text-orange" />

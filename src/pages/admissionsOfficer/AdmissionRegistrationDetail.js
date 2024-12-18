@@ -97,11 +97,11 @@ const AdmissionRegistrationDetail = () => {
     ];
 
     const getSubjects = () => {
-        if (!applicationData?.academicTranscriptsMajor) {
+        if (!applicationData?.academicTranscripts) {
             return [];
         }
 
-        return applicationData.academicTranscriptsMajor
+        return applicationData.academicTranscripts
             .filter((item) => item.typeOfAcademicTranscript < 3) // Lấy 3 môn đầu tiên
             .map((item) => ({
                 name: item.subjectName,
@@ -132,7 +132,7 @@ const AdmissionRegistrationDetail = () => {
                             <td>{subject.name}</td>
                             {periods.map((_, periodIndex) => {
                                 const index = indexMap[subject.baseIndex][periodIndex];
-                                const transcript = applicationData.academicTranscriptsMajor.find(
+                                const transcript = applicationData.academicTranscripts.find(
                                     (item) => item.typeOfAcademicTranscript === index
                                 );
                                 return <td key={periodIndex}>{transcript ? transcript.subjectPoint : "-"}</td>;
@@ -746,7 +746,7 @@ const AdmissionRegistrationDetail = () => {
                             <Col className="d-flex justify-content-end">
                                 {applicationData?.typeofStatusProfile === 0 && (
                                     <>
-                                        <Button
+                                        {/* <Button
                                             variant="light"
                                             onClick={() =>
                                                 navigate(`/admissions-officer/chinh-sua-ho-so/${applicationData.spId}`)
@@ -754,7 +754,7 @@ const AdmissionRegistrationDetail = () => {
                                             className="bg-orange text-white mx-2"
                                         >
                                             Chỉnh sửa
-                                        </Button>
+                                        </Button> */}
 
                                         {majorDetails?.major && (
                                             <>

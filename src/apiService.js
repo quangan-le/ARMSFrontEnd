@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Đổi baseURL nhớ đổi cả trong ApplicationSearch api search-register-admission
 const api = axios.create({
-  baseURL: 'https://localhost:5001/api',
+  baseURL: 'https://arms-api-fzf2e3fkcaa8gph8.canadacentral-01.azurewebsites.net/api',
   headers: {
     'Content-Type': 'application/json',
   },

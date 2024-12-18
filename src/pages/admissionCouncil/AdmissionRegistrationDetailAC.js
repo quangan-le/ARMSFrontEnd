@@ -97,11 +97,11 @@ const AdmissionRegistrationDetailAC = () => {
     ];
 
     const getSubjects = () => {
-        if (!applicationData?.academicTranscriptsMajor) {
+        if (!applicationData?.academicTranscripts) {
             return [];
         }
 
-        return applicationData.academicTranscriptsMajor
+        return applicationData.academicTranscripts
             .filter((item) => item.typeOfAcademicTranscript < 3) // Lấy 3 môn đầu tiên
             .map((item) => ({
                 name: item.subjectName,
@@ -132,7 +132,7 @@ const AdmissionRegistrationDetailAC = () => {
                             <td>{subject.name}</td>
                             {periods.map((_, periodIndex) => {
                                 const index = indexMap[subject.baseIndex][periodIndex];
-                                const transcript = applicationData.academicTranscriptsMajor.find(
+                                const transcript = applicationData.academicTranscripts.find(
                                     (item) => item.typeOfAcademicTranscript === index
                                 );
                                 return <td key={periodIndex}>{transcript ? transcript.subjectPoint : "-"}</td>;

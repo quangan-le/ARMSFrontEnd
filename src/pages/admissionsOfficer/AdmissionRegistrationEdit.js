@@ -230,9 +230,10 @@ const AdmissionRegistrationEdit = () => {
                     const subjectGroupName = subjects.join(" – "); // Sử dụng en dash
                     const selectedGroup = updatedSubjectGroups.find(group => group.subjectGroupName === subjectGroupName);
                     if (selectedGroup) {
-                        handleSubjectGroupChange(
+                        handleSubjectGroupChange2(
                             { target: { value: selectedGroup.subjectGroup } },
-                            updatedSubjectGroups
+                            updatedSubjectGroups,
+                            typeId
                         );
                     } else {
                         console.error("Không tìm thấy mã tổ hợp phù hợp!");
@@ -511,6 +512,49 @@ const AdmissionRegistrationEdit = () => {
             setShowSubjectSelection(false);
             setSubjectGroups([]);
             return Promise.resolve([]);
+        }
+    };
+
+    const handleSubjectGroupChange2 = (e, subjectGroupsData = subjectGroups, selectedAdmissionType = selectedAdmissionType) => {
+        const selectedGroup = e.target.value;
+        const selectedGroupData = subjectGroupsData.find(group => group.subjectGroup === selectedGroup);
+        if (selectedGroupData) {
+            setSelectedGroupData(selectedGroupData);
+            setAcademicTranscriptsMajor([]);
+            setDisplayedFields([]);
+        } else {
+            setSelectedGroupData(null);
+        }
+
+        // Kiểm tra xem người dùng đang chọn xét tuyển học bạ hay xét điểm thi THPT
+        if (selectedAdmissionType === 5 && selectedGroupData) {
+            // Nếu chọn "Xét điểm thi THPT", chỉ hiển thị 3 ô nhập điểm cho 3 môn đã chọn
+            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+
+            // Tạo các trường nhập điểm cho 3 môn của khối
+            let fieldIndex = 0;
+            const generatedFields = subjects.slice(0, 3).map(subject => ({
+                subject,
+                field: 'Điểm thi THPT',
+                name: `${subject}_${fieldIndex++}`,
+                columnWidthPercentage: 33,
+            }));
+
+            setDisplayedFields(generatedFields);
+        } else if (selectedGroupData && typeOfTranscriptMajor !== null) {
+            // Nếu chọn loại xét tuyển học bạ (typeOfTranscript khác null)
+            const subjects = selectedGroupData.subjectGroupName.split("–").map(sub => sub.trim());
+
+            // Tạo các trường nhập điểm theo cấu trúc học bạ
+            const generatedFields = generateScoreFields(subjects, typeOfTranscriptMajor).map(field => {
+                // Xử lý logic độ rộng cột
+                const columnWidthPercentage = typeOfTranscriptMajor === 3 ? 20 : 33;
+                return { ...field, columnWidthPercentage };
+            });
+
+            setDisplayedFields(generatedFields);
+        } else {
+            setDisplayedFields([]);
         }
     };
 

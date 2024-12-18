@@ -91,7 +91,7 @@ const PaymentsList = () => {
                                 </td>
                                 <td>{payment.spId}</td>
                                 <td>{payment.orderInfo}</td>
-                                <td>{payment.amount.toLocaleString()} VND</td>
+                                <td>{(payment.amount / 100).toLocaleString()} VND</td>
                                 <td>{payment.cardType}</td>
                                 <td>{payment.bankCode}</td>
                                 <td>

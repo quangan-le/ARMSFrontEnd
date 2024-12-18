@@ -5,9 +5,12 @@ import api from '../../apiService';
 
 const BlogDetail = () => {
     const { selectedCampus } = useOutletContext();
+    const campusIdGuest = selectedCampus?.id;
+
     const { blogId } = useParams();
     const [blogData, setBlogData] = useState(null);
     const [relatedBlogs, setRelatedBlogs] = useState([]);
+    const { campusId } = useOutletContext();
 
     useEffect(() => {
         const fetchBlogDetail = async () => {
@@ -18,6 +21,9 @@ const BlogDetail = () => {
                 const categoryId = response.data.blogCategory.blogCategoryId;
                 if (selectedCampus) {
                     fetchRelatedBlogs(categoryId, selectedCampus.id);
+                }
+                if (campusId) {
+                    fetchRelatedBlogs(categoryId, campusId);
                 }
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu bài viết:', error);
@@ -45,16 +51,19 @@ const BlogDetail = () => {
 
     return (
         <Container className="news-detail my-4">
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <Link to="/">Trang chủ</Link>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                    <Link to="/tin-tuc">Danh sách tin tức</Link>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active className="text-orange">{blogData?.title || 'Đang tải...'}</Breadcrumb.Item>
-            </Breadcrumb>
-
+            {campusIdGuest && (
+                <Breadcrumb>
+                    <Breadcrumb.Item>
+                        <Link to="/">Trang chủ</Link>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item>
+                        <Link to="/tin-tuc">Danh sách tin tức</Link>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item active className="text-orange">
+                        {blogData?.title || 'Đang tải...'}
+                    </Breadcrumb.Item>
+                </Breadcrumb>
+            )}
             <Row className='px-3'>
                 <Col md={8}>
                     <h2 className="news-title">{blogData?.title || 'Đang tải...'}</h2>

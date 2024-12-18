@@ -135,7 +135,8 @@ function App() {
         <Route path="/school-service/danh-sach-thong-bao" element={<SendNotification />} />
         <Route path="/school-service/danh-sach-dang-ky-tu-van" element={<StudentConsultation />} />
         <Route path="/doi-mat-khau" element={<ChangePassword />} />
-
+        <Route path="/tin-tuc" element={<Blog />} />
+        <Route path="/tin-tuc/:blogId" element={<BlogDetail />} /> 
       </Route>
     </Routes>
   }

@@ -12,12 +12,17 @@ const Blog = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const { selectedCampus } = useOutletContext();
-    const campusId = selectedCampus.id;
+    const campusIdGuest = selectedCampus?.id;
+    const { campusId } = useOutletContext();
 
     // Gọi API để lấy danh sách loại tin tức theo CampusId
     useEffect(() => {
         const fetchCategories = async () => {
             try {
+                if (campusIdGuest) {
+                    const response = await api.get(`/Blog/get-blogcategories?CampusId=${campusIdGuest}`);
+                    setCategories(response.data);
+                }
                 if (campusId) {
                     const response = await api.get(`/Blog/get-blogcategories?CampusId=${campusId}`);
                     setCategories(response.data);
@@ -28,7 +33,7 @@ const Blog = () => {
         };
 
         fetchCategories();
-    }, [campusId]);
+    }, [campusId, campusIdGuest]);
 
     // Gọi API để lấy danh sách các blog theo điều kiện tìm kiếm
     const fetchBlogs = async () => {
@@ -46,6 +51,19 @@ const Blog = () => {
                 setBlogs(response.data.item);
                 setTotalPages(response.data.pageCount);
             }
+            if (campusIdGuest) {
+                const response = await api.get(`/Blog/get-blogs`, {
+                    params: {
+                        CampusId: campusIdGuest,
+                        Search: search,
+                        CurrentPage: currentPage,
+                        PageSize: 8,
+                        CategoryID: selectedCategory || null,
+                    },
+                });
+                setBlogs(response.data.item);
+                setTotalPages(response.data.pageCount);
+            }
         } catch (error) {
             console.error("Có lỗi xảy ra khi lấy danh sách blog:", error);
         }
@@ -54,7 +72,7 @@ const Blog = () => {
     // Gọi API lấy danh sách blog khi search hoặc currentPage thay đổi
     useEffect(() => {
         fetchBlogs();
-    }, [search, currentPage, campusId, selectedCategory]);
+    }, [search, currentPage, campusId, selectedCategory, campusIdGuest]);
 
     // Hàm xử lý sự kiện thay đổi từ khóa tìm kiếm
     const handleSearchChange = (e) => {
@@ -64,15 +82,15 @@ const Blog = () => {
     return (
         <Container className='mt-5'>
             <h1 className="page-title" style={{ color: 'orange', textAlign: 'center' }}>Tin tức</h1>
-            
-
             <div className="filter-section m-3 ">
-            <Breadcrumb>
-                <Breadcrumb.Item>
-                    <Link to="/">Trang chủ</Link>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active className="text-orange">Tin tức</Breadcrumb.Item>
-            </Breadcrumb>
+                {campusIdGuest && (
+                    <Breadcrumb>
+                        <Breadcrumb.Item>
+                            <Link to="/">Trang chủ</Link>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Item active className="text-orange">Tin tức</Breadcrumb.Item>
+                    </Breadcrumb>
+                )}
                 <Row className="align-items-center">
                     <Col md={9} className="mt-3 d-flex align-items-center">
                         <Form.Control

@@ -90,6 +90,14 @@ const Sidebar = ({ role }) => {
                   `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
                 }
               >
+                <FileEarmarkText className="me-2" /> Quản lý tin tức
+              </NavLink>
+              <NavLink
+                to="/tin-tuc"
+                className={({ isActive }) =>
+                  `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
+                }
+              >
                 <FileEarmarkText className="me-2" /> Danh sách tin tức
               </NavLink>
 
@@ -227,47 +235,7 @@ const Sidebar = ({ role }) => {
         </Nav>
       </div>
       <Nav className="flex-column">
-        <NavLink
-          to="/notifications"
-          className={({ isActive }) =>
-            `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
-          }
-        >
-          <Bell className="me-2" /> Thông báo
-        </NavLink>
-        <NavLink
-          to="/requirements"
-          className={({ isActive }) =>
-            `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
-          }
-        >
-          <FileText className="me-2" /> Yêu cầu
-        </NavLink>
-        <NavLink
-          to="/reports"
-          className={({ isActive }) =>
-            `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
-          }
-        >
-          <BarChart className="me-2" /> Báo cáo
-        </NavLink>
-        <NavLink
-          to="/statistics"
-          className={({ isActive }) =>
-            `d-flex align-items-center nav-link ${isActive ? "active-link" : ""}`
-          }
-        >
-          <BarChart className="me-2" /> Thống kê
-        </NavLink>
-        <h6 className="text-muted mt-4">Về chúng tôi</h6>
-        <NavLink
-          to="/team"
-          className={({ isActive }) =>
-            `d-flex align-items-center mb-2 nav-link ${isActive ? "active-link" : ""}`
-          }
-        >
-          <People className="me-2" /> Đội ngũ phát triển
-        </NavLink>
+       
       </Nav>
     </div>
   );

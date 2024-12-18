@@ -17,6 +17,7 @@ const NewsList = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [categories, setCategories] = useState([]);
     const { campusId } = useOutletContext();
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -71,6 +72,7 @@ const NewsList = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedNews, setSelectedNews] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [newImage, setNewImage] = useState(null); // Trạng thái lưu trữ hình ảnh mới
 
     const handleShowModal = async (news) => {
         try {
@@ -113,10 +115,16 @@ const NewsList = () => {
 
     const handleSaveChanges = async () => {
         try {
+            let updatedImage = selectedNews.img;
+            // Nếu người dùng chọn hình ảnh mới, upload và sử dụng URL mới
+            if (newImage) {
+                const imageUrl = await uploadImage(newImage, 'Blog');
+                updatedImage = imageUrl; // Cập nhật hình ảnh mới
+            }
             const updatedNew = {
                 blogId: selectedNews.blogId,
                 title: selectedNews.title,
-                img: selectedNews.img,
+                img: updatedImage,
                 description: selectedNews.description,
                 content: selectedNews.content,
                 blogCategoryId: selectedNews.blogCategory.blogCategoryId,
@@ -220,7 +228,7 @@ const NewsList = () => {
     const handleConfirmDelete = async () => {
         setShowDeleteModal(false);
         try {
-            await api.delete(`/school-service/Blog/delete-blog/${selectedBlogId}`);
+            await api.delete(`/school-service/Blog/delete-blog?BlogId=${selectedBlogId}`);
             toast.success("Bài viết đã được xóa thành công!");
             fetchBlogs(); // Tải lại danh sách blog
         } catch (error) {
@@ -293,7 +301,7 @@ const NewsList = () => {
                     {blogs && blogs.length > 0 ? (
                         blogs.map((news, index) => (
                             <tr key={news.id}>
-                                <td className="text-center fw-bold">{index + 1}</td>
+                                <td className="text-center fw-bold">{startItem + index}</td> {/* Cập nhật số thứ tự */}
                                 <td>
                                     {news.img && (
                                         <div className="mt-2">
@@ -335,7 +343,7 @@ const NewsList = () => {
                                             variant="danger"
                                             className="text-white"
                                             style={{ whiteSpace: 'nowrap' }}
-                                            onClick={() => handleOpenDeleteModal(news.id)}
+                                            onClick={() => handleOpenDeleteModal(news.blogId)}
                                         >
                                             Xóa
                                         </Button>
@@ -420,7 +428,8 @@ const NewsList = () => {
                                     </Form.Group>
 
                                 </Col>
-                                <Col md={6}>
+
+                                <Col md={3}>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Hình ảnh</Form.Label>
                                         {selectedNews.img && (
@@ -430,6 +439,35 @@ const NewsList = () => {
                                                     alt="Blog Image"
                                                     style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
                                                 />
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group className="mb-3">
+                                        {isEditing ? ( // Hiển thị phần chọn tệp khi ở chế độ chỉnh sửa
+                                            <Form.Control
+                                                type="file"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) {
+                                                        setNewImage(file); // Cập nhật hình ảnh mới khi người dùng chọn
+                                                        const reader = new FileReader();
+                                                        reader.onloadend = () => {
+                                                            setSelectedNews((prevState) => ({
+                                                                ...prevState,
+                                                                img: reader.result, // Cập nhật hình ảnh hiển thị trong modal
+                                                            }));
+                                                        };
+                                                        reader.readAsDataURL(file); // Chuyển hình ảnh thành URL để hiển thị
+                                                    }
+                                                }}
+                                                disabled={!isEditing} // Không cho phép chọn khi không ở chế độ chỉnh sửa
+                                            />
+                                        ) : (
+                                            // Ẩn phần chọn tệp khi ở chế độ xem
+                                            <div className="mt-2">
+
                                             </div>
                                         )}
                                     </Form.Group>

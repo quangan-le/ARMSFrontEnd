@@ -173,13 +173,13 @@ const AdmissionRegistrationDetailAC = () => {
     }, [applicationData?.priorityDetailPriorityID]);
 
     const calculateAverageScores = (typeOfDiplomaMajor) => {
-        if (!applicationData?.academicTranscriptsMajor) {
+        if (!applicationData?.academicTranscripts) {
             return { averageScores: {}, totalAverageScore: 0 }; // Trả về mặc định
         }
 
         if (typeOfDiplomaMajor === 5) {
             // Xét điểm THPT
-            const subjects = applicationData.academicTranscriptsMajor;
+            const subjects = applicationData.academicTranscripts;
 
             const averageScores = {};
             subjects.forEach((item) => {
@@ -199,7 +199,7 @@ const AdmissionRegistrationDetailAC = () => {
             return { averageScores, totalAverageScore: totalAverageScore.toFixed(2) };
         } else {
             // Xét học bạ (typeOfDiplomaMajor == 3)
-            const subjects = applicationData.academicTranscriptsMajor;
+            const subjects = applicationData.academicTranscripts;
 
             // Tạo một object để lưu điểm của từng môn
             const scoresBySubject = {};
@@ -306,6 +306,24 @@ const AdmissionRegistrationDetailAC = () => {
         setShowSemester1Year12(fields.includes('HK1-12'));
         setShowFinalYear12(fields.includes('CN12'));
     }, [applicationData, majors]);
+
+    const [admissionTimeName, setAdmissionTimeName] = useState(""); // Lưu tên đợt xét tuyển
+    const fetchAdmissionTime = async (aiId) => {
+        try {
+            const response = await api.get(`/AdmissionTime/get-admission-time/${aiId}`);
+            if (response.data) {
+                setAdmissionTimeName(response.data.admissionTimeName);
+            }
+        } catch (error) {
+            console.error("Error fetching admission time:", error);
+            setAdmissionTimeName("Thông tin đợt xét tuyển không có sẵn");
+        }
+    };
+    useEffect(() => {
+        if (applicationData?.aiId) {
+            fetchAdmissionTime(applicationData.aiId);
+        }
+    }, [applicationData?.aiId]);
 
     // Duyệt, từ chối
     const handleUpdate = async (status) => {
@@ -656,9 +674,9 @@ const AdmissionRegistrationDetailAC = () => {
                                     </div>
                                 </Col>
                                 <Col xs={12} md={6}>
-                                    <div className="info-item">
+                                <div className="info-item">
                                         <span className="label me-3 text-nowrap">Đợt xét tuyển</span>
-                                        <span className="value">{applicationData.aiId}</span>
+                                        <span className="value">{admissionTimeName || "Đang tải..."}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label me-3 text-nowrap">Hình thức xét tuyển</span>
